@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2023",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
@@ -9,11 +9,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "types": ["node"],
+    "ignoreDeprecations": "5.0"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "*.ts"],
   "exclude": ["node_modules", "dist"]
 }
