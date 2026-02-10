@@ -30,3 +30,27 @@ DATABASE_URL="postgresql://<user>:<password>@localhost:5432/kainos-jobs?schema=p
 ```bash
 npx prisma migrate dev --name init
 ```
+
+## Linting
+
+This project uses **Biome** for fast, comprehensive code linting and formatting.
+
+### Available Commands
+```bash
+npm run lint        # Check for linting issues
+npm run lint:fix    # Automatically fix linting issues
+```
+
+### Configuration
+- Configuration file: `biome.json`
+- Lints TypeScript files in the `/src/` directory
+- Follows recommended rules with consistent formatting
+- Integrates with CI/CD pipeline
+
+### Testing
+
+Tests are located in the `/test/` directory and mirror the `/src/` structure:
+- Unit tests use Vitest + Supertest
+- Run `npm test` for single test run
+- Run `npm run test:coverage` for coverage report with 80% thresholds
+- Coverage reports generated in `/coverage/`
