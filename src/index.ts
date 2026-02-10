@@ -1,5 +1,5 @@
-import express from 'express';
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
+import express from "express";
 
 // Load environment variables
 dotenv.config();
@@ -11,8 +11,8 @@ const PORT: number = Number(process.env.PORT) || 3001;
 app.use(express.json());
 
 // Health check route
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK' });
+app.get("/health", (req, res) => {
+  res.json({ status: "OK" });
 });
 
 // Start server
