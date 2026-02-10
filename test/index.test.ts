@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
 import request from 'supertest';
+import { describe, expect, it } from 'vitest';
 import app from '../src/index';
 
 describe('Backend API', () => {
   describe('GET /health', () => {
     it('should return health status OK', async () => {
       const response = await request(app).get('/health');
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ status: 'OK' });
       expect(response.headers['content-type']).toMatch(/json/);
@@ -19,7 +19,7 @@ describe('Backend API', () => {
         .post('/test-json')
         .send({ test: 'data' })
         .set('Content-Type', 'application/json');
-      
+
       // Should handle JSON even if endpoint doesn't exist
       expect(response.status).toBe(404);
     });
@@ -46,7 +46,7 @@ describe('Backend API', () => {
       expect(response.status).toBe(404);
     });
   });
-  
+
   describe('Environment Configuration', () => {
     it('should use environment PORT or default to 3001', () => {
       // Test that the app is configured properly
@@ -70,7 +70,7 @@ describe('Backend API', () => {
         .post('/health') // Using existing endpoint
         .send(testData)
         .set('Content-Type', 'application/json');
-      
+
       // Should process the JSON properly even if endpoint returns 404
       expect(response.status).toBe(404);
     });
@@ -80,7 +80,7 @@ describe('Backend API', () => {
         .post('/health')
         .send({})
         .set('Content-Type', 'application/json');
-      
+
       expect(response.status).toBe(404);
     });
   });
