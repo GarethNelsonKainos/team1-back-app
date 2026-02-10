@@ -1,4 +1,4 @@
-import { beforeEach, describe } from 'node:test';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import request from 'supertest';
 
 describe('Application Environment Configuration', () => {
@@ -6,7 +6,7 @@ describe('Application Environment Configuration', () => {
   
   beforeEach(() => {
     // Clear the module cache to ensure fresh imports
-    jest.resetModules();
+    vi.resetModules();
   });
 
   afterEach(() => {
