@@ -1,64 +1,64 @@
-import request from "supertest";
-import { describe, expect, it } from "vitest";
-import app from "../src/index";
+import request from 'supertest';
+import { describe, expect, it } from 'vitest';
+import app from '../src/index';
 
-describe("Backend API", () => {
-  describe("GET /health", () => {
-    it("should return health status OK", async () => {
-      const response = await request(app).get("/health");
+describe('Backend API', () => {
+  describe('GET /health', () => {
+    it('should return health status OK', async () => {
+      const response = await request(app).get('/health');
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ status: "OK" });
-      expect(response.headers["content-type"]).toMatch(/json/);
+      expect(response.body).toEqual({ status: 'OK' });
+      expect(response.headers['content-type']).toMatch(/json/);
     });
   });
 
-  describe("Server Configuration", () => {
-    it("should handle JSON requests", async () => {
+  describe('Server Configuration', () => {
+    it('should handle JSON requests', async () => {
       const response = await request(app)
-        .post("/test-json")
-        .send({ test: "data" })
-        .set("Content-Type", "application/json");
+        .post('/test-json')
+        .send({ test: 'data' })
+        .set('Content-Type', 'application/json');
 
       // Should handle JSON even if endpoint doesn't exist
       expect(response.status).toBe(404);
     });
 
-    it("should serve JSON content type for health endpoint", async () => {
-      const response = await request(app).get("/health");
-      expect(response.headers["content-type"]).toMatch(/json/);
+    it('should serve JSON content type for health endpoint', async () => {
+      const response = await request(app).get('/health');
+      expect(response.headers['content-type']).toMatch(/json/);
     });
   });
 
-  describe("Error Handling", () => {
-    it("should handle 404 for non-existent routes", async () => {
-      const response = await request(app).get("/non-existent-route");
+  describe('Error Handling', () => {
+    it('should handle 404 for non-existent routes', async () => {
+      const response = await request(app).get('/non-existent-route');
       expect(response.status).toBe(404);
     });
 
-    it("should handle POST requests to non-existent routes", async () => {
-      const response = await request(app).post("/non-existent-route");
+    it('should handle POST requests to non-existent routes', async () => {
+      const response = await request(app).post('/non-existent-route');
       expect(response.status).toBe(404);
     });
 
-    it("should handle PUT requests to non-existent routes", async () => {
-      const response = await request(app).put("/non-existent-route");
+    it('should handle PUT requests to non-existent routes', async () => {
+      const response = await request(app).put('/non-existent-route');
       expect(response.status).toBe(404);
     });
   });
 
-  describe("Environment Configuration", () => {
-    it("should use environment PORT or default to 3001", () => {
+  describe('Environment Configuration', () => {
+    it('should use environment PORT or default to 3001', () => {
       // Test that the app is configured properly
       expect(app).toBeDefined();
-      expect(typeof app).toBe("function");
+      expect(typeof app).toBe('function');
     });
 
-    it("should handle various HTTP methods", async () => {
-      const getResponse = await request(app).get("/health");
+    it('should handle various HTTP methods', async () => {
+      const getResponse = await request(app).get('/health');
       expect(getResponse.status).toBe(200);
 
-      const postResponse = await request(app).post("/health");
+      const postResponse = await request(app).post('/health');
       expect(postResponse.status).toBe(404);
     });
   });
