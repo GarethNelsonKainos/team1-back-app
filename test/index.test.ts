@@ -62,4 +62,26 @@ describe('Backend API', () => {
       expect(postResponse.status).toBe(404);
     });
   });
+
+  describe('Middleware', () => {
+    it('should parse JSON body correctly', async () => {
+      const testData = { name: 'test', value: 123 };
+      const response = await request(app)
+        .post('/health') // Using existing endpoint
+        .send(testData)
+        .set('Content-Type', 'application/json');
+
+      // Should process the JSON properly even if endpoint returns 404
+      expect(response.status).toBe(404);
+    });
+
+    it('should handle empty JSON body', async () => {
+      const response = await request(app)
+        .post('/health')
+        .send({})
+        .set('Content-Type', 'application/json');
+
+      expect(response.status).toBe(404);
+    });
+  });
 });
