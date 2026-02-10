@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Capability {
+  capabilityId   Int       @id @default(autoincrement())
+  capabilityName String
+  jobRoles       JobRole[]
+}
+
+model Band {
+  bandId   Int       @id @default(autoincrement())
+  bandName String
+  jobRoles JobRole[]
+}
+
+model JobRole {
+  jobRoleId   Int                @id @default(autoincrement())
+  roleName    String
+  capabilityId Int
+  bandId      Int
+  closingDate DateTime
+  jobRoleStatusId Int
+  capability  Capability         @relation(fields: [capabilityId], references: [capabilityId])
+  band        Band               @relation(fields: [bandId], references: [bandId])
+  status      JobRoleStatus      @relation(fields: [jobRoleStatusId], references: [jobRoleStatusId])
+  locations   JobRoleLocation[]
+  applications Application[]
+}
+
+model Location {
+  locationId   Int               @id @default(autoincrement())
+  locationName String
+  city         String
+  country      String
+  jobRoles     JobRoleLocation[]
+}
+
+model JobRoleLocation {
+  jobRoleId  Int
+  locationId Int
+  jobRole    JobRole  @relation(fields: [jobRoleId], references: [jobRoleId])
+  location   Location @relation(fields: [locationId], references: [locationId])
+
+  @@id([jobRoleId, locationId])
+}
+
+model UserType {
+  userTypeId   Int    @id @default(autoincrement())
+  userTypeDesc String
+  users        User[]
+}
+
+model User {
+  userId       Int           @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  userEmail    String        @unique
+  userPassword String
+  userTypeId   Int
+  userType     UserType      @relation(fields: [userTypeId], references: [userTypeId])
+  applications Application[]
+}
+
+model ApplicationStatus {
+  applicationStatusId   Int           @id @default(autoincrement())
+  applicationStatusType String
+  applications          Application[]
+}
+
+model JobRoleStatus {
+  jobRoleStatusId Int      @id @default(autoincrement())
+  statusName      String
+  jobRoles        JobRole[]
+}
+
+model Application {
+  applicationId       Int               @id @default(autoincrement())
+  userId              Int
+  jobRoleId           Int
+  applicationStatusId Int
+  createdAt           DateTime          @default(now())
+  user                User              @relation(fields: [userId], references: [userId])
+  jobRole             JobRole           @relation(fields: [jobRoleId], references: [jobRoleId])
+  status              ApplicationStatus @relation(fields: [applicationStatusId], references: [applicationStatusId])
+}
