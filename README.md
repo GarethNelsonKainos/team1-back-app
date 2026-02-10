@@ -11,40 +11,14 @@ npm run dev
 Server runs on http://localhost:${PORT} (default is http://localhost:3001 when `PORT` is not set or is 3001 in `.env`)
 Health check: http://localhost:${PORT}/health (for the default port this is http://localhost:3001/health)
 
-
-
-## Database Setup (PostgreSQL + Prisma)
-
-1. **Create the database**
-```bash
-createdb kainos-jobs
-```
-
-2. **Configure the database connection**
-Update `.env` with your database connection details:
-```
-DB_USER=<your_pg_username>
-DB_PASSWORD=<your_pg_password>
-DB_HOST=localhost
-DB_PORT=<your_pg_port>
-
-DB_NAME=kainos-jobs
-DB_SCHEMA=public
-```
-
-3. **Run the initial migration**
-```bash
-npx prisma migrate dev --name init
-```
-
 ## Linting
 
 This project uses **Biome** for fast, comprehensive code linting and formatting.
 
 ### Available Commands
 ```bash
-npm run lint        # Check for linting issues
-npm run lint:fix    # Automatically fix linting issues
+npm run check        # Check for linting issues
+npm run check:fix    # Automatically fix linting issues
 ```
 
 ### Configuration
@@ -60,18 +34,48 @@ Tests are located in the `/test/` directory and mirror the `/src/` structure:
 - Run `npm test` for single test run
 - Run `npm run test:coverage` for coverage report with 80% thresholds
 - Coverage reports generated in `/coverage/`
-4. **Update database to current build**
+
+
+## Database Setup (PostgreSQL + Prisma)
+
+1. **Generate prisma**
 ```bash
-npx prisma migrate dev
+npx prisma generate
 ```
 
+2. **Create the database**
+```bash
+npm run db:create
+```
+
+3. **Configure the database connection**
+Update `.env` with your database connection details:
+```
+DB_USER=<your_pg_username>
+DB_PASSWORD=<your_pg_password>
+DB_HOST=localhost
+DB_PORT=<your_pg_port>
+
+DB_NAME=kainos-jobs
+DB_SCHEMA=public
+```
+
+4. **Run the initial migration**
+```bash
+npm run db:migrate:init
+```
+
+5. **Update database to current build**
+```bash
+npm run db:migrate:update
+```
 
 
 ## Test database setup
 
 1. **Create test database**
 ```bash
-createdb kainos-jobs-test
+npm run db:test:create
 ```
 
 2. **Configure the test database connection**
@@ -88,17 +92,17 @@ DB_SCHEMA=public
 
 3. **Apply current migrations to the test database**
 ```bash
-npx dotenv -e .env.test -- npx prisma migrate deploy
+npm run db:test:migrate
 ```
 
 4. **Seed the test database with mock data**
 ```bash
-npx dotenv -e .env.test -- tsx prisma/seed-test-db.ts
+npm run db:test:seed
 ```
 
 5. **Test query on the test database**
 ```bash
-npx dotenv -e .env.test -- tsx prisma/query-test-db.ts
+npm run db:test:query
 ```
 
 6. **To clear test database**

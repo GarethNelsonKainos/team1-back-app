@@ -1,9 +1,10 @@
-import 'dotenv/config'
-import { defineConfig, PrismaConfig } from 'prisma/config'
+import 'dotenv/config';
+import { type PrismaConfig, defineConfig } from 'prisma/config';
 
-const databaseUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}` +
-                    `@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}` +
-                    `?schema=${process.env.DB_SCHEMA}`
+const databaseUrl =
+  `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}` +
+  `@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}` +
+  `?schema=${process.env.DB_SCHEMA}`;
 
 const config: PrismaConfig = {
   schema: 'prisma/schema.prisma',
@@ -11,6 +12,6 @@ const config: PrismaConfig = {
   datasource: {
     url: databaseUrl,
   },
-}
+};
 
-export default defineConfig(config)
+export default defineConfig(config);

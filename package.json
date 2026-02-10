@@ -8,7 +8,17 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "db:test:init": "DB_NAME=kainos-jobs-test npx prisma migrate dev"
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "check": "biome check .",
+    "check:fix": "biome check . --write",
+    "db:create": "createdb kainos-jobs",
+    "db:migrate:init": "npx prisma migrate dev --name init",
+    "db:migrate:update": "npx prisma migrate dev",
+    "db:test:create": "createdb kainos-jobs-test",
+    "db:test:migrate": "npx dotenv -e .env.test -- prisma migrate dev --name init",
+    "db:test:seed": "npx dotenv -e .env.test -- tsx prisma/test-scripts/seed-test-db.ts",
+    "db:test:query": "npx dotenv -e .env.test -- tsx prisma/test-scripts/query-test-db.ts"
   },
   "repository": {
     "type": "git",

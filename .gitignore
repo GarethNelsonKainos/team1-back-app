@@ -9,6 +9,8 @@ dist/
 *.d.ts.map
 *.js
 *.js.map
+src/generated/
+coverage/
 
 # Compiled config files
 .prisma/

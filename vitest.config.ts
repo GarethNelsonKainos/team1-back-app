@@ -6,7 +6,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
-      exclude: ['node_modules/**', 'dist/**', '*.config.*', 'prisma/**'],
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        '*.config.*',
+        'prisma/**',
+        'lib/**',
+      ],
       thresholds: {
         branches: 80,
         functions: 80,
