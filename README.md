@@ -20,13 +20,70 @@ Health check: http://localhost:${PORT}/health (for the default port this is http
 createdb kainos-jobs
 ```
 
-2. **Configure the `DATABASE_URL`**
-Update `.env` with your connection string:
+2. **Configure the database connection**
+Update `.env` with your database connection details:
 ```
-DATABASE_URL="postgresql://<user>:<password>@localhost:5432/kainos-jobs?schema=public"
+DB_USER=<your_pg_username>
+DB_PASSWORD=<your_pg_password>
+DB_HOST=localhost
+DB_PORT=<your_pg_port>
+
+DB_NAME=kainos-jobs
+DB_SCHEMA=public
 ```
 
 3. **Run the initial migration**
 ```bash
 npx prisma migrate dev --name init
+```
+
+4. **Update database to current build**
+```bash
+npx prisma migrate dev
+```
+
+
+
+## Test database setup
+
+1. **Create test database**
+```bash
+createdb kainos-jobs-test
+```
+
+2. **Configure the test database connection**
+Update `.env.test` with your dav:
+```
+DB_USER=<your_pg_username>
+DB_PASSWORD=<your_pg_password>
+DB_HOST=localhost
+DB_PORT=<your_pg_port>
+
+DB_NAME=kainos-jobs-test
+DB_SCHEMA=public
+```
+
+3. **Apply current migrations to the test database**
+```bash
+npx dotenv -e .env.test -- npx prisma migrate deploy
+```
+
+4. **Seed the test database with mock data**
+```bash
+node prisma/seed-test-db.ts
+```
+
+5. **To clear test database**
+```sql
+DO
+$$
+DECLARE
+    r RECORD;
+BEGIN
+    -- truncate all tables in the public schema
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'TRUNCATE TABLE "' || r.tablename || '" RESTART IDENTITY CASCADE;';
+    END LOOP;
+END;
+$$;
 ```
