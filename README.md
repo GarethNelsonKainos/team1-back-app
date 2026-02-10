@@ -70,10 +70,15 @@ npx dotenv -e .env.test -- npx prisma migrate deploy
 
 4. **Seed the test database with mock data**
 ```bash
-node prisma/seed-test-db.ts
+npx dotenv -e .env.test -- tsx prisma/seed-test-db.ts
 ```
 
-5. **To clear test database**
+5. **Test query on the test database**
+```bash
+npx dotenv -e .env.test -- tsx prisma/query-test-db.ts
+```
+
+6. **To clear test database**
 ```sql
 DO
 $$

@@ -3,7 +3,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 
 const connectionString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}` +
-                         `@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.TEST_DB_NAME}` +
+                         `@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}` +
                          `?schema=${process.env.DB_SCHEMA}`
 
 const adapter = new PrismaPg({ connectionString })
@@ -12,9 +12,7 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
   console.log('Seeding test database...')
 
-  // ---------------------------
-  // 1️⃣ User Types
-  // ---------------------------
+  // User Types
   await prisma.userType.createMany({
     data: [
       { userTypeDesc: 'Applicant' },
@@ -23,9 +21,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 2️⃣ Users
-  // ---------------------------
+  // Users
   await prisma.user.createMany({
     data: [
       { firstName: 'Alice', lastName: 'Applicant', userEmail: 'alice@example.com', userPassword: 'password1', userTypeId: 1 },
@@ -35,9 +31,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 3️⃣ Capabilities
-  // ---------------------------
+  // Capabilities
   await prisma.capability.createMany({
     data: [
       { capabilityName: 'Engineering' },
@@ -47,9 +41,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 4️⃣ Bands
-  // ---------------------------
+  // Bands
   await prisma.band.createMany({
     data: [
       { bandName: 'Band A' },
@@ -59,9 +51,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 5️⃣ Job Role Status
-  // ---------------------------
+  // Job Role Status
   await prisma.jobRoleStatus.createMany({
     data: [
       { statusName: 'Open' },
@@ -70,9 +60,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 6️⃣ Locations
-  // ---------------------------
+  // Locations
   await prisma.location.createMany({
     data: [
       { locationName: 'HQ', city: 'London', country: 'UK' },
@@ -81,9 +69,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 7️⃣ Job Roles
-  // ---------------------------
+  // Job Roles
   await prisma.jobRole.createMany({
     data: [
       { roleName: 'Frontend Engineer', capabilityId: 1, bandId: 1, closingDate: new Date(), jobRoleStatusId: 1 },
@@ -96,9 +82,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 8️⃣ Application Status
-  // ---------------------------
+  // Application Status
   await prisma.applicationStatus.createMany({
     data: [
       { applicationStatusType: 'Applied' },
@@ -109,9 +93,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 9️⃣ JobRoleLocation (many-to-many)
-  // ---------------------------
+  // JobRoleLocation (many-to-many)
   await prisma.jobRoleLocation.createMany({
     data: [
       { jobRoleId: 1, locationId: 1 },
@@ -124,9 +106,7 @@ async function main() {
     skipDuplicates: true,
   })
 
-  // ---------------------------
-  // 🔟 Applications
-  // ---------------------------
+  // Applications
   await prisma.application.createMany({
     data: [
       { userId: 1, jobRoleId: 1, applicationStatusId: 1 },
