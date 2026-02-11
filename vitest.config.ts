@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    setupFiles: ['./test/setup-env.ts'],
     environment: 'node',
     coverage: {
       provider: 'v8',
@@ -11,7 +12,7 @@ export default defineConfig({
         'dist/**',
         '*.config.*',
         'prisma/**',
-        'lib/**',
+        'src/generated/**',
       ],
       thresholds: {
         branches: 80,

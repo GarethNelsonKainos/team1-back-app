@@ -79,7 +79,7 @@ npm run db:test:create
 ```
 
 2. **Configure the test database connection**
-Update `.env.test` with your dav:
+Update `.env.test` with your data:
 ```
 DB_USER=<your_pg_username>
 DB_PASSWORD=<your_pg_password>
