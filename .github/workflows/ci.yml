@@ -10,6 +10,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: kainos-jobs-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -45,6 +60,11 @@ jobs:
         DB_NAME=kainos-jobs-test
         DB_SCHEMA=public
         EOF
+
+    - name: Run Prisma migrations
+      run: npx prisma migrate deploy
+      env:
+        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/kainos-jobs-test?schema=public
 
     - name: Run tests
       run: npm run test:coverage
