@@ -3,10 +3,17 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
+    setupFiles: './test/setup.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
-      exclude: ['node_modules/**', 'dist/**', '*.config.*', 'prisma/**'],
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        '*.config.*',
+        'prisma/**',
+        'src/generated/**',
+      ],
       thresholds: {
         branches: 80,
         functions: 80,
