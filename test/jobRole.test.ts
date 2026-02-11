@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { PrismaClient } from '../src/generated/prisma/client.js';
 import app from '../src/index';
 
 describe('GET /api/job-roles', () => {
@@ -42,26 +43,26 @@ describe('GET /api/job-roles', () => {
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      // Re-import with mocked prisma
-      vi.doMock('../src/db/prisma.js', () => ({
-        prisma: {
-          jobRole: {
-            findMany: vi.fn().mockRejectedValue(new Error('DB error')),
-          },
+      const mockPrisma = {
+        jobRole: {
+          findMany: vi.fn().mockRejectedValue(new Error('DB error')),
         },
-      }));
+      } as unknown as PrismaClient;
 
-      vi.resetModules();
-
-      const { getJobRoles } = await import(
+      const { JobRoleController } = await import(
         '../src/controllers/JobRoleController.js'
       );
+      const controller = new JobRoleController(mockPrisma);
+
       const mockRes: Partial<Response> = {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
       };
 
-      await getJobRoles({} as Request, mockRes as unknown as Response);
+      await controller.getJobRoles(
+        {} as Request,
+        mockRes as unknown as Response,
+      );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({

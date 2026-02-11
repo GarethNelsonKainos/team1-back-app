@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import { getJobRoles } from './controllers/JobRoleController.js';
+import { jobRoleController } from './controllers/JobRoleController.js';
 
 // Load environment variables
 dotenv.config();
@@ -17,7 +17,9 @@ app.get('/health', (req, res) => {
 });
 
 // Job Roles API
-app.get('/api/job-roles', getJobRoles);
+app.get('/api/job-roles', (req, res) =>
+  jobRoleController.getJobRoles(req, res),
+);
 
 // Start server
 app.listen(PORT, () => {
