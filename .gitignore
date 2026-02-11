@@ -1,37 +1,13 @@
-# Dependencies
+.DS_Store
 node_modules/
-package-lock.json
-yarn.lock
-
-# Build output
 dist/
-*.d.ts
-*.d.ts.map
-*.js
-*.js.map
-src/generated/
-coverage/
-
-# Compiled config files
-.prisma/
-prisma.config.js
-prisma.config.js.map
-prisma.config.d.ts
-prisma.config.d.ts.map
-
-# Environment variables
 .env
 .env.local
-.env.test
-.env.*.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# OS
-Thumbs.db
+.env.production
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+.nyc_output/
+/src/generated/*

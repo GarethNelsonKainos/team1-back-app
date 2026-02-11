@@ -44,7 +44,7 @@ jobs:
     - name: Generate Prisma Client
       run: npx prisma generate
       env:
-        DATABASE_URL: postgresql://user:password@localhost:5432/db
+        DATABASE_URL: postgresql://${{ secrets.DB_TEST_USER }}:${{ secrets.DB_TEST_PASS }}@${{ secrets.DB_TEST_HOST }}:${{ secrets.DB_TEST_PORT }}/${{ secrets.DB_TEST_DBNAME }}
     
     - name: Check Prisma Client
       run: ls -l node_modules/.prisma/client
@@ -52,13 +52,13 @@ jobs:
     - name: Create .env.test
       run: |
         cat > .env.test << EOF
-        PORT=3001
-        DB_USER=testuser
-        DB_PASSWORD=testpass
-        DB_HOST=localhost
-        DB_PORT=5432
-        DB_NAME=kainos-jobs-test
-        DB_SCHEMA=public
+        PORT=${{ secrets.TEST_PORT }}
+        DB_USER=${{ secrets.DB_TEST_USER }}
+        DB_PASSWORD=${{ secrets.DB_TEST_PASS }}
+        DB_HOST=${{ secrets.DB_TEST_HOST }}
+        DB_PORT=${{ secrets.DB_TEST_PORT }}
+        DB_NAME=${{ secrets.DB_TEST_DBNAME }}
+        DB_SCHEMA=${{ secrets.DB_TEST_SCHEMA }}
         EOF
 
     - name: Run Prisma migrations

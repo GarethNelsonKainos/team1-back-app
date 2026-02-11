@@ -8,12 +8,16 @@ cp .env.example .env
 npm run dev
 ```
 
-Server runs on http://localhost:${PORT} (default is http://localhost:3001 when `PORT` is not set or is 3001 in `.env`)
 Health check: http://localhost:${PORT}/health (for the default port this is http://localhost:3001/health)
+Uses Express and PostgreSQL + Prisma
 
 ## Linting
 
 This project uses **Biome** for fast, comprehensive code linting and formatting.
+- Configuration file: `biome.json`
+- Lints TypeScript files in the `/src/` directory
+- Follows recommended rules with consistent formatting
+- Integrates with CI/CD pipeline
 
 ### Available Commands
 ```bash
@@ -21,13 +25,7 @@ npm run check        # Check for linting issues
 npm run check:fix    # Automatically fix linting issues
 ```
 
-### Configuration
-- Configuration file: `biome.json`
-- Lints TypeScript files in the `/src/` directory
-- Follows recommended rules with consistent formatting
-- Integrates with CI/CD pipeline
-
-### Testing
+## Testing
 
 Tests are located in the `/test/` directory and mirror the `/src/` structure:
 - Unit tests use Vitest + Supertest
@@ -38,17 +36,28 @@ Tests are located in the `/test/` directory and mirror the `/src/` structure:
 
 ## Database Setup (PostgreSQL + Prisma)
 
-1. **Generate prisma**
+1. **Verify PostgreSQL is running**
+```bash
+brew services list | grep postgresql
+```
+
+2. **(If needed) Create a database user**
+
+3. **Generate prisma**
 ```bash
 npx prisma generate
 ```
 
-2. **Create the database**
+4. **Create the database**
 ```bash
+# Using createdb command (Add PostgreSQL bin directory to PATH)
 npm run db:create
+
+# OR create via psql if createdb command doesn't work
+psql postgres -c "CREATE DATABASE \"kainos-jobs\";"
 ```
 
-3. **Configure the database connection**
+5. **Configure the `DATABASE_URL`**
 Update `.env` with your database connection details:
 ```
 DB_USER=<your_pg_username>
@@ -60,27 +69,27 @@ DB_NAME=kainos-jobs
 DB_SCHEMA=public
 ```
 
-4. **Run the initial migration**
+6. **Run the initial migration**
 ```bash
 npm run db:migrate:init
 ```
 
-5. **Update database to current build**
+7. **Update database to current build**
 ```bash
 npm run db:migrate:update
 ```
 
-6. **Seed database**
+8. **Seed database**
 ```bash
 npm run db:seed 
 ```
 
-6. **Test query database**
+9. **Test query database**
 ```bash
 npm run db:query
 ```
 
-## Test database setup
+## Setting up instance of test database
 
 1. **Create test database**
 ```bash
@@ -114,7 +123,7 @@ npm run db:test:seed
 npm run db:test:query
 ```
 
-6. **To clear test database**
+6. **SQL to clear test database**
 ```sql
 DO
 $$
