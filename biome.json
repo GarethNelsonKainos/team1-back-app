@@ -9,7 +9,7 @@
       "*.js",
       "*.json",
       "prisma/**",
-      "generated/**"
+      "generated/**",
       "src/generated/**"
     ]
   },
