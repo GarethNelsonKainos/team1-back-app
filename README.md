@@ -70,6 +70,15 @@ npm run db:migrate:init
 npm run db:migrate:update
 ```
 
+6. **Seed database**
+```bash
+npm run db:seed 
+```
+
+6. **Test query database**
+```bash
+npm run db:query
+```
 
 ## Test database setup
 
