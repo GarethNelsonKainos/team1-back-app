@@ -4,7 +4,6 @@ export default defineConfig({
   test: {
     setupFiles: ['./test/setup-env.ts'],
     environment: 'node',
-    setupFiles: './test/setup.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],

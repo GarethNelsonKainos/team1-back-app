@@ -10,7 +10,8 @@
       "*.json",
       "prisma/**",
       "generated/**",
-      "src/generated/**"
+      "src/generated/**",
+      "vite.config.ts"
     ]
   },
   "organizeImports": {
