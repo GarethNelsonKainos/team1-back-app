@@ -4,6 +4,8 @@ export interface JWTPayload {
   userId: number;
   email: string;
   userTypeId: number;
+  firstName: string;
+  lastName: string;
 }
 
 export interface LoginRequest {
@@ -15,9 +17,10 @@ export interface LoginResponse {
   token: string;
   user: {
     userId: number;
+    email: string;
+    userTypeId: number;
     firstName: string;
     lastName: string;
-    email: string;
   };
 }
 

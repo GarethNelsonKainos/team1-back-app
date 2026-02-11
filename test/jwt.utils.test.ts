@@ -18,6 +18,8 @@ describe('jwt.utils', () => {
       userId: 1,
       email: 'test@example.com',
       userTypeId: 2,
+      firstName: 'Test',
+      lastName: 'User',
     });
     expect(token).toBeTypeOf('string');
     expect(token.length).toBeGreaterThan(10);
@@ -28,10 +30,14 @@ describe('jwt.utils', () => {
       userId: 1,
       email: 'test@example.com',
       userTypeId: 2,
+      firstName: 'Test',
+      lastName: 'User',
     });
     const payload = verifyToken(token);
     expect(payload?.userId).toBe(1);
     expect(payload?.email).toBe('test@example.com');
+    expect(payload?.firstName).toBe('Test');
+    expect(payload?.lastName).toBe('User');
   });
 
   it('verifyToken returns null for invalid token', () => {

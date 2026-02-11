@@ -2,16 +2,15 @@ import jwt from 'jsonwebtoken';
 import type { JWTPayload } from '../types/auth.types';
 
 // Validate environment variables at module load time
-const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-key';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? '24h';
-
-if (!JWT_SECRET || !JWT_EXPIRES_IN) {
-  throw new Error('Required JWT environment variables are not defined');
+if (!process.env.JWT_SECRET) {
+  throw new Error(
+    'JWT_SECRET environment variable is required. Set a strong random value in production.',
+  );
 }
 
-// Now TypeScript knows these are defined
-const secret: string = JWT_SECRET;
-const expiresIn: string = JWT_EXPIRES_IN;
+// JWT_SECRET is required, JWT_EXPIRES_IN has a sensible default
+const JWT_SECRET: string = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '24h';
 
 /**
  * Generate a JWT token for a user
@@ -19,8 +18,9 @@ const expiresIn: string = JWT_EXPIRES_IN;
  * @returns JWT token string
  */
 export function generateToken(payload: JWTPayload): string {
-  // biome-ignore lint/suspicious/noExplicitAny: jsonwebtoken type compatibility requires this
-  return jwt.sign(payload, secret, { expiresIn } as any);
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
+  } as jwt.SignOptions);
 }
 
 /**
@@ -30,7 +30,7 @@ export function generateToken(payload: JWTPayload): string {
  */
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    const decoded = jwt.verify(token, secret) as JWTPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     return decoded;
   } catch (error) {
     // Token expired, invalid signature, malformed, etc.

@@ -1,18 +1,11 @@
-import { PrismaPg } from '@prisma/adapter-pg';
 import { Router } from 'express';
-import { Pool } from 'pg';
+import { prisma } from '../config/database';
 import {
   loginController,
   logoutController,
 } from '../controllers/auth.controller';
-import { PrismaClient } from '../generated/prisma/client';
 
 const router = Router();
-
-// Initialize Prisma with pg adapter
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
 
 /**
  * POST /api/auth/login

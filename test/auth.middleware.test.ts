@@ -17,6 +17,8 @@ describe('auth.middleware', () => {
       userId: 1,
       email: 'test@example.com',
       userTypeId: 2,
+      firstName: 'Test',
+      lastName: 'User',
     });
 
     const req = {
@@ -101,6 +103,8 @@ describe('auth.middleware', () => {
       userId: 1,
       email: 'test@example.com',
       userTypeId: 2,
+      firstName: 'Test',
+      lastName: 'User',
     });
 
     const req = {

@@ -68,6 +68,8 @@ export async function loginController(
       userId: user.userId,
       email: user.userEmail,
       userTypeId: user.userTypeId,
+      firstName: user.firstName,
+      lastName: user.lastName,
     });
 
     res.json({

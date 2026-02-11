@@ -1,6 +1,19 @@
 import bcrypt from 'bcrypt';
 
-const SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
+// Validate bcrypt salt rounds from environment
+const saltRoundsEnv = process.env.BCRYPT_SALT_ROUNDS;
+
+if (!saltRoundsEnv) {
+  throw new Error('BCRYPT_SALT_ROUNDS environment variable is required');
+}
+
+const SALT_ROUNDS = Number(saltRoundsEnv);
+
+if (Number.isNaN(SALT_ROUNDS) || SALT_ROUNDS < 10 || SALT_ROUNDS > 15) {
+  throw new Error(
+    'BCRYPT_SALT_ROUNDS must be a number between 10 and 15 (recommended: 12)',
+  );
+}
 
 /**
  * Hash a plain text password using bcrypt
