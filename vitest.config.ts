@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    setupFiles: ['./test/setup-env.ts'],
     environment: 'node',
     setupFiles: './test/setup.ts',
     coverage: {
@@ -12,6 +13,7 @@ export default defineConfig({
         'dist/**',
         '*.config.*',
         'prisma/**',
+        'lib/prisma.ts',
         'src/generated/**',
       ],
       thresholds: {
