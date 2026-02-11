@@ -1,27 +1,27 @@
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
 }
 
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
 model Capability {
   capabilityId   Int       @id @default(autoincrement())
-  capabilityName String
+  capabilityName String @unique
   jobRoles       JobRole[]
 }
 
 model Band {
   bandId   Int       @id @default(autoincrement())
-  bandName String
+  bandName String @unique
   jobRoles JobRole[]
 }
 
 model JobRole {
   jobRoleId   Int                @id @default(autoincrement())
-  roleName    String
+  roleName    String @unique
   capabilityId Int
   bandId      Int
   closingDate DateTime
@@ -35,7 +35,7 @@ model JobRole {
 
 model Location {
   locationId   Int               @id @default(autoincrement())
-  locationName String
+  locationName String @unique
   city         String
   country      String
   jobRoles     JobRoleLocation[]
@@ -52,7 +52,7 @@ model JobRoleLocation {
 
 model UserType {
   userTypeId   Int    @id @default(autoincrement())
-  userTypeDesc String
+  userTypeDesc String @unique
   users        User[]
 }
 
@@ -69,13 +69,13 @@ model User {
 
 model ApplicationStatus {
   applicationStatusId   Int           @id @default(autoincrement())
-  applicationStatusType String
+  applicationStatusType String @unique
   applications          Application[]
 }
 
 model JobRoleStatus {
   jobRoleStatusId Int      @id @default(autoincrement())
-  statusName      String
+  statusName      String @unique
   jobRoles        JobRole[]
 }
 
