@@ -62,9 +62,7 @@ jobs:
         EOF
 
     - name: Run Prisma migrations
-      run: npx prisma migrate deploy
-      env:
-        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/kainos-jobs-test?schema=public
+      run: npx dotenv -e .env.test -- prisma migrate deploy
 
     - name: Run tests
       run: npm run test:coverage
