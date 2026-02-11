@@ -34,5 +34,17 @@ jobs:
     - name: Check Prisma Client
       run: ls -l node_modules/.prisma/client
 
+    - name: Create .env.test
+      run: |
+        cat > .env.test << EOF
+        PORT=3001
+        DB_USER=testuser
+        DB_PASSWORD=testpass
+        DB_HOST=localhost
+        DB_PORT=5432
+        DB_NAME=kainos-jobs-test
+        DB_SCHEMA=public
+        EOF
+
     - name: Run tests
       run: npm run test:coverage
