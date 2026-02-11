@@ -12,6 +12,7 @@ export default defineConfig({
         'dist/**',
         '*.config.*',
         'prisma/**',
+        'lib/prisma.ts',
         'src/generated/**',
       ],
       thresholds: {
