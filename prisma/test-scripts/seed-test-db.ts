@@ -1,11 +1,9 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
+import { buildConnectionStringFromEnv } from '../../utils/db-connection-generator';
 
-const connectionString =
-  `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}` +
-  `@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}` +
-  `?schema=${process.env.DB_SCHEMA}`;
+const connectionString = buildConnectionStringFromEnv();
 
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
@@ -13,155 +11,259 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('Seeding test database...');
 
-  // User Types
-  await prisma.userType.createMany({
-    data: [{ userTypeDesc: 'Applicant' }, { userTypeDesc: 'Admin' }],
-    skipDuplicates: true,
+  // User Types (upsert and lookup)
+  const applicantType = await prisma.userType.upsert({
+    where: { userTypeDesc: 'Applicant' },
+    update: {},
+    create: { userTypeDesc: 'Applicant' },
+  });
+  const adminType = await prisma.userType.upsert({
+    where: { userTypeDesc: 'Admin' },
+    update: {},
+    create: { userTypeDesc: 'Admin' },
   });
 
-  // Users
-  await prisma.user.createMany({
-    data: [
-      {
-        firstName: 'Alice',
-        lastName: 'Applicant',
-        userEmail: 'alice@example.com',
-        userPassword: 'password1',
-        userTypeId: 1,
-      },
-      {
-        firstName: 'Bob',
-        lastName: 'Applicant',
-        userEmail: 'bob@example.com',
-        userPassword: 'password2',
-        userTypeId: 1,
-      },
-      {
-        firstName: 'Charlie',
-        lastName: 'Admin',
-        userEmail: 'charlie@example.com',
-        userPassword: 'adminpass',
-        userTypeId: 2,
-      },
-    ],
-    skipDuplicates: true,
+  // Users (use looked-up IDs)
+  await prisma.user.upsert({
+    where: { userEmail: 'alice@example.com' },
+    update: {},
+    create: {
+      firstName: 'Alice',
+      lastName: 'Applicant',
+      userEmail: 'alice@example.com',
+      userPassword: 'password1',
+      userTypeId: applicantType.userTypeId,
+    },
+  });
+  await prisma.user.upsert({
+    where: { userEmail: 'bob@example.com' },
+    update: {},
+    create: {
+      firstName: 'Bob',
+      lastName: 'Applicant',
+      userEmail: 'bob@example.com',
+      userPassword: 'password2',
+      userTypeId: applicantType.userTypeId,
+    },
+  });
+  await prisma.user.upsert({
+    where: { userEmail: 'charlie@example.com' },
+    update: {},
+    create: {
+      firstName: 'Charlie',
+      lastName: 'Admin',
+      userEmail: 'charlie@example.com',
+      userPassword: 'adminpass',
+      userTypeId: adminType.userTypeId,
+    },
   });
 
-  // Capabilities
-  await prisma.capability.createMany({
-    data: [
-      { capabilityName: 'Engineering' },
-      { capabilityName: 'Design' },
-      { capabilityName: 'Marketing' },
-    ],
-    skipDuplicates: true,
+  // Capabilities (upsert and lookup)
+  const engineering = await prisma.capability.upsert({
+    where: { capabilityName: 'Engineering' },
+    update: {},
+    create: { capabilityName: 'Engineering' },
+  });
+  const design = await prisma.capability.upsert({
+    where: { capabilityName: 'Design' },
+    update: {},
+    create: { capabilityName: 'Design' },
+  });
+  const marketing = await prisma.capability.upsert({
+    where: { capabilityName: 'Marketing' },
+    update: {},
+    create: { capabilityName: 'Marketing' },
   });
 
-  // Bands
-  await prisma.band.createMany({
-    data: [
-      { bandName: 'Band A' },
-      { bandName: 'Band B' },
-      { bandName: 'Band C' },
-    ],
-    skipDuplicates: true,
+  // Bands (upsert and lookup)
+  const bandA = await prisma.band.upsert({
+    where: { bandName: 'Band A' },
+    update: {},
+    create: { bandName: 'Band A' },
+  });
+  const bandB = await prisma.band.upsert({
+    where: { bandName: 'Band B' },
+    update: {},
+    create: { bandName: 'Band B' },
+  });
+  const bandC = await prisma.band.upsert({
+    where: { bandName: 'Band C' },
+    update: {},
+    create: { bandName: 'Band C' },
   });
 
-  // Job Role Status
-  await prisma.jobRoleStatus.createMany({
-    data: [{ statusName: 'Open' }, { statusName: 'Closed' }],
-    skipDuplicates: true,
+  // Job Role Status (upsert and lookup)
+  const openStatus = await prisma.jobRoleStatus.upsert({
+    where: { statusName: 'Open' },
+    update: {},
+    create: { statusName: 'Open' },
+  });
+  const closedStatus = await prisma.jobRoleStatus.upsert({
+    where: { statusName: 'Closed' },
+    update: {},
+    create: { statusName: 'Closed' },
   });
 
-  // Locations
-  await prisma.location.createMany({
-    data: [
-      { locationName: 'HQ', city: 'London', country: 'UK' },
-      { locationName: 'Remote', city: 'Online', country: 'Global' },
-    ],
-    skipDuplicates: true,
+  // Locations (upsert and lookup)
+  const hq = await prisma.location.upsert({
+    where: { locationName: 'HQ' },
+    update: {},
+    create: { locationName: 'HQ', city: 'London', country: 'UK' },
+  });
+  const remote = await prisma.location.upsert({
+    where: { locationName: 'Remote' },
+    update: {},
+    create: { locationName: 'Remote', city: 'Online', country: 'Global' },
   });
 
-  // Job Roles
-  await prisma.jobRole.createMany({
-    data: [
-      {
-        roleName: 'Frontend Engineer',
-        capabilityId: 1,
-        bandId: 1,
-        closingDate: new Date(),
-        jobRoleStatusId: 1,
-      },
-      {
-        roleName: 'Backend Engineer',
-        capabilityId: 1,
-        bandId: 2,
-        closingDate: new Date(),
-        jobRoleStatusId: 1,
-      },
-      {
-        roleName: 'UI Designer',
-        capabilityId: 2,
-        bandId: 1,
-        closingDate: new Date(),
-        jobRoleStatusId: 1,
-      },
-      {
-        roleName: 'UX Researcher',
-        capabilityId: 2,
-        bandId: 2,
-        closingDate: new Date(),
-        jobRoleStatusId: 1,
-      },
-      {
-        roleName: 'Marketing Manager',
-        capabilityId: 3,
-        bandId: 3,
-        closingDate: new Date(),
-        jobRoleStatusId: 1,
-      },
-      {
-        roleName: 'Content Strategist',
-        capabilityId: 3,
-        bandId: 3,
-        closingDate: new Date(),
-        jobRoleStatusId: 1,
-      },
-    ],
-    skipDuplicates: true,
+  // Job Roles (upsert and lookup)
+  const frontendEngineer = await prisma.jobRole.upsert({
+    where: { roleName: 'Frontend Engineer' },
+    update: {},
+    create: {
+      roleName: 'Frontend Engineer',
+      capabilityId: engineering.capabilityId,
+      bandId: bandA.bandId,
+      closingDate: new Date(),
+      jobRoleStatusId: openStatus.jobRoleStatusId,
+    },
+  });
+  const backendEngineer = await prisma.jobRole.upsert({
+    where: { roleName: 'Backend Engineer' },
+    update: {},
+    create: {
+      roleName: 'Backend Engineer',
+      capabilityId: engineering.capabilityId,
+      bandId: bandB.bandId,
+      closingDate: new Date(),
+      jobRoleStatusId: openStatus.jobRoleStatusId,
+    },
+  });
+  const uiDesigner = await prisma.jobRole.upsert({
+    where: { roleName: 'UI Designer' },
+    update: {},
+    create: {
+      roleName: 'UI Designer',
+      capabilityId: design.capabilityId,
+      bandId: bandA.bandId,
+      closingDate: new Date(),
+      jobRoleStatusId: openStatus.jobRoleStatusId,
+    },
+  });
+  const uxResearcher = await prisma.jobRole.upsert({
+    where: { roleName: 'UX Researcher' },
+    update: {},
+    create: {
+      roleName: 'UX Researcher',
+      capabilityId: design.capabilityId,
+      bandId: bandB.bandId,
+      closingDate: new Date(),
+      jobRoleStatusId: openStatus.jobRoleStatusId,
+    },
+  });
+  const marketingManager = await prisma.jobRole.upsert({
+    where: { roleName: 'Marketing Manager' },
+    update: {},
+    create: {
+      roleName: 'Marketing Manager',
+      capabilityId: marketing.capabilityId,
+      bandId: bandC.bandId,
+      closingDate: new Date(),
+      jobRoleStatusId: openStatus.jobRoleStatusId,
+    },
+  });
+  const contentStrategist = await prisma.jobRole.upsert({
+    where: { roleName: 'Content Strategist' },
+    update: {},
+    create: {
+      roleName: 'Content Strategist',
+      capabilityId: marketing.capabilityId,
+      bandId: bandC.bandId,
+      closingDate: new Date(),
+      jobRoleStatusId: openStatus.jobRoleStatusId,
+    },
   });
 
-  // Application Status
-  await prisma.applicationStatus.createMany({
-    data: [
-      { applicationStatusType: 'Applied' },
-      { applicationStatusType: 'Interviewing' },
-      { applicationStatusType: 'Hired' },
-      { applicationStatusType: 'Rejected' },
-    ],
-    skipDuplicates: true,
+  // Application Status (upsert and lookup)
+  const appliedStatus = await prisma.applicationStatus.upsert({
+    where: { applicationStatusType: 'Applied' },
+    update: {},
+    create: { applicationStatusType: 'Applied' },
+  });
+  const interviewingStatus = await prisma.applicationStatus.upsert({
+    where: { applicationStatusType: 'Interviewing' },
+    update: {},
+    create: { applicationStatusType: 'Interviewing' },
+  });
+  const hiredStatus = await prisma.applicationStatus.upsert({
+    where: { applicationStatusType: 'Hired' },
+    update: {},
+    create: { applicationStatusType: 'Hired' },
+  });
+  const rejectedStatus = await prisma.applicationStatus.upsert({
+    where: { applicationStatusType: 'Rejected' },
+    update: {},
+    create: { applicationStatusType: 'Rejected' },
   });
 
-  // JobRoleLocation (many-to-many)
+  // JobRoleLocation (many-to-many, use looked-up IDs)
   await prisma.jobRoleLocation.createMany({
     data: [
-      { jobRoleId: 1, locationId: 1 },
-      { jobRoleId: 2, locationId: 1 },
-      { jobRoleId: 3, locationId: 2 },
-      { jobRoleId: 4, locationId: 2 },
-      { jobRoleId: 5, locationId: 1 },
-      { jobRoleId: 6, locationId: 2 },
+      { jobRoleId: frontendEngineer.jobRoleId, locationId: hq.locationId },
+      { jobRoleId: backendEngineer.jobRoleId, locationId: hq.locationId },
+      { jobRoleId: uiDesigner.jobRoleId, locationId: remote.locationId },
+      { jobRoleId: uxResearcher.jobRoleId, locationId: remote.locationId },
+      { jobRoleId: marketingManager.jobRoleId, locationId: hq.locationId },
+      { jobRoleId: contentStrategist.jobRoleId, locationId: remote.locationId },
     ],
     skipDuplicates: true,
   });
 
-  // Applications
+  // Applications (use looked-up IDs)
+  const alice = await prisma.user.findUnique({
+    where: { userEmail: 'alice@example.com' },
+  });
+  const bob = await prisma.user.findUnique({
+    where: { userEmail: 'bob@example.com' },
+  });
   await prisma.application.createMany({
     data: [
-      { userId: 1, jobRoleId: 1, applicationStatusId: 1 },
-      { userId: 1, jobRoleId: 2, applicationStatusId: 2 },
-      { userId: 2, jobRoleId: 3, applicationStatusId: 1 },
-      { userId: 2, jobRoleId: 4, applicationStatusId: 3 },
+      ...(alice?.userId
+        ? [
+            {
+              userId: alice.userId,
+              jobRoleId: frontendEngineer.jobRoleId,
+              applicationStatusId: appliedStatus.applicationStatusId,
+            },
+          ]
+        : []),
+      ...(alice?.userId
+        ? [
+            {
+              userId: alice.userId,
+              jobRoleId: backendEngineer.jobRoleId,
+              applicationStatusId: interviewingStatus.applicationStatusId,
+            },
+          ]
+        : []),
+      ...(bob?.userId
+        ? [
+            {
+              userId: bob.userId,
+              jobRoleId: uiDesigner.jobRoleId,
+              applicationStatusId: appliedStatus.applicationStatusId,
+            },
+          ]
+        : []),
+      ...(bob?.userId
+        ? [
+            {
+              userId: bob.userId,
+              jobRoleId: uxResearcher.jobRoleId,
+              applicationStatusId: hiredStatus.applicationStatusId,
+            },
+          ]
+        : []),
     ],
     skipDuplicates: true,
   });
