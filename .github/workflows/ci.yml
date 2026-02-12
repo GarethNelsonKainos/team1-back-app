@@ -37,12 +37,7 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
-    
-
-    
-    - name: Run linting
-      run: npm run check
-
+      
     - name: Generate Prisma Client
       run: npx prisma generate
       env:
@@ -50,6 +45,11 @@ jobs:
     
     - name: Check Prisma Client
       run: ls -l node_modules/.prisma/client
+
+    
+    - name: Run linting
+      run: npm run check
+
 
     - name: Create .env.test
       run: |
