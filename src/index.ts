@@ -6,7 +6,6 @@ import { jobRoleController } from './controllers/JobRoleController.js';
 dotenv.config();
 
 const app = express();
-const PORT: number = Number(process.env.PORT) || 3001;
 
 // Basic middleware
 app.use(express.json());
@@ -20,10 +19,5 @@ app.get('/health', (req, res) => {
 app.get('/api/job-roles', (req, res) =>
   jobRoleController.getJobRoles(req, res),
 );
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
-});
 
 export default app;
