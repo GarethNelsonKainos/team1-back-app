@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { JobRoleDAO } from '../../src/db/JobRoleDAO.js';
-import type { PrismaClient } from '../../src/generated/prisma/client.js';
+import type { PrismaClient } from '@prisma/client';
 
 describe('JobRoleDAO', () => {
   describe('getJobRoles', () => {
