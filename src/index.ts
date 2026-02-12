@@ -1,6 +1,7 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import applicationRoutes from './routes/application.routes.js';
 import AuthController from './controllers/AuthController.js';
 import { prisma } from './db/prisma.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
@@ -27,6 +28,9 @@ app.use(express.json({ limit: '10kb' }));
 app.use('/api/auth', authRouter(authController));
 
 app.use('/api', jobRoleRoutes);
+
+// Application routes
+app.use('/api/applications', applicationRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
