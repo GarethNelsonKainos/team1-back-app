@@ -1,6 +1,7 @@
 import type { JobRoleLocation, RawJobRole } from '../db/JobRoleDAO.js';
 import type { JobRoleResponse } from '../services/JobRoleService.js';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: JobRoleMapper is a simple static mapper class
 class JobRoleMapper {
   static mapToJobRoleResponse(jobRoles: RawJobRole[]): JobRoleResponse[] {
     return jobRoles.map((jr) => ({

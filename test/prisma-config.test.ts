@@ -12,7 +12,8 @@ describe('Prisma Module Configuration', () => {
     try {
       // Ensure DATABASE_URL is set for this test so prisma can initialize.
       process.env.DATABASE_URL =
-        originalDatabaseUrl ?? 'postgresql://user:password@localhost:5432/testdb';
+        originalDatabaseUrl ??
+        'postgresql://user:password@localhost:5432/testdb';
 
       const prismaModule = await import('../src/db/prisma.js');
       expect(prismaModule.prisma).toBeDefined();
