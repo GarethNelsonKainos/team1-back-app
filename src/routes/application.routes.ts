@@ -5,6 +5,7 @@ import { uploadMiddleware } from '../handlers/cv.handler';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { ApplicationService } from '../services/application.service';
 import { S3Service } from '../services/s3.service';
+//import { createApplicationHandler } from '../handlers/application.handler';
 
 const router = Router();
 
@@ -35,5 +36,13 @@ router.post('/', authMiddleware, uploadMiddleware, (req, res) =>
 router.get('/status/:jobRoleId', authMiddleware, (req, res) =>
   getController().checkApplicationStatus(req, res),
 );
+
+/**
+ * POST /api/applications
+ * Create a new job application (requires authentication)
+ */
+//router.post('/', authMiddleware, (req, res) =>
+//  createApplicationHandler(req, res, prisma),
+//);
 
 export default router;

@@ -8,8 +8,10 @@ import jobRoleRoutes from './routes/JobRoleRoutes.js';
 import authRouter from './routes/authRouter.js';
 import { AuthService } from './services/AuthService.js';
 import cvRoutes from './routes/cv.routes.js';
+//import authRoutes from './routes/auth.routes.js';
 
 dotenv.config();
+
 
 const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;
@@ -39,6 +41,10 @@ app.use('/api/cv', cvRoutes);
 // Routes
 app.use('/api', jobRoleRoutes);
 
+// Application routes
+app.use('/api/applications', applicationRoutes);
+
+// Health check route
 app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
 });

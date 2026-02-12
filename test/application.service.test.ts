@@ -42,7 +42,6 @@ describe('ApplicationService', () => {
   describe('createApplication', () => {
     it('should create application successfully when job is open and user hasnt applied', async () => {
       const request = { jobRoleId: 1, userId: 1 };
-
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
@@ -76,7 +75,6 @@ describe('ApplicationService', () => {
 
     it('should return null when job role is closed', async () => {
       const request = { jobRoleId: 1, userId: 1 };
-
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
@@ -90,7 +88,6 @@ describe('ApplicationService', () => {
 
     it('should return null when user has already applied', async () => {
       const request = { jobRoleId: 1, userId: 1 };
-
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
