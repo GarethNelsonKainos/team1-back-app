@@ -1,7 +1,7 @@
-import type { PrismaClient } from '@prisma/client';
 import type { Express } from 'express';
 import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import type { PrismaClient } from '../../src/generated/prisma/client';
 
 const mockJobRoles = [
   {
