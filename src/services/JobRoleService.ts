@@ -1,14 +1,6 @@
 import type { JobRoleDAO } from '../db/JobRoleDAO.js';
 import { JobRoleMapper } from '../mappers/JobRoleMapper.js';
-
-interface JobRoleResponse {
-  jobRoleId: number;
-  roleName: string;
-  location: string;
-  capability: string;
-  band: string;
-  closingDate: string;
-}
+import type { JobRoleResponse } from '../models/JobRoleResponse.js';
 
 class JobRoleService {
   constructor(private jobRoleDAO: JobRoleDAO) {}
@@ -19,4 +11,4 @@ class JobRoleService {
   }
 }
 
-export { JobRoleService, type JobRoleResponse };
+export { JobRoleService };

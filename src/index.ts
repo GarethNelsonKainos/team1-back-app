@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import { jobRoleController } from './controllers/JobRoleController.js';
+import jobRoleRoutes from './routes/JobRoleRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -11,15 +11,13 @@ const PORT: number = Number(process.env.PORT) || 3001;
 // Basic middleware
 app.use(express.json());
 
+// Routes
+app.use('/api', jobRoleRoutes);
+
 // Health check route
 app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
 });
-
-// Job Roles API
-app.get('/api/job-roles', (req, res) =>
-  jobRoleController.getJobRoles(req, res),
-);
 
 // Start server
 app.listen(PORT, () => {

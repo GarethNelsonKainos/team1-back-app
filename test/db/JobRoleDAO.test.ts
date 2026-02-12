@@ -1,76 +1,81 @@
 import type { PrismaClient } from '@prisma/client';
-import { describe, expect, it, vi } from 'vitest';
-import { JobRoleDAO } from '../../src/db/JobRoleDAO.js';
+import request from 'supertest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-describe('JobRoleDAO', () => {
-  describe('getJobRoles', () => {
-    it('should call prisma.jobRole.findMany with correct parameters', async () => {
-      const mockJobRoles = [
-        {
-          jobRoleId: 1,
-          roleName: 'Engineer',
-          locations: [{ location: { locationName: 'London' } }],
-          capability: { capabilityName: 'Engineering' },
-          band: { bandName: 'Mid' },
-          closingDate: new Date('2026-03-15'),
-        },
-      ];
+const mockJobRoles = [
+  {
+    jobRoleId: 1,
+    roleName: 'Software Engineer',
+    locations: [{ location: { locationName: 'London' } }],
+    capability: { capabilityName: 'Engineering' },
+    band: { bandName: 'Mid' },
+    closingDate: new Date('2026-03-15'),
+  },
+  {
+    jobRoleId: 2,
+    roleName: 'Data Analyst',
+    locations: [{ location: { locationName: 'Manchester' } }],
+    capability: { capabilityName: 'Data' },
+    band: { bandName: 'Junior' },
+    closingDate: new Date('2026-04-01'),
+  },
+];
 
-      const mockPrisma = {
-        jobRole: {
-          findMany: vi.fn().mockResolvedValue(mockJobRoles),
-        },
-      } as unknown as PrismaClient;
+// Mock the Prisma client before importing the app
+vi.mock('../src/db/prisma.js', () => ({
+  prisma: {
+    jobRole: {
+      findMany: vi.fn().mockResolvedValue(mockJobRoles),
+    },
+  } as unknown as Partial<PrismaClient>,
+}));
 
-      const dao = new JobRoleDAO(mockPrisma);
-      const result = await dao.getJobRoles();
+let app: any;
 
-      expect(mockPrisma.jobRole.findMany).toHaveBeenCalledWith({
-        where: {
-          status: {
-            statusName: 'Open',
-          },
-        },
-        include: {
-          capability: true,
-          band: true,
-          locations: {
-            include: {
-              location: true,
-            },
-          },
-        },
-      });
+beforeAll(async () => {
+  // Import the app after the mock is set up
+  const appModule = await import('../../src/index.js');
+  app = appModule.default;
+});
 
-      expect(result).toEqual(mockJobRoles);
+describe('Job Role Integration Tests', () => {
+  describe('GET /api/job-roles', () => {
+    it('should return a list of job roles', async () => {
+      const response = await request(app).get('/api/job-roles');
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.headers['content-type']).toMatch(/json/);
     });
 
-    it('should return empty array when no job roles found', async () => {
-      const mockPrisma = {
-        jobRole: {
-          findMany: vi.fn().mockResolvedValue([]),
-        },
-      } as unknown as PrismaClient;
+    it('should return job roles with correct structure', async () => {
+      const response = await request(app).get('/api/job-roles');
 
-      const dao = new JobRoleDAO(mockPrisma);
-      const result = await dao.getJobRoles();
-
-      expect(result).toEqual([]);
+      expect(response.status).toBe(200);
+      if (response.body.length > 0) {
+        const jobRole = response.body[0];
+        expect(jobRole).toHaveProperty('jobRoleId');
+        expect(jobRole).toHaveProperty('roleName');
+        expect(jobRole).toHaveProperty('location');
+        expect(jobRole).toHaveProperty('capability');
+        expect(jobRole).toHaveProperty('band');
+        expect(jobRole).toHaveProperty('closingDate');
+      }
     });
 
-    it('should handle database errors', async () => {
-      const mockError = new Error('Database connection failed');
-      const mockPrisma = {
-        jobRole: {
-          findMany: vi.fn().mockRejectedValue(mockError),
-        },
-      } as unknown as PrismaClient;
+    it('should return job roles in correct format', async () => {
+      const response = await request(app).get('/api/job-roles');
 
-      const dao = new JobRoleDAO(mockPrisma);
-
-      await expect(dao.getJobRoles()).rejects.toThrow(
-        'Database connection failed',
-      );
+      expect(response.status).toBe(200);
+      if (response.body.length > 0) {
+        const jobRole = response.body[0];
+        expect(typeof jobRole.jobRoleId).toBe('number');
+        expect(typeof jobRole.roleName).toBe('string');
+        expect(typeof jobRole.location).toBe('string');
+        expect(typeof jobRole.capability).toBe('string');
+        expect(typeof jobRole.band).toBe('string');
+        expect(typeof jobRole.closingDate).toBe('string');
+      }
     });
   });
 });

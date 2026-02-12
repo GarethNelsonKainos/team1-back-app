@@ -1,7 +1,5 @@
 import type { Request, Response } from 'express';
-import { JobRoleDAO } from '../db/JobRoleDAO.js';
-import { prisma } from '../db/prisma.js';
-import { JobRoleService } from '../services/JobRoleService.js';
+import type { JobRoleService } from '../services/JobRoleService.js';
 
 class JobRoleController {
   private jobRoleService: JobRoleService;
@@ -22,6 +20,3 @@ class JobRoleController {
 }
 
 export { JobRoleController };
-export const jobRoleController = new JobRoleController(
-  new JobRoleService(new JobRoleDAO(prisma)),
-);
