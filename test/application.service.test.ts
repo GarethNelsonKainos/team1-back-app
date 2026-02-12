@@ -31,13 +31,15 @@ describe('ApplicationService', () => {
       },
     };
 
-    applicationService = new ApplicationService(mockPrisma as unknown as PrismaClient);
+    applicationService = new ApplicationService(
+      mockPrisma as unknown as PrismaClient,
+    );
   });
 
   describe('createApplication', () => {
     it('should create application successfully when job is open and user hasnt applied', async () => {
       const request = { jobRoleId: 1, userId: 1 };
-      
+
       // Mock job role exists and is open
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
@@ -85,7 +87,7 @@ describe('ApplicationService', () => {
 
     it('should return null when job role does not exist', async () => {
       const request = { jobRoleId: 999, userId: 1 };
-      
+
       mockPrisma.jobRole.findUnique.mockResolvedValue(null);
 
       const result = await applicationService.createApplication(request);
@@ -96,7 +98,7 @@ describe('ApplicationService', () => {
 
     it('should return null when job role is closed', async () => {
       const request = { jobRoleId: 1, userId: 1 };
-      
+
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
@@ -111,7 +113,7 @@ describe('ApplicationService', () => {
 
     it('should return null when user has already applied', async () => {
       const request = { jobRoleId: 1, userId: 1 };
-      
+
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
@@ -132,7 +134,7 @@ describe('ApplicationService', () => {
 
     it('should throw error when Applied status not found in database', async () => {
       const request = { jobRoleId: 1, userId: 1 };
-      
+
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
@@ -142,9 +144,9 @@ describe('ApplicationService', () => {
       mockPrisma.application.findFirst.mockResolvedValue(null);
       mockPrisma.applicationStatus.findUnique.mockResolvedValue(null);
 
-      await expect(applicationService.createApplication(request)).rejects.toThrow(
-        'Applied status not found in database'
-      );
+      await expect(
+        applicationService.createApplication(request),
+      ).rejects.toThrow('Applied status not found in database');
     });
   });
 });
