@@ -7,9 +7,7 @@ class JobRoleMapper {
     return jobRoles.map((jr) => ({
       jobRoleId: jr.jobRoleId,
       roleName: jr.roleName,
-      location: jr.locations
-        .map((l) => l.location.locationName)
-        .join(', '),
+      location: jr.locations.map((l) => l.location.locationName).join(', '),
       capability: jr.capability.capabilityName,
       band: jr.band.bandName,
       closingDate: jr.closingDate.toISOString(),

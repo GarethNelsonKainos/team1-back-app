@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import type { Express } from 'express';
 import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -30,7 +31,7 @@ vi.mock('../src/db/prisma.js', () => ({
   } as unknown as Partial<PrismaClient>,
 }));
 
-let app: any;
+let app: Express;
 
 beforeAll(async () => {
   // Import the app after the mock is set up

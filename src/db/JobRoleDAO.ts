@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
-import type { Location } from '../models/Location';
-import type { Capability } from '../models/Capability';
 import type { Band } from '../models/Band';
+import type { Capability } from '../models/Capability';
+import type { Location } from '../models/Location';
 
 interface RawJobRole {
   jobRoleId: number;
   roleName: string;
-  locations: { location: Location }[];  // inline shape for Prisma result
+  locations: { location: Location }[]; // inline shape for Prisma result
   capability: Capability;
   band: Band;
   closingDate: Date;
