@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import type { PrismaClient } from '../generated/prisma/client';
 import { AuthService } from '../services/auth.service';
 
-export async function loginController(
+export async function loginHandler(
   req: Request,
   res: Response,
   prisma: PrismaClient,
@@ -59,6 +59,6 @@ export async function loginController(
   }
 }
 
-export function logoutController(req: Request, res: Response): void {
+export function logoutHandler(req: Request, res: Response): void {
   res.json({ message: 'Logged out successfully' });
 }

@@ -1,17 +1,14 @@
-// test/auth.controller.test.ts
+// test/auth.handler.test.ts
 
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  loginController,
-  logoutController,
-} from '../src/controllers/auth.controller';
+import { loginHandler, logoutHandler } from '../src/handlers/auth.handler';
 import { AuthService } from '../src/services/auth.service';
 
 // Mock the AuthService
 vi.mock('../src/services/auth.service');
 
-describe('auth.controller', () => {
+describe('auth.handler', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
   let mockPrisma: unknown;
@@ -48,15 +45,11 @@ describe('auth.controller', () => {
     vi.clearAllMocks();
   });
 
-  describe('loginController', () => {
+  describe('loginHandler', () => {
     it('should return 400 for missing email', async () => {
       mockReq.body = { password: 'password123' };
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid credentials' });
@@ -65,11 +58,7 @@ describe('auth.controller', () => {
     it('should return 400 for missing password', async () => {
       mockReq.body = { email: 'test@example.com' };
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid credentials' });
@@ -78,11 +67,7 @@ describe('auth.controller', () => {
     it('should return 400 for non-string email', async () => {
       mockReq.body = { email: 123, password: 'password123' };
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid credentials' });
@@ -91,11 +76,7 @@ describe('auth.controller', () => {
     it('should return 400 for non-string password', async () => {
       mockReq.body = { email: 'test@example.com', password: 123 };
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid credentials' });
@@ -104,11 +85,7 @@ describe('auth.controller', () => {
     it('should return 400 for invalid email format', async () => {
       mockReq.body = { email: 'notanemail', password: 'password123' };
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid credentials' });
@@ -118,11 +95,7 @@ describe('auth.controller', () => {
       const longEmail = `${'a'.repeat(250)}@example.com`;
       mockReq.body = { email: longEmail, password: 'password123' };
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid credentials' });
@@ -132,11 +105,7 @@ describe('auth.controller', () => {
       const longPassword = 'a'.repeat(130);
       mockReq.body = { email: 'test@example.com', password: longPassword };
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid credentials' });
@@ -145,11 +114,7 @@ describe('auth.controller', () => {
     it('should return 400 for password too short', async () => {
       mockReq.body = { email: 'test@example.com', password: 'short' };
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid credentials' });
@@ -159,11 +124,7 @@ describe('auth.controller', () => {
       mockReq.body = { email: 'test@example.com', password: 'password123' };
       mockAuthService.login.mockResolvedValue(null);
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(401);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -175,11 +136,7 @@ describe('auth.controller', () => {
       mockReq.body = { email: 'test@example.com', password: 'wrongpassword' };
       mockAuthService.login.mockResolvedValue(null);
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(401);
       expect(jsonMock).toHaveBeenCalledWith({
@@ -202,11 +159,7 @@ describe('auth.controller', () => {
 
       mockAuthService.login.mockResolvedValue(mockResult);
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(jsonMock).toHaveBeenCalledWith(mockResult);
     });
@@ -226,11 +179,7 @@ describe('auth.controller', () => {
 
       mockAuthService.login.mockResolvedValue(mockResult);
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(mockAuthService.login).toHaveBeenCalledWith({
         email: '  Test@Example.COM  ',
@@ -242,20 +191,16 @@ describe('auth.controller', () => {
       mockReq.body = { email: 'test@example.com', password: 'password123' };
       mockAuthService.login.mockRejectedValue(new Error('Database error'));
 
-      await loginController(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
+      await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({ error: 'Internal server error' });
     });
   });
 
-  describe('logoutController', () => {
+  describe('logoutHandler', () => {
     it('should return success message', () => {
-      logoutController(mockReq as Request, mockRes as Response);
+      logoutHandler(mockReq as Request, mockRes as Response);
 
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Logged out successfully',
