@@ -1,6 +1,7 @@
 import type { Express } from 'express';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { PrismaClient } from '../src/generated/prisma/client';
 
 describe('Application Environment Configuration', () => {
   let app: Express;
@@ -8,6 +9,10 @@ describe('Application Environment Configuration', () => {
   beforeEach(() => {
     // Clear the module cache to ensure fresh imports
     vi.resetModules();
+    // Mock the Prisma client before importing the app
+    vi.mock('../src/db/prisma.js', () => ({
+      prisma: {} as unknown as Partial<PrismaClient>,
+    }));
   });
 
   afterEach(() => {
