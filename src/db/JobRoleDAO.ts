@@ -1,25 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
-
-interface Location {
-  locationName: string;
-}
-
-interface JobRoleLocation {
-  location: Location;
-}
-
-interface Capability {
-  capabilityName: string;
-}
-
-interface Band {
-  bandName: string;
-}
+import type { Location } from '../models/Location';
+import type { Capability } from '../models/Capability';
+import type { Band } from '../models/Band';
 
 interface RawJobRole {
   jobRoleId: number;
   roleName: string;
-  locations: JobRoleLocation[];
+  locations: { location: Location }[];  // inline shape for Prisma result
   capability: Capability;
   band: Band;
   closingDate: Date;
@@ -49,4 +36,4 @@ class JobRoleDAO {
 }
 
 export { JobRoleDAO };
-export type { RawJobRole, JobRoleLocation, Capability, Band, Location };
+export type { RawJobRole };
