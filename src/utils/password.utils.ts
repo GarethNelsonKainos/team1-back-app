@@ -9,7 +9,6 @@ if (!saltRoundsEnv) {
 
 const SALT_ROUNDS = Number(saltRoundsEnv);
 
-
 /**
  * Hash a plain text password using bcrypt
  * @param password - Plain text password from user
