@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { PrismaClient } from '../src/generated/prisma/client';
 import { createApplicationHandler } from '../src/handlers/application.handler';
 import { ApplicationService } from '../src/services/application.service';
 
@@ -9,7 +10,7 @@ vi.mock('../src/services/application.service');
 describe('application.handler', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
-  let mockPrisma: unknown;
+  let mockPrisma: PrismaClient;
   let statusMock: ReturnType<typeof vi.fn>;
   let jsonMock: ReturnType<typeof vi.fn>;
   let mockApplicationService: {
@@ -19,7 +20,7 @@ describe('application.handler', () => {
   beforeEach(() => {
     statusMock = vi.fn().mockReturnThis();
     jsonMock = vi.fn();
-    
+
     mockRes = {
       status: statusMock,
       json: jsonMock,
@@ -30,28 +31,30 @@ describe('application.handler', () => {
       user: undefined,
     };
 
-    mockPrisma = {};
+    mockPrisma = {} as PrismaClient;
 
     // Setup ApplicationService mock
     mockApplicationService = {
       createApplication: vi.fn(),
     };
-    
+
     // Mock the constructor to return our mock instance
-    vi.mocked(ApplicationService).mockImplementation(() => mockApplicationService as unknown as ApplicationService);
+    vi.mocked(ApplicationService).mockImplementation(
+      () => mockApplicationService as unknown as ApplicationService,
+    );
   });
 
   describe('createApplicationHandler', () => {
     it('should create application successfully for valid applicant', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.user = { 
-        userId: 1, 
-        email: 'test@example.com', 
+      mockReq.user = {
+        userId: 1,
+        email: 'test@example.com',
         userTypeId: 1,
         firstName: 'Test',
-        lastName: 'User'
+        lastName: 'User',
       };
-      
+
       const expectedApplication = {
         applicationId: 1,
         jobRoleId: 1,
@@ -60,12 +63,14 @@ describe('application.handler', () => {
         createdAt: new Date(),
       };
 
-      mockApplicationService.createApplication.mockResolvedValue(expectedApplication);
+      mockApplicationService.createApplication.mockResolvedValue(
+        expectedApplication,
+      );
 
       await createApplicationHandler(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma as any,
+        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(201);
@@ -82,7 +87,7 @@ describe('application.handler', () => {
       await createApplicationHandler(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma as any,
+        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(400);
@@ -98,7 +103,7 @@ describe('application.handler', () => {
       await createApplicationHandler(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma as any,
+        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(400);
@@ -114,7 +119,7 @@ describe('application.handler', () => {
       await createApplicationHandler(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma as any,
+        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(401);
@@ -125,18 +130,18 @@ describe('application.handler', () => {
 
     it('should return 403 when user is not an applicant', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.user = { 
+      mockReq.user = {
         userId: 1,
-        email: 'admin@example.com', 
+        email: 'admin@example.com',
         userTypeId: 2, // Admin, not applicant
         firstName: 'Admin',
-        lastName: 'User'
+        lastName: 'User',
       };
 
       await createApplicationHandler(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma as any,
+        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(403);
@@ -147,12 +152,12 @@ describe('application.handler', () => {
 
     it('should return 400 when service returns null (business logic failure)', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.user = { 
-        userId: 1, 
-        email: 'test@example.com', 
+      mockReq.user = {
+        userId: 1,
+        email: 'test@example.com',
         userTypeId: 1,
         firstName: 'Test',
-        lastName: 'User'
+        lastName: 'User',
       };
 
       mockApplicationService.createApplication.mockResolvedValue(null);
@@ -160,31 +165,34 @@ describe('application.handler', () => {
       await createApplicationHandler(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma as any,
+        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Unable to apply. Role may not be open or you may have already applied.',
+        error:
+          'Unable to apply. Role may not be open or you may have already applied.',
       });
     });
 
     it('should return 500 when service throws error', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.user = { 
-        userId: 1, 
-        email: 'test@example.com', 
+      mockReq.user = {
+        userId: 1,
+        email: 'test@example.com',
         userTypeId: 1,
         firstName: 'Test',
-        lastName: 'User'
+        lastName: 'User',
       };
 
-      mockApplicationService.createApplication.mockRejectedValue(new Error('Database error'));
+      mockApplicationService.createApplication.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await createApplicationHandler(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma as any,
+        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(500);
