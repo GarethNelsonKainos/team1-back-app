@@ -37,9 +37,6 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
-    
-    - name: Run linting
-      run: npm run check
 
     - name: Generate Prisma Client
       run: npx prisma generate
@@ -47,7 +44,12 @@ jobs:
         DATABASE_URL: postgresql://${{ secrets.DB_TEST_USER }}:${{ secrets.DB_TEST_PASS }}@${{ secrets.DB_TEST_HOST }}:${{ secrets.DB_TEST_PORT }}/${{ secrets.DB_TEST_DBNAME }}
     
     - name: Check Prisma Client
-      run: ls -l node_modules/.prisma/client
+      run: ls -la src/generated/prisma/client
+
+    
+    - name: Run linting
+      run: npm run check
+
 
     - name: Create .env.test
       run: |
