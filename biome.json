@@ -7,7 +7,12 @@
       "coverage/**",
       "*.d.ts",
       "*.js",
-      "src/generated/**"
+      "*.json",
+      "prisma/**",
+      "generated/**",
+      "src/generated/**",
+      "vite.config.ts",
+      "src/lib/prisma.ts"
     ]
   },
   "organizeImports": {
