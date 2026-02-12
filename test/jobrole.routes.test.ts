@@ -1,11 +1,24 @@
 // test/jobrole.routes.test.ts
 
 import request from 'supertest';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { prisma } from '../src/config/database';
 import app from '../src/index';
 import { generateToken } from '../src/utils/jwt.utils';
 
+vi.mock('../src/config/database', () => ({
+  prisma: {
+    jobRole: {
+      findMany: vi.fn(),
+      create: vi.fn(),
+    },
+  },
+}));
+
 describe('Job Roles Routes', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
   describe('GET /api/job-roles', () => {
     it('should return 401 without token', async () => {
       const response = await request(app).get('/api/job-roles');
@@ -15,6 +28,25 @@ describe('Job Roles Routes', () => {
     });
 
     it('should return 200 with valid applicant token', async () => {
+      const mockJobRoles = [
+        {
+          jobRoleId: 1,
+          roleName: 'Test Role',
+          capabilityId: 1,
+          bandId: 1,
+          closingDate: new Date('2026-12-31'),
+          jobRoleStatusId: 1,
+          capability: { capabilityId: 1, capabilityName: 'Engineering' },
+          band: { bandId: 1, bandName: 'Band A' },
+          status: { jobRoleStatusId: 1, statusName: 'Open' },
+          locations: [],
+        },
+      ];
+
+      vi.mocked(prisma.jobRole.findMany).mockResolvedValueOnce(
+        mockJobRoles as unknown[],
+      );
+
       const token = generateToken({
         userId: 1,
         email: 'applicant@example.com',
@@ -32,6 +64,9 @@ describe('Job Roles Routes', () => {
     });
 
     it('should return 200 with valid admin token', async () => {
+      const mockJobRoles: unknown[] = [];
+      vi.mocked(prisma.jobRole.findMany).mockResolvedValueOnce(mockJobRoles);
+
       const token = generateToken({
         userId: 2,
         email: 'admin@example.com',
@@ -129,6 +164,30 @@ describe('Job Roles Routes', () => {
         ...jobRoleData,
         roleName: uniqueRoleName,
       };
+
+      const mockCreatedJobRole = {
+        jobRoleId: 7,
+        roleName: uniqueRoleName,
+        capabilityId: 1,
+        bandId: 1,
+        closingDate: new Date('2026-12-31'),
+        jobRoleStatusId: 1,
+        capability: { capabilityId: 1, capabilityName: 'Engineering' },
+        band: { bandId: 1, bandName: 'Band A' },
+        status: { jobRoleStatusId: 1, statusName: 'Open' },
+        locations: [
+          {
+            locationId: 1,
+            locationName: 'HQ',
+            city: 'London',
+            country: 'UK',
+          },
+        ],
+      };
+
+      vi.mocked(prisma.jobRole.create).mockResolvedValueOnce(
+        mockCreatedJobRole as unknown,
+      );
 
       const response = await request(app)
         .post('/api/job-roles')
