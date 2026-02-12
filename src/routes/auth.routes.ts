@@ -1,9 +1,9 @@
 import { Router } from 'express';
+import { prisma } from '../config/database';
 import {
   loginController,
   logoutController,
 } from '../controllers/auth.controller';
-import { prisma } from '../lib/prisma';
 
 const router = Router();
 

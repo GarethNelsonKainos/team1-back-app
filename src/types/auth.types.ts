@@ -15,13 +15,6 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
-  user: {
-    userId: number;
-    email: string;
-    userTypeId: number;
-    firstName: string;
-    lastName: string;
-  };
 }
 
 // Extend Express Request to include user

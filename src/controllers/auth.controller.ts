@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 import type { PrismaClient } from '../generated/prisma/client';
-import { generateToken } from '../utils/jwt.utils';
-import { comparePassword } from '../utils/password.utils';
+import { AuthService } from '../services/auth.service';
 
 export async function loginController(
   req: Request,
@@ -11,7 +10,7 @@ export async function loginController(
   try {
     const { email, password } = req.body;
 
-    // Validation
+    // Input validation
     if (
       !email ||
       typeof email !== 'string' ||
@@ -22,7 +21,7 @@ export async function loginController(
       return;
     }
 
-    // Sanitize email first (trim whitespace, lowercase)
+    // Sanitize email for validation
     const sanitizedEmail = email.trim().toLowerCase();
 
     // Email format validation
@@ -38,49 +37,22 @@ export async function loginController(
       return;
     }
 
-    // Minimum password length check (for user login attempts)
+    // Minimum password length check
     if (password.length < 8) {
       res.status(400).json({ error: 'Invalid credentials' });
       return;
     }
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { userEmail: sanitizedEmail },
-      include: { userType: true },
-    });
+    // Delegate to service layer for business logic
+    const authService = new AuthService(prisma);
+    const result = await authService.login({ email, password });
 
-    if (!user) {
+    if (!result) {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
-    // Compare passwords
-    const passwordMatch = await comparePassword(password, user.userPassword);
-
-    if (!passwordMatch) {
-      res.status(401).json({ error: 'Invalid email or password' });
-      return;
-    }
-
-    // Generate JWT token
-    const token = generateToken({
-      userId: user.userId,
-      email: user.userEmail,
-      userTypeId: user.userTypeId,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
-
-    res.json({
-      token,
-      user: {
-        userId: user.userId,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.userEmail,
-      },
-    });
+    res.json(result);
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
