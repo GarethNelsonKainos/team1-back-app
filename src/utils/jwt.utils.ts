@@ -10,7 +10,7 @@ if (!process.env.JWT_SECRET) {
 
 // JWT_SECRET is required, JWT_EXPIRES_IN has a sensible default
 const JWT_SECRET: string = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '24h';
+const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '2m';
 
 /**
  * Generate a JWT token for a user

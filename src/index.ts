@@ -2,6 +2,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
 import authRoutes from './routes/auth.routes.js';
+import jobRoleRoutes from './routes/jobrole.routes.js';
 
 const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;
@@ -17,6 +18,9 @@ app.use(express.json({ limit: '10kb' }));
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Job role routes
+app.use('/api/job-roles', jobRoleRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
