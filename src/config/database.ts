@@ -1,14 +1,17 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { PrismaClient } from '../generated/prisma/client';
+import { buildConnectionStringFromEnv } from '../utils/db-connection-generator';
 
 // Validate DATABASE_URL at startup
-if (!process.env.DATABASE_URL) {
+const databaseUrl = buildConnectionStringFromEnv();
+
+if (!databaseUrl) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
 // Initialize PostgreSQL connection pool
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ connectionString: databaseUrl });
 
 // Create Prisma adapter for PostgreSQL
 const adapter = new PrismaPg(pool);
