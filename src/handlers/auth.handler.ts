@@ -1,5 +1,5 @@
+import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
-import type { PrismaClient } from '../generated/prisma/client';
 import { AuthService } from '../services/auth.service';
 
 export async function loginHandler(
