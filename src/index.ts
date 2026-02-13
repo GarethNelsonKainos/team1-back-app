@@ -5,7 +5,6 @@ import applicationRoutes from './routes/application.routes.js';
 import AuthController from './controllers/AuthController.js';
 import { prisma } from './db/prisma.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
-import authRoutes from './routes/authRouter.js';
 import authRouter from './routes/authRouter.js';
 import { AuthService } from './services/AuthService.js';
 
