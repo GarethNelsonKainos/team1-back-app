@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import request from 'supertest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import app from '../src/index.js';
 import { generateToken } from '../src/utils/jwt.utils.js';
 

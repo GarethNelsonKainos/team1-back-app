@@ -52,6 +52,22 @@ class JobRoleDAO {
     });
   }
 
+  async getJobRoleById(id: number): Promise<RawJobRole | null> {
+    return await this.prisma.jobRole.findUnique({
+      where: { jobRoleId: id },
+      include: {
+        capability: true,
+        band: true,
+        locations: {
+          include: {
+            location: true,
+          },
+        },
+        status: true,
+      },
+    });
+  }
+
   async createJobRole(input: CreateJobRoleInput): Promise<JobRoleWithDetails> {
     const {
       roleName,
