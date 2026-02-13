@@ -244,7 +244,7 @@ describe('application.handler', () => {
     });
 
     it('should convert string jobRoleId to number for form submissions', async () => {
-      mockReq.body = { jobRoleId: '123' }; // Form data as string  
+      mockReq.body = { jobRoleId: '123' }; // Form data as string
       mockReq.user = {
         userId: 1,
         email: 'test@example.com',
