@@ -19,6 +19,7 @@ app.use(
   }),
 );
 app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Auth routes
 app.use('/api/auth', authRoutes);
