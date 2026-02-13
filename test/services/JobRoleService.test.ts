@@ -93,4 +93,95 @@ describe('JobRoleService', () => {
       expect(result[0].location).toBe('London, Berlin, Amsterdam');
     });
   });
+
+  describe('getJobRoleDetailed', () => {
+    it('should return null if DAO returns null', async () => {
+      const mockDAO = {
+        getJobRoleById: vi.fn().mockResolvedValue(null),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+      const result = await service.getJobRoleDetailed(123);
+
+      expect(mockDAO.getJobRoleById).toHaveBeenCalledWith(123);
+      expect(result).toBeNull();
+    });
+
+    it('should return mapped detailed job role from DAO', async () => {
+      const mockRawJobRole = {
+        jobRoleId: 2,
+        roleName: 'Test Engineer',
+        locations: [
+          { location: { locationName: 'Belfast' } },
+          { location: { locationName: 'Remote' } },
+        ],
+        capability: { capabilityName: 'Testing' },
+        band: { bandName: 'Consultant' },
+        closingDate: new Date('2026-04-01'),
+        description: 'Ensures the quality of software products.',
+        responsibilities: 'Test applications, report bugs, write test cases.',
+        jobSpecLink: 'https://company.sharepoint.com/test-engineer',
+        status: { statusName: 'Open' },
+        openPositions: 2,
+      };
+
+      const mockDAO = {
+        getJobRoleById: vi.fn().mockResolvedValue(mockRawJobRole),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+      const result = await service.getJobRoleDetailed(2);
+
+      expect(mockDAO.getJobRoleById).toHaveBeenCalledWith(2);
+      expect(result).toEqual({
+        jobRoleId: 2,
+        roleName: 'Test Engineer',
+        location: 'Belfast, Remote',
+        capability: 'Testing',
+        band: 'Consultant',
+        closingDate: '2026-04-01T00:00:00.000Z',
+        description: 'Ensures the quality of software products.',
+        responsibilities: 'Test applications, report bugs, write test cases.',
+        sharepointUrl: 'https://company.sharepoint.com/test-engineer',
+        status: 'Open',
+        openPositions: 2,
+      });
+    });
+
+    it('should propagate errors from DAO', async () => {
+      const mockError = new Error('DAO error');
+      const mockDAO = {
+        getJobRoleById: vi.fn().mockRejectedValue(mockError),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.getJobRoleDetailed(1)).rejects.toThrow('DAO error');
+    });
+
+    it('should handle missing optional fields gracefully', async () => {
+      const mockRawJobRole = {
+        jobRoleId: 3,
+        roleName: 'Architect',
+        locations: [{ location: { locationName: 'London' } }],
+        capability: { capabilityName: 'Architecture' },
+        band: { bandName: 'Principal' },
+        closingDate: new Date('2026-05-01'),
+        // description, responsibilities, jobSpecLink, status, openPositions are missing
+      };
+
+      const mockDAO = {
+        getJobRoleById: vi.fn().mockResolvedValue(mockRawJobRole),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+      const result = await service.getJobRoleDetailed(3);
+
+      expect(result?.description).toBe('');
+      expect(result?.responsibilities).toBe('');
+      expect(result?.sharepointUrl).toBe('');
+      expect(result?.status).toBe('');
+      expect(result?.openPositions).toBe(0);
+    });
+  });
 });

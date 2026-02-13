@@ -14,11 +14,11 @@
     "check:fix": "biome check . --write",
     "db:migrate:init": "npx prisma migrate dev --name init",
     "db:migrate:update": "npx prisma migrate dev",
-    "db:seed": "npx tsx prisma/test-scripts/seed-test-db.ts",
-    "db:query": "npx tsx prisma/test-scripts/query-test-db.ts",
+    "db:seed": "npx tsx prisma/test-scripts/seed-test-db-v2.ts",
+    "db:query": "npx tsx prisma/test-scripts/query-test-db-v2.ts",
     "db:test:migrate": "npx dotenv -e .env.test -- prisma migrate dev --name init",
-    "db:test:seed": "npx dotenv -e .env.test -- tsx prisma/test-scripts/seed-test-db.ts",
-    "db:test:query": "npx dotenv -e .env.test -- tsx prisma/test-scripts/query-test-db.ts"
+    "db:test:seed": "npx dotenv -e .env.test -- tsx prisma/test-scripts/seed-test-db-v2.ts",
+    "db:test:query": "npx dotenv -e .env.test -- tsx prisma/test-scripts/query-test-db-v2.ts"
   },
   "repository": {
     "type": "git",

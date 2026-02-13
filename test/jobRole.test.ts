@@ -1,6 +1,45 @@
+import type { PrismaClient } from '@prisma/client';
+import type { Express } from 'express';
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
-import app from '../src/index.js';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+const mockJobRoles = [
+  {
+    jobRoleId: 1,
+    roleName: 'Software Engineer',
+    locations: [{ location: { locationName: 'London' } }],
+    capability: { capabilityName: 'Engineering' },
+    band: { bandName: 'Mid' },
+    closingDate: new Date('2026-03-15'),
+    status: { statusName: 'Open' },
+  },
+  {
+    jobRoleId: 2,
+    roleName: 'Data Analyst',
+    locations: [{ location: { locationName: 'Manchester' } }],
+    capability: { capabilityName: 'Data' },
+    band: { bandName: 'Junior' },
+    closingDate: new Date('2026-04-01'),
+    status: { statusName: 'Open' },
+  },
+];
+
+// Mock the Prisma client before importing the app
+vi.mock('../src/db/prisma.js', () => ({
+  prisma: {
+    jobRole: {
+      findMany: vi.fn().mockResolvedValue(mockJobRoles),
+    },
+  } as unknown as Partial<PrismaClient>,
+}));
+
+let app: Express;
+
+beforeAll(async () => {
+  // Import the app after the mock is set up
+  const appModule = await import('../src/index.js');
+  app = appModule.default;
+});
 
 describe('Job Role Integration Tests', () => {
   describe('GET /api/job-roles', () => {

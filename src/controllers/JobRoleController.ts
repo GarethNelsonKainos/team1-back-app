@@ -17,6 +17,18 @@ class JobRoleController {
       res.status(500).json({ error: 'Failed to fetch job roles' });
     }
   }
+
+  async getJobRoleById(req: Request, res: Response) {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid job role ID' });
+    }
+    const jobRole = await this.jobRoleService.getJobRoleDetailed(id);
+    if (!jobRole) {
+      return res.status(404).json({ error: 'Job role not found' });
+    }
+    return res.json(jobRole);
+  }
 }
 
 export { JobRoleController };

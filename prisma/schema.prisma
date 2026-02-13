@@ -26,6 +26,10 @@ model JobRole {
   bandId      Int
   closingDate DateTime
   jobRoleStatusId Int
+  jobSpecLink      String?           
+  openPositions    Int?             
+  description      String?          
+  responsibilities String? 
   capability  Capability         @relation(fields: [capabilityId], references: [capabilityId])
   band        Band               @relation(fields: [bandId], references: [bandId])
   status      JobRoleStatus      @relation(fields: [jobRoleStatusId], references: [jobRoleStatusId])
