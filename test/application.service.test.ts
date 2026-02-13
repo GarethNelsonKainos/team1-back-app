@@ -148,5 +148,29 @@ describe('ApplicationService', () => {
         applicationService.createApplication(request),
       ).rejects.toThrow('Applied status not found in database');
     });
+
+    it('should prevent duplicate applications for same user and job role', async () => {
+      const request = { jobRoleId: 1, userId: 1 };
+
+      mockPrisma.jobRole.findUnique.mockResolvedValue({
+        jobRoleId: 1,
+        roleName: 'Software Engineer',
+        status: { statusName: 'Open' },
+      });
+
+      // User already has an application for this job
+      mockPrisma.application.findFirst.mockResolvedValue({
+        applicationId: 123,
+        userId: 1,
+        jobRoleId: 1,
+        applicationStatusId: 1,
+        createdAt: new Date(),
+      });
+
+      const result = await applicationService.createApplication(request);
+
+      expect(result).toBeNull();
+      expect(mockPrisma.application.create).not.toHaveBeenCalled();
+    });
   });
 });
