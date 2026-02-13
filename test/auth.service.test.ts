@@ -1,5 +1,5 @@
+import type { PrismaClient } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { PrismaClient } from '../src/generated/prisma/client';
 import { AuthService } from '../src/services/auth.service';
 import * as jwtUtils from '../src/utils/jwt.utils';
 import * as passwordUtils from '../src/utils/password.utils';
