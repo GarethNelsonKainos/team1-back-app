@@ -49,9 +49,11 @@ export async function createApplicationHandler(
     // For form submissions (multipart/form-data), redirect to success page
     // For API calls (application/json), return JSON response
     const contentType = req.headers['content-type'];
-    
+
     if (contentType?.includes('application/x-www-form-urlencoded')) {
-      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/application-success`);
+      res.redirect(
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/application-success`,
+      );
     } else {
       res.status(201).json({
         message: 'Application submitted successfully',

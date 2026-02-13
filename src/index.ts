@@ -1,8 +1,8 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import applicationRoutes from './routes/application.routes.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
+import applicationRoutes from './routes/application.routes.js';
 
 // Load environment variables
 dotenv.config();
