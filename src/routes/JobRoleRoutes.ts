@@ -13,5 +13,8 @@ const jobRoleController = new JobRoleController(jobRoleService);
 
 // Job Roles API routes
 router.get('/job-roles', (req, res) => jobRoleController.getJobRoles(req, res));
+router.get('/job-roles/:id', (req, res) =>
+  jobRoleController.getJobRoleById(req, res),
+);
 
 export default router;
