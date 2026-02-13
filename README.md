@@ -8,7 +8,16 @@ cp .env.example .env
 npm run dev
 ```
 
+**Configure .env with your frontend connection**
+FRONTEND_URL="http://localhost:<FRONTEND_PORT>>"
+
+```bash
+npm run dev
+```
+
+
 Health check: http://localhost:${PORT}/health (for the default port this is http://localhost:3001/health)
+
 
 
 ## Database Setup (PostgreSQL + Prisma)
@@ -22,7 +31,7 @@ brew services list | grep postgresql
 
 3. **Configure the database connection in .env**
 Update `.env` with your database connection details:
-```
+
 DB_USER=<your_pg_username>
 DB_PASSWORD=<your_pg_password>
 DB_HOST=localhost
@@ -30,7 +39,6 @@ DB_PORT=<your_pg_port>
 
 DB_NAME=kainos-jobs
 DB_SCHEMA=public
-```
 
 4. **Generate local version of prisma**
 ```bash
@@ -50,6 +58,14 @@ npm run db:seed
 9. **Test query database**
 ```bash
 npm run db:query
+```
+
+10. **Altering the database schema**
+
+Make required updates to prisma/schema.prisma
+
+```bash
+npm run db:migrate:create --alteration_desc
 ```
 
 
