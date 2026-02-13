@@ -1,7 +1,7 @@
 # team1-back-app 
 Team 1 Backend Application Feb/March 2026
 
-## Quick Start
+## First Start
 ```bash
 npm install
 cp .env.example .env
@@ -9,29 +9,6 @@ npm run dev
 ```
 
 Health check: http://localhost:${PORT}/health (for the default port this is http://localhost:3001/health)
-Uses Express and PostgreSQL + Prisma
-
-## Linting
-
-This project uses **Biome** for fast, comprehensive code linting and formatting.
-- Configuration file: `biome.json`
-- Lints TypeScript files in the `/src/` directory
-- Follows recommended rules with consistent formatting
-- Integrates with CI/CD pipeline
-
-### Available Commands
-```bash
-npm run check        # Check for linting issues
-npm run check:fix    # Automatically fix linting issues
-```
-
-## Testing
-
-Tests are located in the `/test/` directory and mirror the `/src/` structure:
-- Unit tests use Vitest + Supertest
-- Run `npm test` for single test run
-- Run `npm run test:coverage` for coverage report with 80% thresholds
-- Coverage reports generated in `/coverage/`
 
 
 ## Database Setup (PostgreSQL + Prisma)
@@ -43,21 +20,7 @@ brew services list | grep postgresql
 
 2. **(If needed) Create a database user**
 
-3. **Generate prisma**
-```bash
-npx prisma generate
-```
-
-4. **Create the database**
-```bash
-# Using createdb command (Add PostgreSQL bin directory to PATH)
-npm run db:create
-
-# OR create via psql if createdb command doesn't work
-psql postgres -c "CREATE DATABASE \"kainos-jobs\";"
-```
-
-5. **Configure the `DATABASE_URL`**
+3. **Configure the database connection in .env**
 Update `.env` with your database connection details:
 ```
 DB_USER=<your_pg_username>
@@ -69,19 +32,19 @@ DB_NAME=kainos-jobs
 DB_SCHEMA=public
 ```
 
-6. **Run the initial migration**
+4. **Generate local version of prisma**
 ```bash
-npm run db:migrate:init
+npx prisma generate
 ```
 
-7. **Update database to current build**
+5. **Create local copy of the database**
 ```bash
-npm run db:migrate:update
+npm run db:migrate
 ```
 
-8. **Seed database**
+6. **Seed database**
 ```bash
-npm run db:seed 
+npm run db:seed
 ```
 
 9. **Test query database**
@@ -89,14 +52,10 @@ npm run db:seed
 npm run db:query
 ```
 
+
 ## Setting up instance of test database
 
-1. **Create test database**
-```bash
-npm run db:test:create
-```
-
-2. **Configure the test database connection**
+1. **Configure the test database connection**
 Update `.env.test` with your data:
 ```
 DB_USER=<your_pg_username>
@@ -108,7 +67,7 @@ DB_NAME=kainos-jobs-test
 DB_SCHEMA=public
 ```
 
-3. **Apply current migrations to the test database**
+5. **Create local copy of the test database**
 ```bash
 npm run db:test:migrate
 ```
@@ -136,4 +95,30 @@ BEGIN
     END LOOP;
 END;
 $$;
+```
+
+
+
+## Linting
+
+This project uses **Biome** for fast, comprehensive code linting and formatting.
+- Configuration file: `biome.json`
+- Lints TypeScript files in the `/src/` directory
+- Follows recommended rules with consistent formatting
+- Integrates with CI/CD pipeline
+
+Available Commands:
+```bash
+npm run check        # Check for linting issues
+npm run check:fix    # Automatically fix linting issues
+```
+
+## Testing
+This project uses **Vitest** and **Supertest** for unit and coverage tests
+Tests are located in the `/test/` directory and mirror the `/src/` structure:
+
+Available Commands:
+```bash
+npm run test             # Run all tests and output results
+npm run test:coverage    # Run all tests and display coverage report with 80% thresholds
 ```
