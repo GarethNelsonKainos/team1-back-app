@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { extractTokenFromHeader, verifyToken } from '../utils/jwt.utils';
+import { extractTokenFromHeader, verifyToken } from '../utils/jwt.utils.js';
 
 /**
  * Middleware to verify JWT tokens
