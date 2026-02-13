@@ -201,5 +201,80 @@ describe('application.handler', () => {
         error: 'Internal server error',
       });
     });
+
+    it('should redirect to success page for form submissions', async () => {
+      mockReq.body = { jobRoleId: '1' }; // Form data comes as string
+      mockReq.user = {
+        userId: 1,
+        email: 'test@example.com',
+        userTypeId: 1,
+        firstName: 'Test',
+        lastName: 'User',
+      };
+      mockReq.headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+      };
+
+      const expectedApplication = {
+        applicationId: 1,
+        jobRoleId: 1,
+        userId: 1,
+        applicationStatusId: 1,
+        createdAt: new Date(),
+      };
+
+      mockApplicationService.createApplication.mockResolvedValue(
+        expectedApplication,
+      );
+
+      const redirectMock = vi.fn();
+      mockRes.redirect = redirectMock;
+
+      await createApplicationHandler(
+        mockReq as Request,
+        mockRes as Response,
+        mockPrisma,
+      );
+
+      expect(redirectMock).toHaveBeenCalledWith(
+        'http://localhost:3000/application-success',
+      );
+      expect(statusMock).not.toHaveBeenCalled();
+      expect(jsonMock).not.toHaveBeenCalled();
+    });
+
+    it('should convert string jobRoleId to number for form submissions', async () => {
+      mockReq.body = { jobRoleId: '123' }; // Form data as string  
+      mockReq.user = {
+        userId: 1,
+        email: 'test@example.com',
+        userTypeId: 1,
+        firstName: 'Test',
+        lastName: 'User',
+      };
+
+      const expectedApplication = {
+        applicationId: 1,
+        jobRoleId: 123,
+        userId: 1,
+        applicationStatusId: 1,
+        createdAt: new Date(),
+      };
+
+      mockApplicationService.createApplication.mockResolvedValue(
+        expectedApplication,
+      );
+
+      await createApplicationHandler(
+        mockReq as Request,
+        mockRes as Response,
+        mockPrisma,
+      );
+
+      expect(mockApplicationService.createApplication).toHaveBeenCalledWith({
+        jobRoleId: 123, // Should be converted to number
+        userId: 1,
+      });
+    });
   });
 });
