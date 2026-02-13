@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { prisma } from '../config/database';
+import { prisma } from '../db/prisma';
 import { createApplicationHandler } from '../handlers/application.handler';
 import { authMiddleware } from '../middleware/auth.middleware';
 
