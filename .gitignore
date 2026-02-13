@@ -12,3 +12,4 @@ coverage/
 .nyc_output/
 /src/generated/*
 .env.test
+test/setup-env.ts
