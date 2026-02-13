@@ -1,7 +1,11 @@
-import 'dotenv/config';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import express from 'express';
 import applicationRoutes from './routes/application.routes.js';
+import jobRoleRoutes from './routes/JobRoleRoutes.js';
+
+// Load environment variables
+dotenv.config();
 import authRoutes from './routes/auth.routes.js';
 
 const app = express();
@@ -21,6 +25,8 @@ app.use('/api/auth', authRoutes);
 
 // Application routes
 app.use('/api/applications', applicationRoutes);
+// Routes
+app.use('/api', jobRoleRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
