@@ -1,4 +1,4 @@
-import type { PrismaClient } from '../generated/prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { generateToken } from '../utils/jwt.utils';
 import { comparePassword } from '../utils/password.utils';
 
