@@ -12,7 +12,6 @@
     "test:coverage": "vitest --coverage",
     "check": "biome check .",
     "check:fix": "biome check . --write",
-    "db:migrate:create": "npx prisma migrate dev --name",
     "db:migrate": "npx prisma migrate dev",
     "db:seed": "npx tsx prisma/test-scripts/seed-test-db-v2.ts",
     "db:query": "npx tsx prisma/test-scripts/query-test-db-v2.ts",
