@@ -1,7 +1,7 @@
+import type { PrismaClient } from '@prisma/client';
 import type { Express } from 'express';
 import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import type { PrismaClient } from '../../src/generated/prisma/client';
 
 const mockJobRoles = [
   {
@@ -11,6 +11,7 @@ const mockJobRoles = [
     capability: { capabilityName: 'Engineering' },
     band: { bandName: 'Mid' },
     closingDate: new Date('2026-03-15'),
+    status: { statusName: 'Open' },
   },
   {
     jobRoleId: 2,
@@ -19,11 +20,12 @@ const mockJobRoles = [
     capability: { capabilityName: 'Data' },
     band: { bandName: 'Junior' },
     closingDate: new Date('2026-04-01'),
+    status: { statusName: 'Open' },
   },
 ];
 
 // Mock the Prisma client before importing the app
-vi.mock('../src/db/prisma.js', () => ({
+vi.mock('../../src/db/prisma.js', () => ({
   prisma: {
     jobRole: {
       findMany: vi.fn().mockResolvedValue(mockJobRoles),

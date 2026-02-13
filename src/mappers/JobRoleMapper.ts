@@ -1,4 +1,5 @@
 import type { RawJobRole } from '../db/JobRoleDAO.js';
+import type { JobRoleDetailedResponse } from '../models/JobRoleDetailedReponse.js';
 import type { JobRoleResponse } from '../models/JobRoleResponse.js';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: JobRoleMapper is a simple static mapper class
@@ -12,6 +13,26 @@ class JobRoleMapper {
       band: jr.band.bandName,
       closingDate: jr.closingDate.toISOString(),
     }));
+  }
+
+  static mapToJobRoleDetailedResponse(
+    jobRole: RawJobRole,
+  ): JobRoleDetailedResponse {
+    return {
+      jobRoleId: jobRole.jobRoleId,
+      roleName: jobRole.roleName,
+      location: jobRole.locations
+        .map((l) => l.location.locationName)
+        .join(', '),
+      capability: jobRole.capability.capabilityName,
+      band: jobRole.band.bandName,
+      closingDate: jobRole.closingDate.toISOString(),
+      description: jobRole.description ?? '',
+      responsibilities: jobRole.responsibilities ?? '',
+      sharepointUrl: jobRole.jobSpecLink ?? '',
+      status: jobRole.status?.statusName || '',
+      openPositions: jobRole.openPositions ?? 0,
+    };
   }
 }
 
