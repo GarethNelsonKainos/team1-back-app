@@ -29,6 +29,7 @@ describe('application.handler', () => {
     mockReq = {
       body: {},
       user: undefined,
+      headers: {},
     };
 
     mockPrisma = {} as PrismaClient;
