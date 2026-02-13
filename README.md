@@ -9,7 +9,7 @@ npm run dev
 ```
 
 **Configure .env with your frontend connection**
-FRONTEND_URL="http://localhost:<FRONTEND_PORT>>"
+FRONTEND_URL="http://localhost:<FRONTEND_PORT>"
 
 ```bash
 npm run dev
@@ -65,7 +65,7 @@ npm run db:query
 Make required updates to prisma/schema.prisma
 
 ```bash
-npm run db:migrate:create --alteration_desc
+npx prisma migrate dev --name <alteration_detail >
 ```
 
 
@@ -83,22 +83,22 @@ DB_NAME=kainos-jobs-test
 DB_SCHEMA=public
 ```
 
-5. **Create local copy of the test database**
+2. **Create local copy of the test database**
 ```bash
 npm run db:test:migrate
 ```
 
-4. **Seed the test database with mock data**
+3. **Seed the test database with mock data**
 ```bash
 npm run db:test:seed
 ```
 
-5. **Test query on the test database**
+4. **Test query on the test database**
 ```bash
 npm run db:test:query
 ```
 
-6. **SQL to clear test database**
+5. **SQL to clear test database**
 ```sql
 DO
 $$
