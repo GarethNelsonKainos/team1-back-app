@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import type { JWTPayload } from '../types/auth.types';
+import type { JWTPayload } from '../types/auth.types.js';
 
 // Validate environment variables at module load time
 if (!process.env.JWT_SECRET) {
@@ -10,7 +10,7 @@ if (!process.env.JWT_SECRET) {
 
 // JWT_SECRET is required, JWT_EXPIRES_IN has a sensible default
 const JWT_SECRET: string = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '2m';
+const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '1hr';
 
 /**
  * Generate a JWT token for a user

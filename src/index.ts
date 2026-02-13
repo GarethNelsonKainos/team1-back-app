@@ -6,7 +6,6 @@ import jobRoleRoutes from './routes/JobRoleRoutes.js';
 // Load environment variables
 dotenv.config();
 import authRoutes from './routes/auth.routes.js';
-import jobRoleRoutes from './routes/jobrole.routes.js';
 
 const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;

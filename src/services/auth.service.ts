@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
-import { generateToken } from '../utils/jwt.utils';
-import { comparePassword } from '../utils/password.utils';
+import { generateToken } from '../utils/jwt.utils.js';
+import { comparePassword } from '../utils/password.utils.js';
 
 export interface LoginCredentials {
   email: string;
