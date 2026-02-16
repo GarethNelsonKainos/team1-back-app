@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
 import applicationRoutes from './routes/application.routes.js';
+import cvRoutes from './routes/cv.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +27,10 @@ app.use('/api/auth', authRoutes);
 
 // Application routes
 app.use('/api/applications', applicationRoutes);
+
+// CV upload routes
+app.use('/api/cv', cvRoutes);
+
 // Routes
 app.use('/api', jobRoleRoutes);
 
