@@ -29,7 +29,7 @@ class JobRoleMapper {
       closingDate: jobRole.closingDate.toISOString(),
       description: jobRole.description ?? '',
       responsibilities: jobRole.responsibilities ?? '',
-      sharepointUrl: jobRole.jobSpecLink ?? '',
+      jobSpecLink: jobRole.jobSpecLink ?? '',
       status: jobRole.status?.statusName || '',
       openPositions: jobRole.openPositions ?? 0,
     };
