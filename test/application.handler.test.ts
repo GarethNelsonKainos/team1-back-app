@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   checkApplicationStatusHandler,
   createApplicationHandler,
+  resetServiceInstances,
 } from '../src/handlers/application.handler';
 import { ApplicationService } from '../src/services/application.service';
 import * as FeatureFlags from '../src/utils/FeatureFlags';
@@ -23,6 +24,9 @@ describe('application.handler', () => {
   };
 
   beforeEach(() => {
+    // Reset singleton instances for clean test state
+    resetServiceInstances();
+
     statusMock = vi.fn().mockReturnThis();
     jsonMock = vi.fn();
 
