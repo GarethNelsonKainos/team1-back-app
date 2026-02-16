@@ -7,6 +7,7 @@ import { prisma } from './db/prisma.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
 import authRouter from './routes/authRouter.js';
 import { AuthService } from './services/AuthService.js';
+import cvRoutes from './routes/cv.routes.js';
 
 dotenv.config();
 
@@ -31,6 +32,12 @@ app.use('/api', jobRoleRoutes);
 
 // Application routes
 app.use('/api/applications', applicationRoutes);
+
+// CV upload routes
+app.use('/api/cv', cvRoutes);
+
+// Routes
+app.use('/api', jobRoleRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
