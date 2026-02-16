@@ -4,6 +4,30 @@ import { ApplicationService } from '../services/application.service';
 import { S3Service } from '../services/s3.service';
 import { isJobApplicationsEnabled } from '../utils/FeatureFlags';
 
+// Lazy initialization of services to avoid creating them during module load
+let s3ServiceInstance: S3Service | null = null;
+let applicationServiceInstance: ApplicationService | null = null;
+
+function getS3Service(): S3Service {
+  if (!s3ServiceInstance) {
+    s3ServiceInstance = new S3Service();
+  }
+  return s3ServiceInstance;
+}
+
+function getApplicationService(prisma: PrismaClient): ApplicationService {
+  if (!applicationServiceInstance) {
+    applicationServiceInstance = new ApplicationService(prisma);
+  }
+  return applicationServiceInstance;
+}
+
+// For testing purposes - reset singleton instances
+export function resetServiceInstances(): void {
+  s3ServiceInstance = null;
+  applicationServiceInstance = null;
+}
+
 export async function createApplicationHandler(
   req: Request,
   res: Response,
@@ -45,7 +69,7 @@ export async function createApplicationHandler(
     let cvUrl: string | undefined;
     if (req.file) {
       try {
-        const s3Service = new S3Service();
+        const s3Service = getS3Service();
         cvUrl = await s3Service.uploadFile(req.file, user.userId);
       } catch (uploadError) {
         console.error('Error uploading CV:', uploadError);
@@ -54,10 +78,11 @@ export async function createApplicationHandler(
       }
     }
 
-    const applicationService = new ApplicationService(prisma);
+    const applicationService = getApplicationService(prisma);
     const result = await applicationService.createApplication({
       jobRoleId: roleId,
       userId: user.userId,
+      cvUrl: cvUrl,
     });
 
     if (!result) {
@@ -68,11 +93,14 @@ export async function createApplicationHandler(
       return;
     }
 
-    // For form submissions (multipart/form-data), redirect to success page
-    // For API calls (application/json), return JSON response
-    const contentType = req.headers['content-type'];
+    // Redirect to success page based on successful database submission
+    // For form submissions (from frontend), redirect to success page
+    // For API calls, return JSON response
+    const isFormSubmission = req.headers['content-type']?.includes(
+      'multipart/form-data',
+    );
 
-    if (contentType?.includes('multipart/form-data')) {
+    if (isFormSubmission) {
       res.redirect(
         `${process.env.FRONTEND_URL || 'http://localhost:3000'}/application-success`,
       );
@@ -80,7 +108,6 @@ export async function createApplicationHandler(
       res.status(201).json({
         message: 'Application submitted successfully',
         application: result,
-        cvUrl: cvUrl,
       });
     }
   } catch (error) {
