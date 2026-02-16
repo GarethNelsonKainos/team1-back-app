@@ -4,15 +4,16 @@ import {
   checkApplicationStatusHandler,
   createApplicationHandler,
 } from '../handlers/application.handler';
+import { uploadMiddleware } from '../handlers/cv.handler';
 import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
 /**
  * POST /api/applications
- * Create a new job application (requires authentication)
+ * Create a new job application with optional CV upload (requires authentication)
  */
-router.post('/', authMiddleware, (req, res) =>
+router.post('/', authMiddleware, uploadMiddleware, (req, res) =>
   createApplicationHandler(req, res, prisma),
 );
 
