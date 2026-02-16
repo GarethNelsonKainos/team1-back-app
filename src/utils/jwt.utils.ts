@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import type { JWTPayload } from '../types/auth.types';
+import type { JWTPayload } from '../types/auth.types.js';
 
 // Validate environment variables at module load time
 if (!process.env.JWT_SECRET) {

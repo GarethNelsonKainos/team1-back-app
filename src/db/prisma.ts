@@ -2,7 +2,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import { Pool } from 'pg';
-import { buildConnectionStringFromEnv } from '../utils/db-connection-generator';
+import { buildConnectionStringFromEnv } from '../utils/db-connection-generator.js';
 
 dotenv.config();
 
