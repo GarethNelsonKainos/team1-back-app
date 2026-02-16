@@ -1,6 +1,6 @@
+import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { PrismaClient } from '../src/generated/prisma/client';
 import { createApplicationHandler } from '../src/handlers/application.handler';
 import { ApplicationService } from '../src/services/application.service';
 import * as FeatureFlags from '../src/utils/FeatureFlags';
@@ -34,7 +34,14 @@ describe('application.handler', () => {
       headers: {},
     };
 
-    mockPrisma = {} as PrismaClient;
+    mockPrisma = {
+      userType: {
+        findFirst: vi.fn().mockResolvedValue({
+          userTypeId: 1,
+          userTypeDesc: 'Applicant',
+        }),
+      },
+    } as unknown as PrismaClient;
 
     // Setup ApplicationService mock
     mockApplicationService = {
@@ -304,6 +311,32 @@ describe('application.handler', () => {
       expect(statusMock).toHaveBeenCalledWith(503);
       expect(jsonMock).toHaveBeenCalledWith({
         error: 'Job applications are currently not available',
+      });
+      expect(mockApplicationService.createApplication).not.toHaveBeenCalled();
+    });
+
+    it('should return 500 when applicant user type is not found in database', async () => {
+      // Mock userType.findFirst to return null (not found)
+      vi.mocked(mockPrisma.userType.findFirst).mockResolvedValue(null);
+
+      mockReq.body = { jobRoleId: 1 };
+      mockReq.user = {
+        userId: 1,
+        email: 'test@example.com',
+        userTypeId: 1,
+        firstName: 'Test',
+        lastName: 'User',
+      };
+
+      await createApplicationHandler(
+        mockReq as Request,
+        mockRes as Response,
+        mockPrisma,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(500);
+      expect(jsonMock).toHaveBeenCalledWith({
+        error: 'Internal server error',
       });
       expect(mockApplicationService.createApplication).not.toHaveBeenCalled();
     });
