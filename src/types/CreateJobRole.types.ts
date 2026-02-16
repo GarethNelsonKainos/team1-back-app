@@ -7,7 +7,7 @@ export interface CreateJobRoleRequest {
   jobSpecLink: string;
   openPositions: number;
   locationIds: number[];
-  closingDate: string; // ISO date string
+  closingDate: string;
 }
 
 export interface CreateJobRoleResponse {

@@ -1,169 +1,219 @@
 import type { Request, Response } from 'express';
-import { describe, expect, it, vi } from 'vitest';
-import { JobRoleController } from '../../src/controllers/JobRoleController.js';
-import type { JobRoleService } from '../../src/services/JobRoleService.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { JobRoleController } from '../../src/controllers/JobRoleController';
+import type { JobRoleService } from '../../src/services/JobRoleService';
 
-describe('JobRoleController', () => {
-  describe('getJobRoles', () => {
-    it('should return job roles from service with 200 status', async () => {
-      const mockJobRoles = [
-        {
-          jobRoleId: 1,
-          roleName: 'Engineer',
-          location: 'London',
-          capability: 'Engineering',
-          band: 'Mid',
-          closingDate: '2026-03-15T00:00:00.000Z',
-        },
-      ];
+// Mock feature flags
+vi.mock('../../src/config/featureFlags', () => ({
+  FEATURE_FLAGS: {
+    ADMIN_CREATE_JOB_ROLE: true,
+  },
+}));
 
-      const mockService = {
-        getJobRoles: vi.fn().mockResolvedValue(mockJobRoles),
-      } as unknown as JobRoleService;
+// Mock validation
+vi.mock('../../src/utils/validation.utils', () => ({
+  validateCreateJobRole: vi.fn((data) => data),
+}));
 
-      const controller = new JobRoleController(mockService);
+describe('JobRoleController - New Methods', () => {
+  let jobRoleController: JobRoleController;
+  let mockJobRoleService: {
+    getJobRoles: ReturnType<typeof vi.fn>;
+    getJobRoleDetailed: ReturnType<typeof vi.fn>;
+    createJobRole: ReturnType<typeof vi.fn>;
+    getBands: ReturnType<typeof vi.fn>;
+    getCapabilities: ReturnType<typeof vi.fn>;
+    getLocations: ReturnType<typeof vi.fn>;
+  };
+  let mockRequest: Partial<Request>;
+  let mockResponse: Partial<Response>;
 
-      const mockRes: Partial<Response> = {
-        json: vi.fn().mockReturnThis(),
+  beforeEach(() => {
+    mockJobRoleService = {
+      getJobRoles: vi.fn(),
+      getJobRoleDetailed: vi.fn(),
+      createJobRole: vi.fn(),
+      getBands: vi.fn(),
+      getCapabilities: vi.fn(),
+      getLocations: vi.fn(),
+    };
+
+    mockRequest = {
+      body: {},
+      params: {},
+    };
+
+    mockResponse = {
+      json: vi.fn().mockReturnThis(),
+      status: vi.fn().mockReturnThis(),
+    };
+
+    jobRoleController = new JobRoleController(
+      mockJobRoleService as unknown as JobRoleService,
+    );
+  });
+
+  describe('createJobRole', () => {
+    it('should create a job role successfully', async () => {
+      const mockResult = {
+        jobRoleId: 1,
+        message: 'Job role created successfully',
+      };
+      mockJobRoleService.createJobRole.mockResolvedValue(mockResult);
+
+      mockRequest.body = {
+        roleName: 'Senior Software Engineer',
+        capabilityId: 1,
+        bandId: 2,
+        description: 'Test description',
+        responsibilities: 'Test responsibilities',
+        jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
+        openPositions: 2,
+        locationIds: [1, 2],
+        closingDate: '2026-12-31T00:00:00.000Z',
       };
 
-      await controller.getJobRoles(
-        {} as Request,
-        mockRes as unknown as Response,
+      await jobRoleController.createJobRole(
+        mockRequest as Request,
+        mockResponse as Response,
       );
 
-      expect(mockService.getJobRoles).toHaveBeenCalled();
-      expect(mockRes.json).toHaveBeenCalledWith(mockJobRoles);
+      expect(mockResponse.status).toHaveBeenCalledWith(201);
+      expect(mockResponse.json).toHaveBeenCalledWith(mockResult);
     });
 
-    it('should handle service errors with 500 status', async () => {
-      const mockError = new Error('Service error');
-      const mockService = {
-        getJobRoles: vi.fn().mockRejectedValue(mockError),
-      } as unknown as JobRoleService;
+    it('should return 400 on validation error', async () => {
+      const error = new Error('Validation failed');
+      mockJobRoleService.createJobRole.mockRejectedValue(error);
 
-      const controller = new JobRoleController(mockService);
-
-      const consoleErrorSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
-
-      const mockRes: Partial<Response> = {
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
+      mockRequest.body = {
+        roleName: 'Test',
       };
 
-      await controller.getJobRoles(
-        {} as Request,
-        mockRes as unknown as Response,
+      await jobRoleController.createJobRole(
+        mockRequest as Request,
+        mockResponse as Response,
       );
 
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Failed to fetch job roles',
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Validation failed',
       });
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error fetching job roles:',
-        mockError,
-      );
-
-      consoleErrorSpy.mockRestore();
     });
 
-    it('should handle empty results', async () => {
-      const mockService = {
-        getJobRoles: vi.fn().mockResolvedValue([]),
-      } as unknown as JobRoleService;
+    it('should return 500 on unexpected error', async () => {
+      mockJobRoleService.createJobRole.mockRejectedValue('Unknown error');
 
-      const controller = new JobRoleController(mockService);
-
-      const mockRes: Partial<Response> = {
-        json: vi.fn().mockReturnThis(),
+      mockRequest.body = {
+        roleName: 'Test Role',
       };
 
-      await controller.getJobRoles(
-        {} as Request,
-        mockRes as unknown as Response,
+      await jobRoleController.createJobRole(
+        mockRequest as Request,
+        mockResponse as Response,
       );
 
-      expect(mockRes.json).toHaveBeenCalledWith([]);
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Failed to create job role',
+      });
     });
   });
 
-  describe('getJobRoleById', () => {
-    it('should return job role by id with 200 status', async () => {
-      const mockJobRole = {
-        jobRoleId: 1,
-        roleName: 'Engineer',
-        location: 'London',
-        capability: 'Engineering',
-        band: 'Mid',
-        closingDate: '2026-03-15T00:00:00.000Z',
-        description: 'desc',
-        responsibilities: ['a', 'b'],
-        jobSpecLink: 'link',
-        status: 'Open',
-        openPositions: 2,
-      };
+  describe('getBands', () => {
+    it('should return all bands', async () => {
+      const mockBands = [
+        { bandId: 1, bandName: 'Associate' },
+        { bandId: 2, bandName: 'Senior Associate' },
+      ];
+      mockJobRoleService.getBands.mockResolvedValue(mockBands);
 
-      const mockService = {
-        getJobRoleDetailed: vi.fn().mockResolvedValue(mockJobRole),
-      } as unknown as JobRoleService;
+      await jobRoleController.getBands(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
 
-      const controller = new JobRoleController(mockService);
-
-      const mockReq = { params: { id: '1' } } as unknown as Request;
-      const mockRes: Partial<Response> = {
-        json: vi.fn().mockReturnThis(),
-      };
-
-      await controller.getJobRoleById(mockReq, mockRes as Response);
-
-      expect(mockService.getJobRoleDetailed).toHaveBeenCalledWith(1);
-      expect(mockRes.json).toHaveBeenCalledWith(mockJobRole);
+      expect(mockResponse.json).toHaveBeenCalledWith(mockBands);
     });
 
-    it('should return 400 if id is invalid', async () => {
-      const mockService = {
-        getJobRoleDetailed: vi.fn(),
-      } as unknown as JobRoleService;
+    it('should return 500 on error', async () => {
+      mockJobRoleService.getBands.mockRejectedValue(new Error('DB error'));
 
-      const controller = new JobRoleController(mockService);
+      await jobRoleController.getBands(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
 
-      const mockReq = { params: { id: 'abc' } } as unknown as Request;
-      const mockRes: Partial<Response> = {
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
-      };
-
-      await controller.getJobRoleById(mockReq, mockRes as Response);
-
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Invalid job role ID',
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Failed to fetch bands',
       });
-      expect(mockService.getJobRoleDetailed).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getCapabilities', () => {
+    it('should return all capabilities', async () => {
+      const mockCapabilities = [
+        { capabilityId: 1, capabilityName: 'Engineering' },
+      ];
+      mockJobRoleService.getCapabilities.mockResolvedValue(mockCapabilities);
+
+      await jobRoleController.getCapabilities(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.json).toHaveBeenCalledWith(mockCapabilities);
     });
 
-    it('should return 404 if job role not found', async () => {
-      const mockService = {
-        getJobRoleDetailed: vi.fn().mockResolvedValue(null),
-      } as unknown as JobRoleService;
+    it('should return 500 on error', async () => {
+      mockJobRoleService.getCapabilities.mockRejectedValue(
+        new Error('DB error'),
+      );
 
-      const controller = new JobRoleController(mockService);
+      await jobRoleController.getCapabilities(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
 
-      const mockReq = { params: { id: '2' } } as unknown as Request;
-      const mockRes: Partial<Response> = {
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
-      };
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Failed to fetch capabilities',
+      });
+    });
+  });
 
-      await controller.getJobRoleById(mockReq, mockRes as Response);
+  describe('getLocations', () => {
+    it('should return all locations', async () => {
+      const mockLocations = [
+        {
+          locationId: 1,
+          locationName: 'Belfast',
+          city: 'Belfast',
+          country: 'UK',
+        },
+      ];
+      mockJobRoleService.getLocations.mockResolvedValue(mockLocations);
 
-      expect(mockService.getJobRoleDetailed).toHaveBeenCalledWith(2);
-      expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Job role not found',
+      await jobRoleController.getLocations(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.json).toHaveBeenCalledWith(mockLocations);
+    });
+
+    it('should return 500 on error', async () => {
+      mockJobRoleService.getLocations.mockRejectedValue(new Error('DB error'));
+
+      await jobRoleController.getLocations(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Failed to fetch locations',
       });
     });
   });

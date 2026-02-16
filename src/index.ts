@@ -1,14 +1,12 @@
-import cors from 'cors';
 import dotenv from 'dotenv';
+dotenv.config();
+
+import cors from 'cors';
 import express from 'express';
 import AuthController from './controllers/AuthController.js';
 import { prisma } from './db/prisma.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
-import authRoutes from './routes/authRouter.js';
-import authRouter from './routes/authRouter.js';
-import { AuthService } from './services/AuthService.js';
-
-dotenv.config();
+import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;

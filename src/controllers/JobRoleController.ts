@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { FEATURE_FLAGS } from '../config/featureFlags.js';
 import type { JobRoleService } from '../services/JobRoleService.js';
-import type { CreateJobRoleRequest } from '../types/jobRole.types.js';
+import type { CreateJobRoleRequest } from '../types/CreateJobRole.types.js';
 import { validateCreateJobRole } from '../utils/validation.utils.js';
 
 class JobRoleController {

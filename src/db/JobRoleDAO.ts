@@ -68,7 +68,6 @@ class JobRoleDAO {
     locationIds: number[];
     closingDate: Date;
   }) {
-    
     // Get "Open" status ID
     const openStatus = await this.prisma.jobRoleStatus.findUnique({
       where: { statusName: 'Open' },
