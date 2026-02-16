@@ -1,7 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createApplicationHandler } from '../src/handlers/application.handler';
+import {
+  checkApplicationStatusHandler,
+  createApplicationHandler,
+} from '../src/handlers/application.handler';
 import { ApplicationService } from '../src/services/application.service';
 import * as FeatureFlags from '../src/utils/FeatureFlags';
 
@@ -40,6 +43,9 @@ describe('application.handler', () => {
           userTypeId: 1,
           userTypeDesc: 'Applicant',
         }),
+      },
+      application: {
+        findFirst: vi.fn(),
       },
     } as unknown as PrismaClient;
 
@@ -339,6 +345,60 @@ describe('application.handler', () => {
         error: 'Internal server error',
       });
       expect(mockApplicationService.createApplication).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('checkApplicationStatusHandler', () => {
+    it('should return true when user has applied', async () => {
+      mockReq.params = { jobRoleId: '1' };
+      mockReq.user = { userId: 1, userTypeId: 1 };
+
+      vi.mocked(mockPrisma.application.findFirst).mockResolvedValue({
+        applicationId: 1,
+        jobRoleId: 1,
+        userId: 1,
+        applicationStatusId: 1,
+        createdAt: new Date(),
+      });
+
+      await checkApplicationStatusHandler(
+        mockReq as Request,
+        mockRes as Response,
+        mockPrisma,
+      );
+
+      expect(jsonMock).toHaveBeenCalledWith({ hasApplied: true });
+    });
+
+    it('should return false when user has not applied', async () => {
+      mockReq.params = { jobRoleId: '1' };
+      mockReq.user = { userId: 1, userTypeId: 1 };
+
+      vi.mocked(mockPrisma.application.findFirst).mockResolvedValue(null);
+
+      await checkApplicationStatusHandler(
+        mockReq as Request,
+        mockRes as Response,
+        mockPrisma,
+      );
+
+      expect(jsonMock).toHaveBeenCalledWith({ hasApplied: false });
+    });
+
+    it('should return 401 when user not authenticated', async () => {
+      mockReq.params = { jobRoleId: '1' };
+      mockReq.user = undefined;
+
+      await checkApplicationStatusHandler(
+        mockReq as Request,
+        mockRes as Response,
+        mockPrisma,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(401);
+      expect(jsonMock).toHaveBeenCalledWith({
+        error: 'Authentication required',
+      });
     });
   });
 });
