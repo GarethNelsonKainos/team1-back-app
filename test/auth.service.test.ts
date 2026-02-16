@@ -63,7 +63,7 @@ describe('AuthService', () => {
       expect(jwtUtils.generateToken).toHaveBeenCalledWith({
         userId: 1,
         email: 'test@example.com',
-        userTypeId: 2,
+        userRole: 2,
         firstName: 'John',
         lastName: 'Doe',
       });
@@ -240,7 +240,7 @@ describe('AuthService', () => {
       expect(jwtUtils.generateToken).toHaveBeenCalledWith({
         userId: 42,
         email: 'specific@example.com',
-        userTypeId: 5,
+        userRole: 5,
         firstName: 'Alice',
         lastName: 'Wonder',
       });

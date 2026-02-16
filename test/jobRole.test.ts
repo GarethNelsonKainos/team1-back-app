@@ -49,7 +49,7 @@ describe('Job Role Integration Tests', () => {
       const token = generateToken({
         userId: 10,
         email: 'applicant@example.com',
-        userTypeId: 1,
+        userRole: 1,
         firstName: 'Applicant',
         lastName: 'User',
       });
@@ -66,7 +66,7 @@ describe('Job Role Integration Tests', () => {
       const token = generateToken({
         userId: 10,
         email: 'applicant@example.com',
-        userTypeId: 1,
+        userRole: 1,
         firstName: 'Applicant',
         lastName: 'User',
       });
@@ -90,7 +90,7 @@ describe('Job Role Integration Tests', () => {
       const token = generateToken({
         userId: 10,
         email: 'applicant@example.com',
-        userTypeId: 1,
+        userRole: 1,
         firstName: 'Applicant',
         lastName: 'User',
       });

@@ -17,7 +17,7 @@ describe('jwt.utils', () => {
     const token = generateToken({
       userId: 1,
       email: 'test@example.com',
-      userTypeId: 2,
+      userRole: 2,
       firstName: 'Test',
       lastName: 'User',
     });
@@ -29,7 +29,7 @@ describe('jwt.utils', () => {
     const token = generateToken({
       userId: 1,
       email: 'test@example.com',
-      userTypeId: 2,
+      userRole: 2,
       firstName: 'Test',
       lastName: 'User',
     });

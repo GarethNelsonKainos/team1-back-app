@@ -2,7 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
 import {
   formatLoginResponse,
-  parseLoginRequest,
+  validateLoginRequest,
 } from '../mappers/LoginMapper.js';
 import { AuthService } from '../services/auth.service.js';
 
@@ -12,15 +12,15 @@ export async function loginHandler(
   prisma: PrismaClient,
 ): Promise<void> {
   try {
-    const parseResult = parseLoginRequest(req.body);
-    if (!parseResult.ok) {
-      res.status(400).json({ error: parseResult.error });
+    const validationResult = validateLoginRequest(req.body);
+    if (!validationResult.ok) {
+      res.status(400).json({ error: validationResult.error });
       return;
     }
 
     // Delegate to service layer for business logic
     const authService = new AuthService(prisma);
-    const result = await authService.login(parseResult.credentials);
+    const result = await authService.login(validationResult.credentials);
 
     if (!result) {
       res.status(401).json({ error: 'Invalid email or password' });

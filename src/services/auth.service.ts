@@ -42,7 +42,7 @@ export class AuthService {
     const token = generateToken({
       userId: user.userId,
       email: user.userEmail,
-      userTypeId: user.userTypeId as UserRole,
+      userRole: user.userTypeId as UserRole,
       firstName: user.firstName,
       lastName: user.lastName,
     });

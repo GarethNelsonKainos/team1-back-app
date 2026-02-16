@@ -13,11 +13,11 @@ const jobRoleService = new JobRoleService(jobRoleDAO);
 const jobRoleController = new JobRoleController(jobRoleService);
 
 // Job Roles API routes
-router.get('/job-roles', authMiddleware, (req, res) =>
+router.get('/job-roles', authMiddleware(), (req, res) =>
   jobRoleController.getJobRoles(req, res),
 );
 
-router.get('/job-roles/:id', authMiddleware, (req, res) =>
+router.get('/job-roles/:id', authMiddleware(), (req, res) =>
   jobRoleController.getJobRoleById(req, res),
 );
 

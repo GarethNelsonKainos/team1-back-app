@@ -5,11 +5,11 @@ import type {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export type LoginParseResult =
+export type LoginValidationResult =
   | { ok: true; credentials: LoginCredentials }
   | { ok: false; error: string };
 
-export function parseLoginRequest(body: unknown): LoginParseResult {
+export function validateLoginRequest(body: unknown): LoginValidationResult {
   if (!body || typeof body !== 'object') {
     return { ok: false, error: 'Invalid credentials' };
   }
