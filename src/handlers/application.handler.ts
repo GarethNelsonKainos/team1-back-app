@@ -34,17 +34,8 @@ export async function createApplicationHandler(
       return;
     }
 
-    // Look up the Applicant user type in the database to avoid hardcoded IDs
-    const applicantUserType = await prisma.userType.findFirst({
-      where: { userTypeDesc: 'Applicant' },
-    });
-    if (!applicantUserType) {
-      console.error('Applicant user type not found in database configuration');
-      res.status(500).json({ error: 'Internal server error' });
-      return;
-    }
-    // Check if user is an applicant
-    if (user.userTypeId !== applicantUserType.userTypeId) {
+    // Check if user is an applicant (hardcode for MVP - Applicant user type is 1)
+    if (user.userTypeId !== 1) {
       res.status(403).json({ error: 'Only applicants can apply for roles' });
       return;
     }

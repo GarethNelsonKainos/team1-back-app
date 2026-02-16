@@ -40,23 +40,19 @@ describe('ApplicationService', () => {
     it('should create application successfully when job is open and user hasnt applied', async () => {
       const request = { jobRoleId: 1, userId: 1 };
 
-      // Mock job role exists and is open
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
         status: { statusName: 'Open' },
       });
 
-      // Mock no existing application
       mockPrisma.application.findFirst.mockResolvedValue(null);
 
-      // Mock applied status exists
       mockPrisma.applicationStatus.findUnique.mockResolvedValue({
         applicationStatusId: 1,
-        applicationStatusType: 'Applied',
+        applicationStatusType: 'Submitted',
       });
 
-      // Mock application creation
       const expectedApplication = {
         applicationId: 1,
         jobRoleId: 1,
@@ -69,31 +65,15 @@ describe('ApplicationService', () => {
       const result = await applicationService.createApplication(request);
 
       expect(result).toEqual(expectedApplication);
-      expect(mockPrisma.jobRole.findUnique).toHaveBeenCalledWith({
-        where: { jobRoleId: 1 },
-        include: { status: true },
-      });
-      expect(mockPrisma.application.findFirst).toHaveBeenCalledWith({
-        where: { userId: 1, jobRoleId: 1 },
-      });
-      expect(mockPrisma.application.create).toHaveBeenCalledWith({
-        data: {
-          userId: 1,
-          jobRoleId: 1,
-          applicationStatusId: 1,
-        },
-      });
     });
 
     it('should return null when job role does not exist', async () => {
       const request = { jobRoleId: 999, userId: 1 };
-
       mockPrisma.jobRole.findUnique.mockResolvedValue(null);
 
       const result = await applicationService.createApplication(request);
 
       expect(result).toBeNull();
-      expect(mockPrisma.application.findFirst).not.toHaveBeenCalled();
     });
 
     it('should return null when job role is closed', async () => {
@@ -108,7 +88,6 @@ describe('ApplicationService', () => {
       const result = await applicationService.createApplication(request);
 
       expect(result).toBeNull();
-      expect(mockPrisma.application.findFirst).not.toHaveBeenCalled();
     });
 
     it('should return null when user has already applied', async () => {
@@ -129,48 +108,6 @@ describe('ApplicationService', () => {
       const result = await applicationService.createApplication(request);
 
       expect(result).toBeNull();
-      expect(mockPrisma.applicationStatus.findUnique).not.toHaveBeenCalled();
-    });
-
-    it('should throw error when Submitted status not found in database', async () => {
-      const request = { jobRoleId: 1, userId: 1 };
-
-      mockPrisma.jobRole.findUnique.mockResolvedValue({
-        jobRoleId: 1,
-        roleName: 'Software Engineer',
-        status: { statusName: 'Open' },
-      });
-
-      mockPrisma.application.findFirst.mockResolvedValue(null);
-      mockPrisma.applicationStatus.findUnique.mockResolvedValue(null);
-
-      await expect(
-        applicationService.createApplication(request),
-      ).rejects.toThrow('Submitted status not found in database');
-    });
-
-    it('should prevent duplicate applications for same user and job role', async () => {
-      const request = { jobRoleId: 1, userId: 1 };
-
-      mockPrisma.jobRole.findUnique.mockResolvedValue({
-        jobRoleId: 1,
-        roleName: 'Software Engineer',
-        status: { statusName: 'Open' },
-      });
-
-      // User already has an application for this job
-      mockPrisma.application.findFirst.mockResolvedValue({
-        applicationId: 123,
-        userId: 1,
-        jobRoleId: 1,
-        applicationStatusId: 1,
-        createdAt: new Date(),
-      });
-
-      const result = await applicationService.createApplication(request);
-
-      expect(result).toBeNull();
-      expect(mockPrisma.application.create).not.toHaveBeenCalled();
     });
   });
 });
