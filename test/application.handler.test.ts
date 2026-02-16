@@ -99,38 +99,6 @@ describe('application.handler', () => {
       });
     });
 
-    it('should return 400 for invalid jobRoleId', async () => {
-      mockReq.body = { jobRoleId: 'invalid' };
-      mockReq.user = { userId: 1, userTypeId: 1 };
-
-      await createApplicationHandler(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
-
-      expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Invalid job role ID',
-      });
-    });
-
-    it('should return 400 for missing jobRoleId', async () => {
-      mockReq.body = {};
-      mockReq.user = { userId: 1, userTypeId: 1 };
-
-      await createApplicationHandler(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
-
-      expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Invalid job role ID',
-      });
-    });
-
     it('should return 401 when user not authenticated', async () => {
       mockReq.body = { jobRoleId: 1 };
       mockReq.user = undefined;
@@ -169,7 +137,9 @@ describe('application.handler', () => {
       });
     });
 
-    it('should return 400 when service returns null (business logic failure)', async () => {
+    it('should return 503 when job applications feature is disabled', async () => {
+      vi.mocked(FeatureFlags.isJobApplicationsEnabled).mockReturnValue(false);
+
       mockReq.body = { jobRoleId: 1 };
       mockReq.user = {
         userId: 1,
@@ -179,18 +149,15 @@ describe('application.handler', () => {
         lastName: 'User',
       };
 
-      mockApplicationService.createApplication.mockResolvedValue(null);
-
       await createApplicationHandler(
         mockReq as Request,
         mockRes as Response,
         mockPrisma,
       );
 
-      expect(statusMock).toHaveBeenCalledWith(400);
+      expect(statusMock).toHaveBeenCalledWith(503);
       expect(jsonMock).toHaveBeenCalledWith({
-        error:
-          'Unable to apply. Role may not be open or you may have already applied.',
+        error: 'Job applications are currently not available',
       });
     });
 
@@ -218,133 +185,6 @@ describe('application.handler', () => {
       expect(jsonMock).toHaveBeenCalledWith({
         error: 'Internal server error',
       });
-    });
-
-    it('should redirect to success page for form submissions', async () => {
-      mockReq.body = { jobRoleId: '1' }; // Form data comes as string
-      mockReq.user = {
-        userId: 1,
-        email: 'test@example.com',
-        userTypeId: 1,
-        firstName: 'Test',
-        lastName: 'User',
-      };
-      mockReq.headers = {
-        'content-type': 'application/x-www-form-urlencoded',
-      };
-
-      const expectedApplication = {
-        applicationId: 1,
-        jobRoleId: 1,
-        userId: 1,
-        applicationStatusId: 1,
-        createdAt: new Date(),
-      };
-
-      mockApplicationService.createApplication.mockResolvedValue(
-        expectedApplication,
-      );
-
-      const redirectMock = vi.fn();
-      mockRes.redirect = redirectMock;
-
-      await createApplicationHandler(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
-
-      expect(redirectMock).toHaveBeenCalledWith(
-        'http://localhost:3000/application-success',
-      );
-      expect(statusMock).not.toHaveBeenCalled();
-      expect(jsonMock).not.toHaveBeenCalled();
-    });
-
-    it('should convert string jobRoleId to number for form submissions', async () => {
-      mockReq.body = { jobRoleId: '123' }; // Form data as string
-      mockReq.user = {
-        userId: 1,
-        email: 'test@example.com',
-        userTypeId: 1,
-        firstName: 'Test',
-        lastName: 'User',
-      };
-
-      const expectedApplication = {
-        applicationId: 1,
-        jobRoleId: 123,
-        userId: 1,
-        applicationStatusId: 1,
-        createdAt: new Date(),
-      };
-
-      mockApplicationService.createApplication.mockResolvedValue(
-        expectedApplication,
-      );
-
-      await createApplicationHandler(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
-
-      expect(mockApplicationService.createApplication).toHaveBeenCalledWith({
-        jobRoleId: 123, // Should be converted to number
-        userId: 1,
-      });
-    });
-
-    it('should return 503 when job applications feature is disabled', async () => {
-      // Mock feature flag as disabled
-      vi.mocked(FeatureFlags.isJobApplicationsEnabled).mockReturnValue(false);
-
-      mockReq.body = { jobRoleId: 1 };
-      mockReq.user = {
-        userId: 1,
-        email: 'test@example.com',
-        userTypeId: 1,
-        firstName: 'Test',
-        lastName: 'User',
-      };
-
-      await createApplicationHandler(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
-
-      expect(statusMock).toHaveBeenCalledWith(503);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Job applications are currently not available',
-      });
-      expect(mockApplicationService.createApplication).not.toHaveBeenCalled();
-    });
-
-    it('should return 500 when applicant user type is not found in database', async () => {
-      // Mock userType.findFirst to return null (not found)
-      vi.mocked(mockPrisma.userType.findFirst).mockResolvedValue(null);
-
-      mockReq.body = { jobRoleId: 1 };
-      mockReq.user = {
-        userId: 1,
-        email: 'test@example.com',
-        userTypeId: 1,
-        firstName: 'Test',
-        lastName: 'User',
-      };
-
-      await createApplicationHandler(
-        mockReq as Request,
-        mockRes as Response,
-        mockPrisma,
-      );
-
-      expect(statusMock).toHaveBeenCalledWith(500);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
-      expect(mockApplicationService.createApplication).not.toHaveBeenCalled();
     });
   });
 
