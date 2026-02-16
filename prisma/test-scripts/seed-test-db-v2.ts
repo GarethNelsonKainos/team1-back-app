@@ -30,7 +30,7 @@ async function main() {
       firstName: 'Alice',
       lastName: 'Applicant',
       userEmail: 'alice@example.com',
-      userPassword: '$2a$10$kU6TaZQTUHgGr52EG4xWkeNvdUVSlWnR27H7wnGhV1tW/4ATdX/rG',
+      userPassword: '$2a$10$//C/Scp1xYSPqtc0k4SREO1h0/vvYLzST7kmjOvdXwx5SdaaUUmw.',
       userTypeId: applicantType.userTypeId,
     },
   });
@@ -41,7 +41,7 @@ async function main() {
       firstName: 'Bob',
       lastName: 'Applicant',
       userEmail: 'bob@example.com',
-      userPassword: '$2a$10$kU6TaZQTUHgGr52EG4xWkeNvdUVSlWnR27H7wnGhV1tW/4ATdX/rG',
+      userPassword: '$2a$10$49rho05q509rL7UDu.Yh.uaeAqrS0xm7O.tqNQ1PDkLzVHk5uFCW2',
       userTypeId: applicantType.userTypeId,
     },
   });
@@ -52,7 +52,7 @@ async function main() {
       firstName: 'Charlie',
       lastName: 'Admin',
       userEmail: 'charlie@example.com',
-      userPassword: '$2a$10$kU6TaZQTUHgGr52EG4xWkeNvdUVSlWnR27H7wnGhV1tW/4ATdX/rG',
+      userPassword: '$2a$10$.KBn3imkUThU4MmK/OimH.OnsE0W2hrmXL6LcCNrolveluOWYQ3su',
       userTypeId: adminType.userTypeId,
     },
   });
@@ -110,9 +110,20 @@ async function main() {
 
   // Locations
   const locationNames = [
-    { locationName: 'London', city: 'London', country: 'UK' },
-    { locationName: 'Belfast', city: 'Belfast', country: 'UK' },
-    { locationName: 'Remote', city: 'Remote', country: 'Global' },
+    { locationName: 'Belfast Office', city: 'Belfast', country: 'UK' },
+    { locationName: 'Derry Office', city: 'Londonderry', country: 'UK' },
+    { locationName: 'Birmingham Office', city: 'Birmingham', country: 'UK' },
+    { locationName: 'London Office', city: 'London', country: 'UK' },
+    { locationName: 'Dublin Office', city: 'Dublin', country: 'Ireland' },
+    { locationName: 'Gdansk Office', city: 'Gdansk', country: 'Poland' },
+    { locationName: 'Helsinki Office', city: 'Helsinki', country: 'Finland' },
+    { locationName: 'Paris Office', city: 'Paris', country: 'France' },
+    { locationName: 'Wommelgem Office', city: 'Wommelgem', country: 'Belgium' },
+    { locationName: 'Buenos Aires Office', city: 'Buenos Aires', country: 'Argentina' },
+    { locationName: 'Indianapolis Office', city: 'Indianapolis', country: 'USA' },
+    { locationName: 'Nova Scotia Office', city: 'Nova Scotia', country: 'Canada' },
+    { locationName: 'Toronto Office', city: 'Toronto', country: 'Canada' },
+    { locationName: 'Remote', city: 'Remote', country: 'Remote' },
   ];
   const locations: Record<string, any> = {};
   for (const loc of locationNames) {
@@ -150,9 +161,9 @@ const jobRoles = [
     jobRoleStatusId: openStatus.jobRoleStatusId,
     description: 'Develops and maintains software applications.',
     responsibilities: 'Write code, review code, participate in agile ceremonies.',
-    jobSpecLink: 'https://company.sharepoint.com/software-engineer',
+    jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/sites/Career/JobProfiles/Engineering/Job%20profile%20-%20Senior%20Software%20Engieneer%20(Senior%20Associate).pdf',
     openPositions: 3,
-    locations: ['London', 'Remote'],
+    locations: ['London Office', 'Remote'],
   },
   {
     roleName: 'Test Engineer',
@@ -162,9 +173,9 @@ const jobRoles = [
     jobRoleStatusId: openStatus.jobRoleStatusId,
     description: 'Ensures the quality of software products.',
     responsibilities: 'Test applications, report bugs, write test cases.',
-    jobSpecLink: 'https://company.sharepoint.com/test-engineer',
+    jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/sites/Career/JobProfiles/Engineering/Job%20profile%20-%20Test%20Manager%20(Consultant).pdf',
     openPositions: 2,
-    locations: ['Belfast', 'Remote'],
+    locations: ['Belfast Office', 'Remote'],
   },
   {
     roleName: 'Technical Architect',
@@ -174,9 +185,9 @@ const jobRoles = [
     jobRoleStatusId: openStatus.jobRoleStatusId,
     description: 'Designs technical solutions and system architecture.',
     responsibilities: 'Define architecture, review designs, mentor engineers.',
-    jobSpecLink: 'https://company.sharepoint.com/technical-architect',
+    jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/sites/Career/JobProfiles/Engineering/Job%20Profile%20-%20Principal%20Architect%20(Principal).pdf',
     openPositions: 1,
-    locations: ['London'],
+    locations: ['London Office'],
   },
   {
     roleName: 'Low Code Principal Architect',
@@ -186,7 +197,7 @@ const jobRoles = [
     jobRoleStatusId: openStatus.jobRoleStatusId,
     description: 'Leads low code architecture and strategy.',
     responsibilities: 'Architect low code solutions, lead teams, ensure best practices.',
-    jobSpecLink: 'https://company.sharepoint.com/low-code-principal-architect',
+    jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/sites/Career/JobProfiles/Engineering/Job%20Profile%20-%20Low%20Code%20Principal%20Architect%20(P)%20-%20Low%20Code.pdf',
     openPositions: 1,
     locations: ['Remote'],
   },

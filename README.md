@@ -1,37 +1,35 @@
 # team1-back-app 
 Team 1 Backend Application Feb/March 2026
 
-## Quick Start
+## First Start
 ```bash
 npm install
 cp .env.example .env
 npm run dev
 ```
 
-Health check: http://localhost:${PORT}/health (for the default port this is http://localhost:3001/health)
-Uses Express and PostgreSQL + Prisma
+**Configure .env with your frontend connection**
+FRONTEND_URL="http://localhost:<FRONTEND_PORT>"
 
-## Linting
-
-This project uses **Biome** for fast, comprehensive code linting and formatting.
-- Configuration file: `biome.json`
-- Lints TypeScript files in the `/src/` directory
-- Follows recommended rules with consistent formatting
-- Integrates with CI/CD pipeline
-
-### Available Commands
 ```bash
-npm run check        # Check for linting issues
-npm run check:fix    # Automatically fix linting issues
+npm run dev
 ```
 
-## Testing
 
-Tests are located in the `/test/` directory and mirror the `/src/` structure:
-- Unit tests use Vitest + Supertest
-- Run `npm test` for single test run
-- Run `npm run test:coverage` for coverage report with 80% thresholds
-- Coverage reports generated in `/coverage/`
+Health check: http://localhost:${PORT}/health (for the default port this is http://localhost:3001/health)
+
+## Demo Users
+User1:
+email: alice@example.com
+password: password1
+
+User2:
+email: bob@example.com
+password: password2
+
+Admin:
+email: charlie@example.com
+password: adminpass
 
 
 ## Database Setup (PostgreSQL + Prisma)
@@ -43,23 +41,9 @@ brew services list | grep postgresql
 
 2. **(If needed) Create a database user**
 
-3. **Generate prisma**
-```bash
-npx prisma generate
-```
-
-4. **Create the database**
-```bash
-# Using createdb command (Add PostgreSQL bin directory to PATH)
-npm run db:create
-
-# OR create via psql if createdb command doesn't work
-psql postgres -c "CREATE DATABASE \"kainos-jobs\";"
-```
-
-5. **Configure the `DATABASE_URL`**
+3. **Configure the database connection in .env**
 Update `.env` with your database connection details:
-```
+
 DB_USER=<your_pg_username>
 DB_PASSWORD=<your_pg_password>
 DB_HOST=localhost
@@ -67,21 +51,20 @@ DB_PORT=<your_pg_port>
 
 DB_NAME=kainos-jobs
 DB_SCHEMA=public
+
+4. **Generate local version of prisma**
+```bash
+npx prisma generate
 ```
 
-6. **Run the initial migration**
+5. **Create local copy of the database**
 ```bash
-npm run db:migrate:init
+npm run db:migrate
 ```
 
-7. **Update database to current build**
+6. **Seed database**
 ```bash
-npm run db:migrate:update
-```
-
-8. **Seed database**
-```bash
-npm run db:seed 
+npm run db:seed
 ```
 
 9. **Test query database**
@@ -89,14 +72,18 @@ npm run db:seed
 npm run db:query
 ```
 
-## Setting up instance of test database
+10. **Altering the database schema**
 
-1. **Create test database**
+Make required updates to prisma/schema.prisma
+
 ```bash
-npm run db:test:create
+npx prisma migrate dev --name <alteration_detail >
 ```
 
-2. **Configure the test database connection**
+
+## Setting up instance of test database
+
+1. **Configure the test database connection**
 Update `.env.test` with your data:
 ```
 DB_USER=<your_pg_username>
@@ -108,22 +95,22 @@ DB_NAME=kainos-jobs-test
 DB_SCHEMA=public
 ```
 
-3. **Apply current migrations to the test database**
+2. **Create local copy of the test database**
 ```bash
 npm run db:test:migrate
 ```
 
-4. **Seed the test database with mock data**
+3. **Seed the test database with mock data**
 ```bash
 npm run db:test:seed
 ```
 
-5. **Test query on the test database**
+4. **Test query on the test database**
 ```bash
 npm run db:test:query
 ```
 
-6. **SQL to clear test database**
+5. **SQL to clear test database**
 ```sql
 DO
 $$
@@ -136,4 +123,30 @@ BEGIN
     END LOOP;
 END;
 $$;
+```
+
+
+
+## Linting
+
+This project uses **Biome** for fast, comprehensive code linting and formatting.
+- Configuration file: `biome.json`
+- Lints TypeScript files in the `/src/` directory
+- Follows recommended rules with consistent formatting
+- Integrates with CI/CD pipeline
+
+Available Commands:
+```bash
+npm run check        # Check for linting issues
+npm run check:fix    # Automatically fix linting issues
+```
+
+## Testing
+This project uses **Vitest** and **Supertest** for unit and coverage tests
+Tests are located in the `/test/` directory and mirror the `/src/` structure:
+
+Available Commands:
+```bash
+npm run test             # Run all tests and output results
+npm run test:coverage    # Run all tests and display coverage report with 80% thresholds
 ```

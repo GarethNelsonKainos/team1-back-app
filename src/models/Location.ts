@@ -1,4 +1,4 @@
-import type { JobRoleLocation } from './JobRoleLocation';
+import type { JobRoleLocation } from './JobRoleLocation.js';
 
 interface Location {
   locationId: number;
