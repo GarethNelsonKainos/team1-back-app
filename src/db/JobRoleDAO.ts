@@ -56,6 +56,73 @@ class JobRoleDAO {
       },
     });
   }
+
+  async createJobRole(data: {
+    roleName: string;
+    capabilityId: number;
+    bandId: number;
+    description: string;
+    responsibilities: string;
+    jobSpecLink: string;
+    openPositions: number;
+    locationIds: number[];
+    closingDate: Date;
+  }) {
+    
+    // Get "Open" status ID
+    const openStatus = await this.prisma.jobRoleStatus.findUnique({
+      where: { statusName: 'Open' },
+    });
+
+    if (!openStatus) {
+      throw new Error('Open status not found in database');
+    }
+
+    // Create job role with locations in transaction
+    return await this.prisma.$transaction(async (tx) => {
+      const jobRole = await tx.jobRole.create({
+        data: {
+          roleName: data.roleName,
+          capabilityId: data.capabilityId,
+          bandId: data.bandId,
+          description: data.description,
+          responsibilities: data.responsibilities,
+          jobSpecLink: data.jobSpecLink,
+          openPositions: data.openPositions,
+          closingDate: data.closingDate,
+          jobRoleStatusId: openStatus.jobRoleStatusId,
+        },
+      });
+
+      // Create job role location relationships
+      await tx.jobRoleLocation.createMany({
+        data: data.locationIds.map((locationId) => ({
+          jobRoleId: jobRole.jobRoleId,
+          locationId,
+        })),
+      });
+
+      return jobRole;
+    });
+  }
+
+  async getBands() {
+    return await this.prisma.band.findMany({
+      orderBy: { bandName: 'asc' },
+    });
+  }
+
+  async getCapabilities() {
+    return await this.prisma.capability.findMany({
+      orderBy: { capabilityName: 'asc' },
+    });
+  }
+
+  async getLocations() {
+    return await this.prisma.location.findMany({
+      orderBy: { locationName: 'asc' },
+    });
+  }
 }
 
 export { JobRoleDAO };

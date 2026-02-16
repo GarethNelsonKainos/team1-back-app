@@ -1,5 +1,8 @@
 import type { Request, Response } from 'express';
+import { FEATURE_FLAGS } from '../config/featureFlags.js';
 import type { JobRoleService } from '../services/JobRoleService.js';
+import type { CreateJobRoleRequest } from '../types/jobRole.types.js';
+import { validateCreateJobRole } from '../utils/validation.utils.js';
 
 class JobRoleController {
   private jobRoleService: JobRoleService;
@@ -28,6 +31,56 @@ class JobRoleController {
       return res.status(404).json({ error: 'Job role not found' });
     }
     return res.json(jobRole);
+  }
+
+  async createJobRole(req: Request, res: Response): Promise<void> {
+    if (!FEATURE_FLAGS.ADMIN_CREATE_JOB_ROLE) {
+      res.status(404).json({ error: 'Feature not available' });
+      return;
+    }
+
+    try {
+      const validatedData = validateCreateJobRole(req.body);
+      const result = await this.jobRoleService.createJobRole(validatedData);
+      res.status(201).json(result);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error creating job role:', error);
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to create job role' });
+      }
+    }
+  }
+
+  async getBands(req: Request, res: Response): Promise<void> {
+    try {
+      const bands = await this.jobRoleService.getBands();
+      res.json(bands);
+    } catch (error: unknown) {
+      console.error('Error fetching bands:', error);
+      res.status(500).json({ error: 'Failed to fetch bands' });
+    }
+  }
+
+  async getCapabilities(req: Request, res: Response): Promise<void> {
+    try {
+      const capabilities = await this.jobRoleService.getCapabilities();
+      res.json(capabilities);
+    } catch (error: unknown) {
+      console.error('Error fetching capabilities:', error);
+      res.status(500).json({ error: 'Failed to fetch capabilities' });
+    }
+  }
+
+  async getLocations(req: Request, res: Response): Promise<void> {
+    try {
+      const locations = await this.jobRoleService.getLocations();
+      res.json(locations);
+    } catch (error: unknown) {
+      console.error('Error fetching locations:', error);
+      res.status(500).json({ error: 'Failed to fetch locations' });
+    }
   }
 }
 

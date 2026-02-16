@@ -21,4 +21,15 @@ router.get('/job-roles/:id', authMiddleware(), (req, res) =>
   jobRoleController.getJobRoleById(req, res),
 );
 
+// Admin-only routes
+//TODO: Add authentication middleware to protect this route
+router.post('/job-roles', (req, res) => 
+  jobRoleController.createJobRole(req, res)
+);
+
+// Data lookup routes
+router.get('/bands', (req, res) => jobRoleController.getBands(req, res));
+router.get('/capabilities', (req, res) => jobRoleController.getCapabilities(req, res));
+router.get('/locations', (req, res) => jobRoleController.getLocations(req, res));
+
 export default router;
