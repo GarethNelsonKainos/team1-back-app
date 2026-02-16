@@ -1,4 +1,4 @@
-import type { PrismaClient } from '../generated/prisma/client';
+import type { PrismaClient } from '@prisma/client';
 
 export interface CreateApplicationRequest {
   jobRoleId: number;
@@ -43,13 +43,13 @@ export class ApplicationService {
       return null;
     }
 
-    // Get "Applied" status ID (should be 1 based on seed data)
+    // Get initial "Submitted" application status ID (based on seed data)
     const appliedStatus = await this.prisma.applicationStatus.findUnique({
-      where: { applicationStatusType: 'Applied' },
+      where: { applicationStatusType: 'Submitted' },
     });
 
     if (!appliedStatus) {
-      throw new Error('Applied status not found in database');
+      throw new Error('Submitted status not found in database');
     }
 
     // Create application

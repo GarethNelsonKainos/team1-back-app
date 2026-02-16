@@ -1,5 +1,5 @@
+import type { PrismaClient } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { PrismaClient } from '../src/generated/prisma/client';
 import { ApplicationService } from '../src/services/application.service';
 
 describe('ApplicationService', () => {
@@ -132,7 +132,7 @@ describe('ApplicationService', () => {
       expect(mockPrisma.applicationStatus.findUnique).not.toHaveBeenCalled();
     });
 
-    it('should throw error when Applied status not found in database', async () => {
+    it('should throw error when Submitted status not found in database', async () => {
       const request = { jobRoleId: 1, userId: 1 };
 
       mockPrisma.jobRole.findUnique.mockResolvedValue({
@@ -146,7 +146,7 @@ describe('ApplicationService', () => {
 
       await expect(
         applicationService.createApplication(request),
-      ).rejects.toThrow('Applied status not found in database');
+      ).rejects.toThrow('Submitted status not found in database');
     });
 
     it('should prevent duplicate applications for same user and job role', async () => {
