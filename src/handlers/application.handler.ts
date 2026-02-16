@@ -1,5 +1,5 @@
+import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
-import type { PrismaClient } from '../generated/prisma/client';
 import { ApplicationService } from '../services/application.service';
 import { isJobApplicationsEnabled } from '../utils/FeatureFlags';
 
@@ -34,9 +34,17 @@ export async function createApplicationHandler(
       return;
     }
 
+    // Look up the Applicant user type in the database to avoid hardcoded IDs
+    const applicantUserType = await prisma.userType.findFirst({
+      where: { userTypeDesc: 'Applicant' },
+    });
+    if (!applicantUserType) {
+      console.error('Applicant user type not found in database configuration');
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
     // Check if user is an applicant
-    if (user.userTypeId !== 1) {
-      // Assuming 1 is Applicant based on seed data
+    if (user.userTypeId !== applicantUserType.userTypeId) {
       res.status(403).json({ error: 'Only applicants can apply for roles' });
       return;
     }
