@@ -1,6 +1,6 @@
-import type { ApplicationStatus } from './ApplicationStatus';
-import type { JobRole } from './JobRole';
-import type { User } from './User';
+import type { ApplicationStatus } from './ApplicationStatus.js';
+import type { JobRole } from './JobRole.js';
+import type { User } from './User.js';
 
 interface Application {
   applicationId: number;

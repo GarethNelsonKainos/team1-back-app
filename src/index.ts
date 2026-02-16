@@ -2,10 +2,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
+import authRoutes from './routes/auth.routes.js';
 
 // Load environment variables
 dotenv.config();
-import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;

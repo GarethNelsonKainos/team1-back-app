@@ -1,4 +1,4 @@
-import type { JobRole } from './JobRole';
+import type { JobRole } from './JobRole.js';
 
 interface Band {
   bandId: number;

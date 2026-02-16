@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../db/prisma.js';
-import { loginHandler, logoutHandler } from '../handlers/auth.handler';
+import { loginHandler, logoutHandler } from '../handlers/auth.handler.js';
 
 const router = Router();
 
