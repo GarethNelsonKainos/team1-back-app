@@ -45,4 +45,12 @@ router.get('/status/:jobRoleId', authMiddleware, (req, res) =>
 //  createApplicationHandler(req, res, prisma),
 //);
 
+/**
+ * GET /api/applications/status/:jobRoleId
+ * Check if user has already applied for a specific job role (requires authentication)
+ */
+//router.get('/status/:jobRoleId', authMiddleware, (req, res) =>
+// checkApplicationStatusHandler(req, res, prisma),
+//);
+
 export default router;
