@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { ApplicationService } from '../services/application.service';
+import { S3Service } from '../services/s3.service';
 import { isJobApplicationsEnabled } from '../utils/FeatureFlags';
 
 export async function createApplicationHandler(
@@ -40,6 +41,19 @@ export async function createApplicationHandler(
       return;
     }
 
+    // Handle CV upload if file is present
+    let cvUrl: string | undefined;
+    if (req.file) {
+      try {
+        const s3Service = new S3Service();
+        cvUrl = await s3Service.uploadFile(req.file, user.userId);
+      } catch (uploadError) {
+        console.error('Error uploading CV:', uploadError);
+        res.status(500).json({ error: 'Failed to upload CV' });
+        return;
+      }
+    }
+
     const applicationService = new ApplicationService(prisma);
     const result = await applicationService.createApplication({
       jobRoleId: roleId,
@@ -58,7 +72,7 @@ export async function createApplicationHandler(
     // For API calls (application/json), return JSON response
     const contentType = req.headers['content-type'];
 
-    if (contentType?.includes('application/x-www-form-urlencoded')) {
+    if (contentType?.includes('multipart/form-data')) {
       res.redirect(
         `${process.env.FRONTEND_URL || 'http://localhost:3000'}/application-success`,
       );
@@ -66,6 +80,7 @@ export async function createApplicationHandler(
       res.status(201).json({
         message: 'Application submitted successfully',
         application: result,
+        cvUrl: cvUrl,
       });
     }
   } catch (error) {
