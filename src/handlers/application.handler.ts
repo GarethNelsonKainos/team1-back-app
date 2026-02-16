@@ -82,3 +82,31 @@ export async function createApplicationHandler(
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+export async function checkApplicationStatusHandler(
+  req: Request,
+  res: Response,
+  prisma: PrismaClient,
+): Promise<void> {
+  try {
+    const { jobRoleId } = req.params;
+    const user = req.user;
+
+    if (!user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const application = await prisma.application.findFirst({
+      where: {
+        userId: user.userId,
+        jobRoleId: Number.parseInt(String(jobRoleId), 10),
+      },
+    });
+
+    res.json({ hasApplied: !!application });
+  } catch (error) {
+    console.error('Error checking application status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
