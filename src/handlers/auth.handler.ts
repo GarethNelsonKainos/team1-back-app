@@ -1,6 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
-import { toLoginCredentials, toLoginResponse } from '../mappers/RBAC.mapper.js';
+import {
+  formatLoginResponse,
+  parseLoginRequest,
+} from '../mappers/LoginMapper.js';
 import { AuthService } from '../services/auth.service.js';
 
 export async function loginHandler(
@@ -9,7 +12,7 @@ export async function loginHandler(
   prisma: PrismaClient,
 ): Promise<void> {
   try {
-    const parseResult = toLoginCredentials(req.body);
+    const parseResult = parseLoginRequest(req.body);
     if (!parseResult.ok) {
       res.status(400).json({ error: parseResult.error });
       return;
@@ -24,7 +27,7 @@ export async function loginHandler(
       return;
     }
 
-    res.json(toLoginResponse(result));
+    res.json(formatLoginResponse(result));
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
