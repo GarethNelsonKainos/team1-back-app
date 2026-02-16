@@ -18,6 +18,18 @@ npm run dev
 
 Health check: http://localhost:${PORT}/health (for the default port this is http://localhost:3001/health)
 
+## Demo Users
+User1:
+email: alice@example.com
+password: password1
+
+User2:
+email: bob@example.com
+password: password2
+
+Admin:
+email: charlie@example.com
+password: adminpass
 
 
 ## Database Setup (PostgreSQL + Prisma)
