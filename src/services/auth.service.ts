@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import type { UserRole } from '../types/auth.types.js';
 import { generateToken } from '../utils/jwt.utils.js';
 import { comparePassword } from '../utils/password.utils.js';
 
@@ -41,7 +42,7 @@ export class AuthService {
     const token = generateToken({
       userId: user.userId,
       email: user.userEmail,
-      userTypeId: user.userTypeId,
+      userTypeId: user.userTypeId as UserRole,
       firstName: user.firstName,
       lastName: user.lastName,
     });

@@ -1,5 +1,6 @@
 // test/auth.handler.test.ts
 
+import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { loginHandler, logoutHandler } from '../src/handlers/auth.handler';
@@ -10,8 +11,8 @@ vi.mock('../src/services/auth.service');
 
 describe('auth.handler', () => {
   let mockReq: Partial<Request>;
-  let mockRes: Partial<Response>;
-  let mockPrisma: unknown;
+  let mockRes: Response;
+  let mockPrisma: PrismaClient;
   let statusMock: ReturnType<typeof vi.fn>;
   let jsonMock: ReturnType<typeof vi.fn>;
   let mockAuthService: {
@@ -29,9 +30,9 @@ describe('auth.handler', () => {
     mockRes = {
       status: statusMock,
       json: jsonMock,
-    };
+    } as unknown as Response;
 
-    mockPrisma = {};
+    mockPrisma = {} as PrismaClient;
 
     mockAuthService = {
       login: vi.fn(),
@@ -39,7 +40,7 @@ describe('auth.handler', () => {
 
     // Mock the AuthService constructor to return our mock
     vi.mocked(AuthService).mockImplementation(
-      () => mockAuthService as AuthService,
+      () => mockAuthService as unknown as AuthService,
     );
 
     vi.clearAllMocks();
@@ -149,12 +150,6 @@ describe('auth.handler', () => {
 
       const mockResult = {
         token: 'mock-jwt-token',
-        user: {
-          userId: 1,
-          firstName: 'Test',
-          lastName: 'User',
-          email: 'test@example.com',
-        },
       };
 
       mockAuthService.login.mockResolvedValue(mockResult);
@@ -169,12 +164,6 @@ describe('auth.handler', () => {
 
       const mockResult = {
         token: 'mock-jwt-token',
-        user: {
-          userId: 1,
-          firstName: 'Test',
-          lastName: 'User',
-          email: 'test@example.com',
-        },
       };
 
       mockAuthService.login.mockResolvedValue(mockResult);
@@ -182,7 +171,7 @@ describe('auth.handler', () => {
       await loginHandler(mockReq as Request, mockRes as Response, mockPrisma);
 
       expect(mockAuthService.login).toHaveBeenCalledWith({
-        email: '  Test@Example.COM  ',
+        email: 'test@example.com',
         password: 'password123',
       });
     });

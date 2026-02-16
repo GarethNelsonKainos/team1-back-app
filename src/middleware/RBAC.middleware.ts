@@ -1,9 +1,10 @@
 import type { NextFunction, Request, Response } from 'express';
+import { UserRole } from '../types/auth.types.js';
 
 /**
  * Middleware to enforce role-based access control
  */
-export function requireRole(allowedRoles: number[]) {
+export function requireRole(allowedRoles: UserRole[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ error: 'User not authenticated' });
@@ -20,15 +21,15 @@ export function requireRole(allowedRoles: number[]) {
 }
 
 /**
- * Admin only access (userTypeId === 2)
+ * Admin only access
  */
 export function requireAdmin() {
-  return requireRole([2]);
+  return requireRole([UserRole.Admin]);
 }
 
 /**
- * Applicant or Admin (userTypeId 1 or 2)
+ * Applicant or Admin
  */
 export function requireApplicantOrAdmin() {
-  return requireRole([1, 2]);
+  return requireRole([UserRole.Applicant, UserRole.Admin]);
 }

@@ -1,9 +1,14 @@
 // This file defines what data looks like
 
+export enum UserRole {
+  Applicant = 1,
+  Admin = 2,
+}
+
 export interface JWTPayload {
   userId: number;
   email: string;
-  userTypeId: number;
+  userTypeId: UserRole;
   firstName: string;
   lastName: string;
 }
