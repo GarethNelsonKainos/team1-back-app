@@ -3,13 +3,15 @@ import type { PrismaClient } from '@prisma/client';
 export interface CreateApplicationRequest {
   jobRoleId: number;
   userId: number;
+  cvUrl?: string;
 }
 
-export interface ApplicationResult {
+export interface Application {
   applicationId: number;
   jobRoleId: number;
   userId: number;
   applicationStatusId: number;
+  cvUrl?: string | null;
   createdAt: Date;
 }
 
@@ -18,8 +20,8 @@ export class ApplicationService {
 
   async createApplication(
     request: CreateApplicationRequest,
-  ): Promise<ApplicationResult | null> {
-    const { jobRoleId, userId } = request;
+  ): Promise<Application | null> {
+    const { jobRoleId, userId, cvUrl } = request;
 
     // Check if job role exists and is open
     const jobRole = await this.prisma.jobRole.findUnique({
@@ -58,6 +60,7 @@ export class ApplicationService {
         userId,
         jobRoleId,
         applicationStatusId: appliedStatus.applicationStatusId,
+        cvUrl: cvUrl,
       },
     });
 
