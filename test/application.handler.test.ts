@@ -3,9 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PrismaClient } from '../src/generated/prisma/client';
 import { createApplicationHandler } from '../src/handlers/application.handler';
 import { ApplicationService } from '../src/services/application.service';
+import * as FeatureFlags from '../src/utils/FeatureFlags';
 
-// Mock the ApplicationService
+// Mock the ApplicationService and FeatureFlags
 vi.mock('../src/services/application.service');
+vi.mock('../src/utils/FeatureFlags');
 
 describe('application.handler', () => {
   let mockReq: Partial<Request>;
@@ -43,6 +45,9 @@ describe('application.handler', () => {
     vi.mocked(ApplicationService).mockImplementation(
       () => mockApplicationService as unknown as ApplicationService,
     );
+
+    // Mock FeatureFlags to be enabled by default
+    vi.mocked(FeatureFlags.isJobApplicationsEnabled).mockReturnValue(true);
   });
 
   describe('createApplicationHandler', () => {
@@ -275,6 +280,32 @@ describe('application.handler', () => {
         jobRoleId: 123, // Should be converted to number
         userId: 1,
       });
+    });
+
+    it('should return 503 when job applications feature is disabled', async () => {
+      // Mock feature flag as disabled
+      vi.mocked(FeatureFlags.isJobApplicationsEnabled).mockReturnValue(false);
+
+      mockReq.body = { jobRoleId: 1 };
+      mockReq.user = {
+        userId: 1,
+        email: 'test@example.com',
+        userTypeId: 1,
+        firstName: 'Test',
+        lastName: 'User',
+      };
+
+      await createApplicationHandler(
+        mockReq as Request,
+        mockRes as Response,
+        mockPrisma,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(503);
+      expect(jsonMock).toHaveBeenCalledWith({
+        error: 'Job applications are currently not available',
+      });
+      expect(mockApplicationService.createApplication).not.toHaveBeenCalled();
     });
   });
 });

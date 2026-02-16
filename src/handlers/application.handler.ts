@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import type { PrismaClient } from '../generated/prisma/client';
 import { ApplicationService } from '../services/application.service';
+import { isJobApplicationsEnabled } from '../utils/FeatureFlags';
 
 export async function createApplicationHandler(
   req: Request,
@@ -8,6 +9,14 @@ export async function createApplicationHandler(
   prisma: PrismaClient,
 ): Promise<void> {
   try {
+    // Check if job applications feature is enabled
+    if (!isJobApplicationsEnabled()) {
+      res
+        .status(503)
+        .json({ error: 'Job applications are currently not available' });
+      return;
+    }
+
     const { jobRoleId } = req.body;
     const user = req.user; // From auth middleware
 
