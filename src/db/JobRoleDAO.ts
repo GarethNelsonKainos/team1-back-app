@@ -77,6 +77,41 @@ class JobRoleDAO {
       throw new Error('Open status not found in database');
     }
 
+    // Validate that capabilityId exists
+    const capability = await this.prisma.capability.findUnique({
+      where: { capabilityId: data.capabilityId },
+    });
+
+    if (!capability) {
+      throw new Error(`Capability with ID ${data.capabilityId} does not exist`);
+    }
+
+    // Validate that bandId exists
+    const band = await this.prisma.band.findUnique({
+      where: { bandId: data.bandId },
+    });
+
+    if (!band) {
+      throw new Error(`Band with ID ${data.bandId} does not exist`);
+    }
+
+    // Validate that all locationIds exist
+    if (data.locationIds.length > 0) {
+      const locations = await this.prisma.location.findMany({
+        where: { locationId: { in: data.locationIds } },
+      });
+
+      if (locations.length !== data.locationIds.length) {
+        const foundIds = locations.map((loc) => loc.locationId);
+        const missingIds = data.locationIds.filter(
+          (id) => !foundIds.includes(id),
+        );
+        throw new Error(
+          `Location(s) with ID(s) ${missingIds.join(', ')} do not exist`,
+        );
+      }
+    }
+
     // Create job role with locations in transaction
     return await this.prisma.$transaction(async (tx) => {
       const jobRole = await tx.jobRole.create({

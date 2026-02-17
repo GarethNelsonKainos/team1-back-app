@@ -266,10 +266,7 @@ describe('JobRoleController - New Methods', () => {
         params: { id: '1' },
       } as Request;
 
-      await jobRoleController.getJobRoleById(
-        request,
-        mockResponse as Response,
-      );
+      await jobRoleController.getJobRoleById(request, mockResponse as Response);
 
       expect(mockResponse.json).toHaveBeenCalledWith(mockJobRole);
     });
@@ -282,10 +279,7 @@ describe('JobRoleController - New Methods', () => {
         params: { id: '999' },
       } as Request;
 
-      await jobRoleController.getJobRoleById(
-        request,
-        mockResponse as Response,
-      );
+      await jobRoleController.getJobRoleById(request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -299,10 +293,7 @@ describe('JobRoleController - New Methods', () => {
         params: { id: 'invalid-id' },
       } as Request;
 
-      await jobRoleController.getJobRoleById(
-        request,
-        mockResponse as Response,
-      );
+      await jobRoleController.getJobRoleById(request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -311,17 +302,16 @@ describe('JobRoleController - New Methods', () => {
     });
 
     it('should return 500 when the service throws an error', async () => {
-      mockJobRoleService.getJobRoleById.mockRejectedValue(new Error('DB error'));
+      mockJobRoleService.getJobRoleById.mockRejectedValue(
+        new Error('DB error'),
+      );
 
       const request = {
         ...mockRequest,
         params: { id: '1' },
       } as Request;
 
-      await jobRoleController.getJobRoleById(
-        request,
-        mockResponse as Response,
-      );
+      await jobRoleController.getJobRoleById(request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(500);
       expect(mockResponse.json).toHaveBeenCalledWith({

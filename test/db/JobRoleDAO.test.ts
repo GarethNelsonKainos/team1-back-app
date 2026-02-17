@@ -17,9 +17,11 @@ describe('JobRoleDAO - New Methods', () => {
     };
     band: {
       findMany: ReturnType<typeof vi.fn>;
+      findUnique: ReturnType<typeof vi.fn>;
     };
     capability: {
       findMany: ReturnType<typeof vi.fn>;
+      findUnique: ReturnType<typeof vi.fn>;
     };
     location: {
       findMany: ReturnType<typeof vi.fn>;
@@ -41,9 +43,11 @@ describe('JobRoleDAO - New Methods', () => {
       },
       band: {
         findMany: vi.fn(),
+        findUnique: vi.fn(),
       },
       capability: {
         findMany: vi.fn(),
+        findUnique: vi.fn(),
       },
       location: {
         findMany: vi.fn(),
@@ -56,6 +60,22 @@ describe('JobRoleDAO - New Methods', () => {
   describe('createJobRole', () => {
     it('should create a job role with locations', async () => {
       const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
+      const mockCapability = { capabilityId: 1, capabilityName: 'Engineering' };
+      const mockBand = { bandId: 2, bandName: 'Senior Associate' };
+      const mockLocations = [
+        {
+          locationId: 1,
+          locationName: 'Belfast',
+          city: 'Belfast',
+          country: 'UK',
+        },
+        {
+          locationId: 2,
+          locationName: 'London',
+          city: 'London',
+          country: 'UK',
+        },
+      ];
       const mockJobRole = {
         jobRoleId: 1,
         roleName: 'Senior Software Engineer',
@@ -70,6 +90,9 @@ describe('JobRoleDAO - New Methods', () => {
       };
 
       mockPrisma.jobRoleStatus.findUnique.mockResolvedValue(mockStatus);
+      mockPrisma.capability.findUnique.mockResolvedValue(mockCapability);
+      mockPrisma.band.findUnique.mockResolvedValue(mockBand);
+      mockPrisma.location.findMany.mockResolvedValue(mockLocations);
       mockPrisma.jobRole.create.mockResolvedValue(mockJobRole);
       mockPrisma.jobRoleLocation.createMany.mockResolvedValue({ count: 2 });
 
@@ -87,6 +110,15 @@ describe('JobRoleDAO - New Methods', () => {
 
       expect(mockPrisma.jobRoleStatus.findUnique).toHaveBeenCalledWith({
         where: { statusName: 'Open' },
+      });
+      expect(mockPrisma.capability.findUnique).toHaveBeenCalledWith({
+        where: { capabilityId: 1 },
+      });
+      expect(mockPrisma.band.findUnique).toHaveBeenCalledWith({
+        where: { bandId: 2 },
+      });
+      expect(mockPrisma.location.findMany).toHaveBeenCalledWith({
+        where: { locationId: { in: [1, 2] } },
       });
       expect(mockPrisma.jobRole.create).toHaveBeenCalled();
       expect(mockPrisma.jobRoleLocation.createMany).toHaveBeenCalledWith({
@@ -114,6 +146,81 @@ describe('JobRoleDAO - New Methods', () => {
           closingDate: new Date('2026-12-31'),
         }),
       ).rejects.toThrow('Open status not found in database');
+    });
+
+    it('should throw error if capability does not exist', async () => {
+      const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
+      mockPrisma.jobRoleStatus.findUnique.mockResolvedValue(mockStatus);
+      mockPrisma.capability.findUnique.mockResolvedValue(null);
+
+      await expect(
+        jobRoleDAO.createJobRole({
+          roleName: 'Test Role',
+          capabilityId: 999,
+          bandId: 1,
+          description: 'Test',
+          responsibilities: 'Test',
+          jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
+          openPositions: 1,
+          locationIds: [1],
+          closingDate: new Date('2026-12-31'),
+        }),
+      ).rejects.toThrow('Capability with ID 999 does not exist');
+    });
+
+    it('should throw error if band does not exist', async () => {
+      const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
+      const mockCapability = { capabilityId: 1, capabilityName: 'Engineering' };
+      mockPrisma.jobRoleStatus.findUnique.mockResolvedValue(mockStatus);
+      mockPrisma.capability.findUnique.mockResolvedValue(mockCapability);
+      mockPrisma.band.findUnique.mockResolvedValue(null);
+
+      await expect(
+        jobRoleDAO.createJobRole({
+          roleName: 'Test Role',
+          capabilityId: 1,
+          bandId: 999,
+          description: 'Test',
+          responsibilities: 'Test',
+          jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
+          openPositions: 1,
+          locationIds: [1],
+          closingDate: new Date('2026-12-31'),
+        }),
+      ).rejects.toThrow('Band with ID 999 does not exist');
+    });
+
+    it('should throw error if any location does not exist', async () => {
+      const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
+      const mockCapability = { capabilityId: 1, capabilityName: 'Engineering' };
+      const mockBand = { bandId: 2, bandName: 'Senior Associate' };
+      const mockLocations = [
+        {
+          locationId: 1,
+          locationName: 'Belfast',
+          city: 'Belfast',
+          country: 'UK',
+        },
+      ];
+
+      mockPrisma.jobRoleStatus.findUnique.mockResolvedValue(mockStatus);
+      mockPrisma.capability.findUnique.mockResolvedValue(mockCapability);
+      mockPrisma.band.findUnique.mockResolvedValue(mockBand);
+      mockPrisma.location.findMany.mockResolvedValue(mockLocations);
+
+      await expect(
+        jobRoleDAO.createJobRole({
+          roleName: 'Test Role',
+          capabilityId: 1,
+          bandId: 2,
+          description: 'Test',
+          responsibilities: 'Test',
+          jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
+          openPositions: 1,
+          locationIds: [1, 999],
+          closingDate: new Date('2026-12-31'),
+        }),
+      ).rejects.toThrow('Location(s) with ID(s) 999 do not exist');
     });
   });
 
