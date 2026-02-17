@@ -106,19 +106,19 @@ class JobRoleDAO {
   }
 
   async getBands() {
-    return await this.prisma.band.findMany({
+    return this.prisma.band.findMany({
       orderBy: { bandName: 'asc' },
     });
   }
 
   async getCapabilities() {
-    return await this.prisma.capability.findMany({
+    return this.prisma.capability.findMany({
       orderBy: { capabilityName: 'asc' },
     });
   }
 
   async getLocations() {
-    return await this.prisma.location.findMany({
+    return this.prisma.location.findMany({
       orderBy: { locationName: 'asc' },
     });
   }
