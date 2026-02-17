@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
-import { FEATURE_FLAGS } from '../config/featureFlags.js';
 import type { JobRoleService } from '../services/JobRoleService.js';
-import type { CreateJobRoleRequest } from '../types/CreateJobRole.types.js';
+import { FEATURE_FLAGS } from '../utils/FeatureFlags.js';
 import { validateCreateJobRole } from '../utils/validation.utils.js';
 
 class JobRoleController {
@@ -34,6 +33,7 @@ class JobRoleController {
   }
 
   async createJobRole(req: Request, res: Response): Promise<void> {
+    console.log('Received request to create job role with data:', req.body);
     if (!FEATURE_FLAGS.ADMIN_CREATE_JOB_ROLE) {
       res.status(404).json({ error: 'Feature not available' });
       return;

@@ -1,12 +1,13 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import cors from 'cors';
+import dotenv from 'dotenv';
 import express from 'express';
 import AuthController from './controllers/AuthController.js';
 import { prisma } from './db/prisma.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
-import authRoutes from './routes/auth.routes.js';
+import authRouter from './routes/authRouter.js';
+import { AuthService } from './services/AuthService.js';
+
+dotenv.config();
 
 const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;
@@ -35,7 +36,7 @@ app.use((req, res) => {
   res.status(404).json({
     error: 'Not Found',
     message: 'The requested resource does not exist',
-    path: req.path
+    path: req.path,
   });
 });
 
