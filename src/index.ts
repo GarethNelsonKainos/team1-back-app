@@ -1,13 +1,13 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import applicationRoutes from './routes/application.routes.js';
 import AuthController from './controllers/AuthController.js';
 import { prisma } from './db/prisma.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
+import applicationRoutes from './routes/application.routes.js';
 import authRouter from './routes/authRouter.js';
-import { AuthService } from './services/AuthService.js';
 import cvRoutes from './routes/cv.routes.js';
+import { AuthService } from './services/AuthService.js';
 
 dotenv.config();
 
