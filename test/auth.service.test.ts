@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthService } from '../src/services/auth.service';
+import { AuthService } from '../src/services/AuthService.js';
 import * as jwtUtils from '../src/utils/jwt.utils';
 import * as passwordUtils from '../src/utils/password.utils';
 
@@ -69,15 +69,16 @@ describe('AuthService', () => {
       });
     });
 
-    it('should return null when user is not found', async () => {
+    it('should throw AuthenticationError when user is not found', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
 
-      const result = await authService.login({
-        email: 'nonexistent@example.com',
-        password: 'password123',
-      });
+      await expect(
+        authService.login({
+          email: 'nonexistent@example.com',
+          password: 'password123',
+        }),
+      ).rejects.toThrowError('Invalid credentials');
 
-      expect(result).toBeNull();
       expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { userEmail: 'nonexistent@example.com' },
         include: { userType: true },
@@ -86,7 +87,7 @@ describe('AuthService', () => {
       expect(jwtUtils.generateToken).not.toHaveBeenCalled();
     });
 
-    it('should return null when password does not match', async () => {
+    it('should throw AuthenticationError when password does not match', async () => {
       const mockUser = {
         userId: 1,
         userEmail: 'test@example.com',
@@ -100,12 +101,13 @@ describe('AuthService', () => {
       mockPrisma.user.findUnique.mockResolvedValue(mockUser);
       vi.mocked(passwordUtils.comparePassword).mockResolvedValue(false);
 
-      const result = await authService.login({
-        email: 'test@example.com',
-        password: 'wrongPassword',
-      });
+      await expect(
+        authService.login({
+          email: 'test@example.com',
+          password: 'wrongPassword',
+        }),
+      ).rejects.toThrowError('Invalid credentials');
 
-      expect(result).toBeNull();
       expect(passwordUtils.comparePassword).toHaveBeenCalledWith(
         'wrongPassword',
         'hashedPassword123',
