@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import ValidationError from '../errors/ValidationError.js';
 import type { JobRoleService } from '../services/JobRoleService.js';
 import { FEATURE_FLAGS } from '../utils/FeatureFlags.js';
 import { validateCreateJobRole } from '../utils/validation.utils.js';
@@ -44,7 +45,10 @@ class JobRoleController {
       const result = await this.jobRoleService.createJobRole(validatedData);
       res.status(201).json(result);
     } catch (error: unknown) {
-      if (error instanceof Error) {
+      if (error instanceof ValidationError) {
+        console.error('Validation error creating job role:', error.message);
+        res.status(400).json({ error: error.message });
+      } else if (error instanceof Error) {
         console.error('Error creating job role:', error);
         res.status(400).json({ error: error.message });
       } else {

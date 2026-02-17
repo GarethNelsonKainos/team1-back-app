@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import ValidationError from '../errors/ValidationError.js';
 import type { Band } from '../models/Band.js';
 import type { Capability } from '../models/Capability.js';
 import type { JobRoleStatus } from '../models/JobRoleStatus.js';
@@ -75,6 +76,41 @@ class JobRoleDAO {
 
     if (!openStatus) {
       throw new Error('Open status not found in database');
+    }
+
+    // Validate that capabilityId exists
+    const capability = await this.prisma.capability.findUnique({
+      where: { capabilityId: data.capabilityId },
+    });
+    if (!capability) {
+      throw new ValidationError(
+        `Capability with ID ${data.capabilityId} does not exist`,
+      );
+    }
+
+    // Validate that bandId exists
+    const band = await this.prisma.band.findUnique({
+      where: { bandId: data.bandId },
+    });
+    if (!band) {
+      throw new ValidationError(`Band with ID ${data.bandId} does not exist`);
+    }
+
+    // Validate that all locationIds exist
+    if (data.locationIds.length > 0) {
+      const locations = await this.prisma.location.findMany({
+        where: { locationId: { in: data.locationIds } },
+      });
+
+      if (locations.length !== data.locationIds.length) {
+        const foundIds = locations.map((loc) => loc.locationId);
+        const missingIds = data.locationIds.filter(
+          (id) => !foundIds.includes(id),
+        );
+        throw new ValidationError(
+          `Location(s) with ID(s) ${missingIds.join(', ')} do not exist`,
+        );
+      }
     }
 
     // Create job role with locations in transaction
