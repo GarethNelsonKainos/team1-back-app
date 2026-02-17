@@ -131,8 +131,9 @@ describe('JobRoleDAO', () => {
     });
 
     it('should throw error when job role does not exist', async () => {
-      const prismaError = new Error('Record not found');
-      (prismaError as any).code = 'P2025';
+      const prismaError = Object.assign(new Error('Record not found'), {
+        code: 'P2025',
+      });
 
       const mockPrisma = {
         $transaction: vi.fn(async (callback) => {
@@ -159,14 +160,10 @@ describe('JobRoleDAO', () => {
 
       const mockPrisma = {
         $transaction: vi.fn(async (callback) => {
-          try {
-            return await callback({
-              application: { deleteMany: mockDeleteMany },
-              jobRole: { delete: mockDelete },
-            });
-          } catch (error) {
-            throw error;
-          }
+          return await callback({
+            application: { deleteMany: mockDeleteMany },
+            jobRole: { delete: mockDelete },
+          });
         }),
       } as unknown as PrismaClient;
 

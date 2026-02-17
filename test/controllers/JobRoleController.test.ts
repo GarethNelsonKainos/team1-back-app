@@ -185,10 +185,7 @@ describe('JobRoleController', () => {
         json: vi.fn(),
       };
 
-      await controller.deleteJobRole(
-        mockReq as Request,
-        mockRes as Response
-      );
+      await controller.deleteJobRole(mockReq as Request, mockRes as Response);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -213,10 +210,7 @@ describe('JobRoleController', () => {
         send: vi.fn(),
       };
 
-      await controller.deleteJobRole(
-        mockReq as Request,
-        mockRes as Response
-      );
+      await controller.deleteJobRole(mockReq as Request, mockRes as Response);
 
       expect(mockService.deleteJobRole).toHaveBeenCalledWith(5);
       expect(mockRes.status).toHaveBeenCalledWith(204);
@@ -240,10 +234,7 @@ describe('JobRoleController', () => {
         json: vi.fn(),
       };
 
-      await controller.deleteJobRole(
-        mockReq as Request,
-        mockRes as Response
-      );
+      await controller.deleteJobRole(mockReq as Request, mockRes as Response);
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -268,10 +259,7 @@ describe('JobRoleController', () => {
         json: vi.fn(),
       };
 
-      await controller.deleteJobRole(
-        mockReq as Request,
-        mockRes as Response
-      );
+      await controller.deleteJobRole(mockReq as Request, mockRes as Response);
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -296,10 +284,7 @@ describe('JobRoleController', () => {
         json: vi.fn(),
       };
 
-      await controller.deleteJobRole(
-        mockReq as Request,
-        mockRes as Response
-      );
+      await controller.deleteJobRole(mockReq as Request, mockRes as Response);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -328,10 +313,7 @@ describe('JobRoleController', () => {
         json: vi.fn(),
       };
 
-      await controller.deleteJobRole(
-        mockReq as Request,
-        mockRes as Response
-      );
+      await controller.deleteJobRole(mockReq as Request, mockRes as Response);
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -339,7 +321,7 @@ describe('JobRoleController', () => {
       });
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error deleting job role:',
-        error
+        error,
       );
 
       consoleErrorSpy.mockRestore();

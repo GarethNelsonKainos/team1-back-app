@@ -194,7 +194,7 @@ describe('JobRoleService', () => {
       const service = new JobRoleService(mockDAO);
 
       await expect(service.deleteJobRole(-1)).rejects.toThrow(
-        'Invalid job role ID'
+        'Invalid job role ID',
       );
       expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
     });
@@ -207,7 +207,7 @@ describe('JobRoleService', () => {
       const service = new JobRoleService(mockDAO);
 
       await expect(service.deleteJobRole(0)).rejects.toThrow(
-        'Invalid job role ID'
+        'Invalid job role ID',
       );
       expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
     });
@@ -220,7 +220,7 @@ describe('JobRoleService', () => {
       const service = new JobRoleService(mockDAO);
 
       await expect(service.deleteJobRole(1.5)).rejects.toThrow(
-        'Invalid job role ID'
+        'Invalid job role ID',
       );
       expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
     });
@@ -245,7 +245,7 @@ describe('JobRoleService', () => {
       const service = new JobRoleService(mockDAO);
 
       await expect(service.deleteJobRole(5)).rejects.toThrow(
-        'Database connection failed'
+        'Database connection failed',
       );
     });
   });
