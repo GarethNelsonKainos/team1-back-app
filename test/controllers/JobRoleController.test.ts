@@ -4,7 +4,7 @@ import { JobRoleController } from '../../src/controllers/JobRoleController';
 import type { JobRoleService } from '../../src/services/JobRoleService';
 
 // Mock feature flags
-vi.mock('../../src/config/featureFlags', () => ({
+vi.mock('../../src/utils/FeatureFlags', () => ({
   FEATURE_FLAGS: {
     ADMIN_CREATE_JOB_ROLE: true,
   },
