@@ -1,32 +1,23 @@
-import type { PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  checkApplicationStatusHandler,
-  createApplicationHandler,
-  resetServiceInstances,
-} from '../src/handlers/application.handler';
-import { ApplicationService } from '../src/services/application.service';
-import * as FeatureFlags from '../src/utils/FeatureFlags';
+import { ApplicationController } from '../../src/controllers/ApplicationController';
+import type { ApplicationService } from '../../src/services/application.service';
+import * as FeatureFlags from '../../src/utils/FeatureFlags';
 
-// Mock the ApplicationService and FeatureFlags
-vi.mock('../src/services/application.service');
-vi.mock('../src/utils/FeatureFlags');
+vi.mock('../../src/utils/FeatureFlags');
 
-describe('application.handler', () => {
+describe('ApplicationController', () => {
+  let controller: ApplicationController;
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
-  let mockPrisma: PrismaClient;
   let statusMock: ReturnType<typeof vi.fn>;
   let jsonMock: ReturnType<typeof vi.fn>;
   let mockApplicationService: {
     createApplication: ReturnType<typeof vi.fn>;
+    hasUserApplied: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
-    // Reset singleton instances for clean test state
-    resetServiceInstances();
-
     statusMock = vi.fn().mockReturnThis();
     jsonMock = vi.fn();
 
@@ -39,35 +30,22 @@ describe('application.handler', () => {
       body: {},
       user: undefined,
       headers: {},
+      params: {},
     };
 
-    mockPrisma = {
-      userType: {
-        findFirst: vi.fn().mockResolvedValue({
-          userTypeId: 1,
-          userTypeDesc: 'Applicant',
-        }),
-      },
-      application: {
-        findFirst: vi.fn(),
-      },
-    } as unknown as PrismaClient;
-
-    // Setup ApplicationService mock
     mockApplicationService = {
       createApplication: vi.fn(),
+      hasUserApplied: vi.fn(),
     };
 
-    // Mock the constructor to return our mock instance
-    vi.mocked(ApplicationService).mockImplementation(
-      () => mockApplicationService as unknown as ApplicationService,
+    controller = new ApplicationController(
+      mockApplicationService as unknown as ApplicationService,
     );
 
-    // Mock FeatureFlags to be enabled by default
     vi.mocked(FeatureFlags.isJobApplicationsEnabled).mockReturnValue(true);
   });
 
-  describe('createApplicationHandler', () => {
+  describe('createApplication', () => {
     it('should create application successfully for valid applicant', async () => {
       mockReq.body = { jobRoleId: 1 };
       mockReq.user = {
@@ -90,10 +68,9 @@ describe('application.handler', () => {
         expectedApplication,
       );
 
-      await createApplicationHandler(
+      await controller.createApplication(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(201);
@@ -107,10 +84,9 @@ describe('application.handler', () => {
       mockReq.body = { jobRoleId: 1 };
       mockReq.user = undefined;
 
-      await createApplicationHandler(
+      await controller.createApplication(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(401);
@@ -124,15 +100,14 @@ describe('application.handler', () => {
       mockReq.user = {
         userId: 1,
         email: 'admin@example.com',
-        userTypeId: 2, // Admin, not applicant
+        userTypeId: 2,
         firstName: 'Admin',
         lastName: 'User',
       };
 
-      await createApplicationHandler(
+      await controller.createApplication(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(403);
@@ -153,10 +128,9 @@ describe('application.handler', () => {
         lastName: 'User',
       };
 
-      await createApplicationHandler(
+      await controller.createApplication(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(503);
@@ -179,10 +153,9 @@ describe('application.handler', () => {
         new Error('Database error'),
       );
 
-      await createApplicationHandler(
+      await controller.createApplication(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(500);
@@ -192,23 +165,16 @@ describe('application.handler', () => {
     });
   });
 
-  describe('checkApplicationStatusHandler', () => {
+  describe('checkApplicationStatus', () => {
     it('should return true when user has applied', async () => {
       mockReq.params = { jobRoleId: '1' };
       mockReq.user = { userId: 1, userTypeId: 1 };
 
-      vi.mocked(mockPrisma.application.findFirst).mockResolvedValue({
-        applicationId: 1,
-        jobRoleId: 1,
-        userId: 1,
-        applicationStatusId: 1,
-        createdAt: new Date(),
-      });
+      mockApplicationService.hasUserApplied.mockResolvedValue(true);
 
-      await checkApplicationStatusHandler(
+      await controller.checkApplicationStatus(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma,
       );
 
       expect(jsonMock).toHaveBeenCalledWith({ hasApplied: true });
@@ -218,12 +184,11 @@ describe('application.handler', () => {
       mockReq.params = { jobRoleId: '1' };
       mockReq.user = { userId: 1, userTypeId: 1 };
 
-      vi.mocked(mockPrisma.application.findFirst).mockResolvedValue(null);
+      mockApplicationService.hasUserApplied.mockResolvedValue(false);
 
-      await checkApplicationStatusHandler(
+      await controller.checkApplicationStatus(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma,
       );
 
       expect(jsonMock).toHaveBeenCalledWith({ hasApplied: false });
@@ -233,10 +198,9 @@ describe('application.handler', () => {
       mockReq.params = { jobRoleId: '1' };
       mockReq.user = undefined;
 
-      await checkApplicationStatusHandler(
+      await controller.checkApplicationStatus(
         mockReq as Request,
         mockRes as Response,
-        mockPrisma,
       );
 
       expect(statusMock).toHaveBeenCalledWith(401);
