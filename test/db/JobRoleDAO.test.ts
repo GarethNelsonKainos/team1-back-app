@@ -3,6 +3,7 @@ import type { Express } from 'express';
 import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { JobRoleDAO } from '../../src/db/JobRoleDAO.js';
+import { generateToken } from '../../src/utils/jwt.utils.js';
 
 const mockJobRoles = [
   {
