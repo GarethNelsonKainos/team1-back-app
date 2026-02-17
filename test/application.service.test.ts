@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApplicationService } from '../src/services/application.service';
+import type { S3Service } from '../src/services/s3.service';
 
 describe('ApplicationService', () => {
   let applicationService: ApplicationService;
@@ -12,9 +13,9 @@ describe('ApplicationService', () => {
       findFirst: ReturnType<typeof vi.fn>;
       create: ReturnType<typeof vi.fn>;
     };
-    applicationStatus: {
-      findUnique: ReturnType<typeof vi.fn>;
-    };
+  };
+  let mockS3Service: {
+    uploadFile: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -26,13 +27,15 @@ describe('ApplicationService', () => {
         findFirst: vi.fn(),
         create: vi.fn(),
       },
-      applicationStatus: {
-        findUnique: vi.fn(),
-      },
+    };
+
+    mockS3Service = {
+      uploadFile: vi.fn(),
     };
 
     applicationService = new ApplicationService(
       mockPrisma as unknown as PrismaClient,
+      mockS3Service as unknown as S3Service,
     );
   });
 
@@ -47,11 +50,6 @@ describe('ApplicationService', () => {
       });
 
       mockPrisma.application.findFirst.mockResolvedValue(null);
-
-      mockPrisma.applicationStatus.findUnique.mockResolvedValue({
-        applicationStatusId: 1,
-        applicationStatusType: 'Submitted',
-      });
 
       const expectedApplication = {
         applicationId: 1,
