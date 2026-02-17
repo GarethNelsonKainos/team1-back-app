@@ -22,6 +22,8 @@ app.use(
     credentials: true,
   }),
 );
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -29,6 +31,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRouter(authController));
 
 app.use('/api', jobRoleRoutes);
+
+// Application routes
+app.use('/api/applications', applicationRoutes);
+
+// CV upload routes
+app.use('/api/cv', cvRoutes);
 
 // Application routes
 app.use('/api/applications', applicationRoutes);

@@ -63,7 +63,7 @@ export class ApplicationService {
       data: {
         userId,
         jobRoleId,
-        applicationStatusId: 1, // Hardcoded "Submitted" status from seed data
+        applicationStatusId: 1, // "Submitted" status from seed data
         cvUrl: cvUrl,
       },
     });
