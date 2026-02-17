@@ -217,4 +217,116 @@ describe('JobRoleController - New Methods', () => {
       });
     });
   });
+
+  describe('getJobRoles', () => {
+    it('should return all job roles', async () => {
+      const mockJobRoles = [
+        {
+          jobRoleId: 1,
+          jobRoleName: 'Software Engineer',
+        },
+      ];
+
+      mockJobRoleService.getJobRoles.mockResolvedValue(mockJobRoles);
+
+      await jobRoleController.getJobRoles(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.json).toHaveBeenCalledWith(mockJobRoles);
+    });
+
+    it('should return 500 when the service throws an error', async () => {
+      mockJobRoleService.getJobRoles.mockRejectedValue(new Error('DB error'));
+
+      await jobRoleController.getJobRoles(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Failed to fetch job roles',
+      });
+    });
+  });
+
+  describe('getJobRoleById', () => {
+    it('should return a job role when a valid ID is provided', async () => {
+      const mockJobRole = {
+        jobRoleId: 1,
+        jobRoleName: 'Software Engineer',
+      };
+
+      mockJobRoleService.getJobRoleById.mockResolvedValue(mockJobRole);
+
+      const request = {
+        ...mockRequest,
+        params: { id: '1' },
+      } as Request;
+
+      await jobRoleController.getJobRoleById(
+        request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.json).toHaveBeenCalledWith(mockJobRole);
+    });
+
+    it('should return 404 when the job role is not found', async () => {
+      mockJobRoleService.getJobRoleById.mockResolvedValue(null);
+
+      const request = {
+        ...mockRequest,
+        params: { id: '999' },
+      } as Request;
+
+      await jobRoleController.getJobRoleById(
+        request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Job role not found',
+      });
+    });
+
+    it('should return 400 when the ID parameter is invalid', async () => {
+      const request = {
+        ...mockRequest,
+        params: { id: 'invalid-id' },
+      } as Request;
+
+      await jobRoleController.getJobRoleById(
+        request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Invalid job role ID',
+      });
+    });
+
+    it('should return 500 when the service throws an error', async () => {
+      mockJobRoleService.getJobRoleById.mockRejectedValue(new Error('DB error'));
+
+      const request = {
+        ...mockRequest,
+        params: { id: '1' },
+      } as Request;
+
+      await jobRoleController.getJobRoleById(
+        request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Failed to fetch job role',
+      });
+    });
+  });
 });
