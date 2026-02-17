@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import ValidationError from '../errors/ValidationError.js';
 import type { Band } from '../models/Band.js';
 import type { Capability } from '../models/Capability.js';
 import type { JobRoleStatus } from '../models/JobRoleStatus.js';
@@ -81,18 +82,18 @@ class JobRoleDAO {
     const capability = await this.prisma.capability.findUnique({
       where: { capabilityId: data.capabilityId },
     });
-
     if (!capability) {
-      throw new Error(`Capability with ID ${data.capabilityId} does not exist`);
+      throw new ValidationError(
+        `Capability with ID ${data.capabilityId} does not exist`,
+      );
     }
 
     // Validate that bandId exists
     const band = await this.prisma.band.findUnique({
       where: { bandId: data.bandId },
     });
-
     if (!band) {
-      throw new Error(`Band with ID ${data.bandId} does not exist`);
+      throw new ValidationError(`Band with ID ${data.bandId} does not exist`);
     }
 
     // Validate that all locationIds exist
@@ -106,7 +107,7 @@ class JobRoleDAO {
         const missingIds = data.locationIds.filter(
           (id) => !foundIds.includes(id),
         );
-        throw new Error(
+        throw new ValidationError(
           `Location(s) with ID(s) ${missingIds.join(', ')} do not exist`,
         );
       }
