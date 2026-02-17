@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApplicationController } from '../../src/controllers/ApplicationController';
 import type { ApplicationService } from '../../src/services/application.service';
+import { UserRole } from '../../src/types/auth.types';
 import * as FeatureFlags from '../../src/utils/FeatureFlags';
 
 vi.mock('../../src/utils/FeatureFlags');
@@ -51,7 +52,7 @@ describe('ApplicationController', () => {
       mockReq.user = {
         userId: 1,
         email: 'test@example.com',
-        userTypeId: 1,
+        userRole: UserRole.Applicant,
         firstName: 'Test',
         lastName: 'User',
       };
@@ -100,7 +101,7 @@ describe('ApplicationController', () => {
       mockReq.user = {
         userId: 1,
         email: 'admin@example.com',
-        userTypeId: 2,
+        userRole: UserRole.Admin,
         firstName: 'Admin',
         lastName: 'User',
       };
@@ -123,7 +124,7 @@ describe('ApplicationController', () => {
       mockReq.user = {
         userId: 1,
         email: 'test@example.com',
-        userTypeId: 1,
+        userRole: UserRole.Applicant,
         firstName: 'Test',
         lastName: 'User',
       };
@@ -144,7 +145,7 @@ describe('ApplicationController', () => {
       mockReq.user = {
         userId: 1,
         email: 'test@example.com',
-        userTypeId: 1,
+        userRole: UserRole.Applicant,
         firstName: 'Test',
         lastName: 'User',
       };
@@ -168,7 +169,7 @@ describe('ApplicationController', () => {
   describe('checkApplicationStatus', () => {
     it('should return true when user has applied', async () => {
       mockReq.params = { jobRoleId: '1' };
-      mockReq.user = { userId: 1, userTypeId: 1 };
+      mockReq.user = { userId: 1, userRole: UserRole.Applicant };
 
       mockApplicationService.hasUserApplied.mockResolvedValue(true);
 
@@ -182,7 +183,7 @@ describe('ApplicationController', () => {
 
     it('should return false when user has not applied', async () => {
       mockReq.params = { jobRoleId: '1' };
-      mockReq.user = { userId: 1, userTypeId: 1 };
+      mockReq.user = { userId: 1, userRole: UserRole.Applicant };
 
       mockApplicationService.hasUserApplied.mockResolvedValue(false);
 
