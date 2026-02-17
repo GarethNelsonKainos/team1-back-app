@@ -14,7 +14,7 @@ class JobRoleController {
   async getJobRoles(req: Request, res: Response): Promise<void> {
     try {
       const response = await this.jobRoleService.getJobRoles();
-      res.json(response);
+      res.status(200).json(response);
     } catch (error: unknown) {
       console.error('Error fetching job roles:', error);
       res.status(500).json({ error: 'Failed to fetch job roles' });
@@ -69,7 +69,7 @@ class JobRoleController {
   async getBands(req: Request, res: Response): Promise<void> {
     try {
       const bands = await this.jobRoleService.getBands();
-      res.json(bands);
+      res.status(200).json(bands);
     } catch (error: unknown) {
       console.error('Error fetching bands:', error);
       res.status(500).json({ error: 'Failed to fetch bands' });
@@ -79,7 +79,7 @@ class JobRoleController {
   async getCapabilities(req: Request, res: Response): Promise<void> {
     try {
       const capabilities = await this.jobRoleService.getCapabilities();
-      res.json(capabilities);
+      res.status(200).json(capabilities);
     } catch (error: unknown) {
       console.error('Error fetching capabilities:', error);
       res.status(500).json({ error: 'Failed to fetch capabilities' });
@@ -89,7 +89,7 @@ class JobRoleController {
   async getLocations(req: Request, res: Response): Promise<void> {
     try {
       const locations = await this.jobRoleService.getLocations();
-      res.json(locations);
+      res.status(200).json(locations);
     } catch (error: unknown) {
       console.error('Error fetching locations:', error);
       res.status(500).json({ error: 'Failed to fetch locations' });
