@@ -33,7 +33,9 @@ class JobRoleController {
   }
 
   async createJobRole(req: Request, res: Response): Promise<void> {
-    console.log('Received request to create job role with data:', req.body);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Received request to create job role');
+    }
     if (!FEATURE_FLAGS.ADMIN_CREATE_JOB_ROLE) {
       res.status(404).json({ error: 'Feature not available' });
       return;
