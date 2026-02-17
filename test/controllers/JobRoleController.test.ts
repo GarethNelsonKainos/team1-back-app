@@ -24,6 +24,7 @@ describe('JobRoleController - New Methods', () => {
     getBands: ReturnType<typeof vi.fn>;
     getCapabilities: ReturnType<typeof vi.fn>;
     getLocations: ReturnType<typeof vi.fn>;
+    getJobRoleById: ReturnType<typeof vi.fn>;
   };
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
@@ -36,6 +37,7 @@ describe('JobRoleController - New Methods', () => {
       getBands: vi.fn(),
       getCapabilities: vi.fn(),
       getLocations: vi.fn(),
+      getJobRoleById: vi.fn(),
     };
 
     mockRequest = {
@@ -259,7 +261,7 @@ describe('JobRoleController - New Methods', () => {
         jobRoleName: 'Software Engineer',
       };
 
-      mockJobRoleService.getJobRoleById.mockResolvedValue(mockJobRole);
+      mockJobRoleService.getJobRoleDetailed.mockResolvedValue(mockJobRole);
 
       const request = {
         ...mockRequest,
@@ -272,13 +274,14 @@ describe('JobRoleController - New Methods', () => {
     });
 
     it('should return 404 when the job role is not found', async () => {
-      mockJobRoleService.getJobRoleById.mockResolvedValue(null);
+      mockJobRoleService.getJobRoleDetailed.mockResolvedValue(null);
 
       const request = {
         ...mockRequest,
         params: { id: '999' },
       } as Request;
 
+      await jobRoleController.getJobRoleById(request, mockResponse as Response);
       await jobRoleController.getJobRoleById(request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
@@ -294,6 +297,7 @@ describe('JobRoleController - New Methods', () => {
       } as Request;
 
       await jobRoleController.getJobRoleById(request, mockResponse as Response);
+      await jobRoleController.getJobRoleById(request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -302,6 +306,9 @@ describe('JobRoleController - New Methods', () => {
     });
 
     it('should return 500 when the service throws an error', async () => {
+      mockJobRoleService.getJobRoleDetailed.mockRejectedValue(
+        new Error('DB error'),
+      );
       mockJobRoleService.getJobRoleById.mockRejectedValue(
         new Error('DB error'),
       );

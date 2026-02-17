@@ -21,16 +21,23 @@ class JobRoleController {
     }
   }
 
-  async getJobRoleById(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid job role ID' });
+  async getJobRoleById(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) {
+        res.status(400).json({ error: 'Invalid job role ID' });
+        return;
+      }
+      const jobRole = await this.jobRoleService.getJobRoleDetailed(id);
+      if (!jobRole) {
+        res.status(404).json({ error: 'Job role not found' });
+        return;
+      }
+      res.status(200).json(jobRole);
+    } catch (error: unknown) {
+      console.error('Error fetching job role:', error);
+      res.status(500).json({ error: 'Failed to fetch job role' });
     }
-    const jobRole = await this.jobRoleService.getJobRoleDetailed(id);
-    if (!jobRole) {
-      return res.status(404).json({ error: 'Job role not found' });
-    }
-    return res.json(jobRole);
   }
 
   async createJobRole(req: Request, res: Response): Promise<void> {
