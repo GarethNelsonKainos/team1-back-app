@@ -1,4 +1,4 @@
-import type { Application } from './Application';
+import type { Application } from './Application.js';
 
 interface ApplicationStatus {
   applicationStatusId: number;

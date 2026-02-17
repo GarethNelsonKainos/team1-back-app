@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { Express } from 'express';
 import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { generateToken } from '../src/utils/jwt.utils';
 
 const mockJobRoles = [
   {
@@ -29,6 +30,7 @@ vi.mock('../src/db/prisma.js', () => ({
   prisma: {
     jobRole: {
       findMany: vi.fn().mockResolvedValue(mockJobRoles),
+      findUnique: vi.fn().mockResolvedValue(mockJobRoles[0]),
     },
   } as unknown as Partial<PrismaClient>,
 }));
@@ -44,7 +46,16 @@ beforeAll(async () => {
 describe('Job Role Integration Tests', () => {
   describe('GET /api/job-roles', () => {
     it('should return a list of job roles', async () => {
-      const response = await request(app).get('/api/job-roles');
+      const token = generateToken({
+        userId: 10,
+        email: 'applicant@example.com',
+        userRole: 1,
+        firstName: 'Applicant',
+        lastName: 'User',
+      });
+      const response = await request(app)
+        .get('/api/job-roles')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -52,7 +63,16 @@ describe('Job Role Integration Tests', () => {
     });
 
     it('should return job roles with correct structure', async () => {
-      const response = await request(app).get('/api/job-roles');
+      const token = generateToken({
+        userId: 10,
+        email: 'applicant@example.com',
+        userRole: 1,
+        firstName: 'Applicant',
+        lastName: 'User',
+      });
+      const response = await request(app)
+        .get('/api/job-roles')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       if (response.body.length > 0) {
@@ -67,7 +87,16 @@ describe('Job Role Integration Tests', () => {
     });
 
     it('should return job roles in correct format', async () => {
-      const response = await request(app).get('/api/job-roles');
+      const token = generateToken({
+        userId: 10,
+        email: 'applicant@example.com',
+        userRole: 1,
+        firstName: 'Applicant',
+        lastName: 'User',
+      });
+      const response = await request(app)
+        .get('/api/job-roles')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       if (response.body.length > 0) {

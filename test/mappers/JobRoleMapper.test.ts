@@ -1,29 +1,38 @@
 import { describe, expect, it } from 'vitest';
+import type { RawJobRole } from '../../src/db/JobRoleDAO.js';
 import { JobRoleMapper } from '../../src/mappers/JobRoleMapper.js';
 
 describe('JobRoleMapper', () => {
   describe('mapToJobRoleResponse', () => {
     it('should map job roles correctly', () => {
-      const mockJobRoles = [
+      const mockJobRoles: RawJobRole[] = [
         {
           jobRoleId: 1,
           roleName: 'Software Engineer',
           locations: [
             {
               location: {
+                locationId: 1,
                 locationName: 'London',
+                city: 'London',
+                country: 'UK',
               },
             },
             {
               location: {
+                locationId: 2,
                 locationName: 'Manchester',
+                city: 'Manchester',
+                country: 'UK',
               },
             },
           ],
           capability: {
+            capabilityId: 1,
             capabilityName: 'Engineering',
           },
           band: {
+            bandId: 1,
             bandName: 'Mid-Level',
           },
           closingDate: new Date('2026-03-15'),
@@ -44,21 +53,39 @@ describe('JobRoleMapper', () => {
     });
 
     it('should handle multiple job roles', () => {
-      const mockJobRoles = [
+      const mockJobRoles: RawJobRole[] = [
         {
           jobRoleId: 1,
           roleName: 'Engineer',
-          locations: [{ location: { locationName: 'London' } }],
-          capability: { capabilityName: 'Engineering' },
-          band: { bandName: 'Mid' },
+          locations: [
+            {
+              location: {
+                locationId: 1,
+                locationName: 'London',
+                city: 'London',
+                country: 'UK',
+              },
+            },
+          ],
+          capability: { capabilityId: 1, capabilityName: 'Engineering' },
+          band: { bandId: 1, bandName: 'Mid' },
           closingDate: new Date('2026-03-15'),
         },
         {
           jobRoleId: 2,
           roleName: 'Designer',
-          locations: [{ location: { locationName: 'Paris' } }],
-          capability: { capabilityName: 'Design' },
-          band: { bandName: 'Senior' },
+          locations: [
+            {
+              location: {
+                locationId: 2,
+                locationName: 'Paris',
+                city: 'Paris',
+                country: 'France',
+              },
+            },
+          ],
+          capability: { capabilityId: 2, capabilityName: 'Design' },
+          band: { bandId: 2, bandName: 'Senior' },
           closingDate: new Date('2026-04-20'),
         },
       ];
@@ -71,13 +98,22 @@ describe('JobRoleMapper', () => {
     });
 
     it('should handle single location correctly', () => {
-      const mockJobRoles = [
+      const mockJobRoles: RawJobRole[] = [
         {
           jobRoleId: 1,
           roleName: 'Role',
-          locations: [{ location: { locationName: 'London' } }],
-          capability: { capabilityName: 'Cap' },
-          band: { bandName: 'Band' },
+          locations: [
+            {
+              location: {
+                locationId: 1,
+                locationName: 'London',
+                city: 'London',
+                country: 'UK',
+              },
+            },
+          ],
+          capability: { capabilityId: 1, capabilityName: 'Cap' },
+          band: { bandId: 1, bandName: 'Band' },
           closingDate: new Date('2026-03-15'),
         },
       ];

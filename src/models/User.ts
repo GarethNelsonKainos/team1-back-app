@@ -1,5 +1,5 @@
-import type { Application } from './Application';
-import type { UserType } from './UserType';
+import type { Application } from './Application.js';
+import type { UserType } from './UserType.js';
 
 interface User {
   userId: number;
