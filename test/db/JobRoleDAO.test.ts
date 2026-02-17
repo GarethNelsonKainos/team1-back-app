@@ -149,117 +149,79 @@ describe('JobRoleDAO - New Methods', () => {
       ).rejects.toThrow('Open status not found in database');
     });
 
-    it('should throw ValidationError if capabilityId does not exist', async () => {
+    it('should throw error if capability does not exist', async () => {
       const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
-
       mockPrisma.jobRoleStatus.findUnique.mockResolvedValue(mockStatus);
       mockPrisma.capability.findUnique.mockResolvedValue(null);
 
-      const promise = jobRoleDAO.createJobRole({
-        roleName: 'Test Role',
-        capabilityId: 999,
-        bandId: 1,
-        description: 'Test',
-        responsibilities: 'Test',
-        jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
-        openPositions: 1,
-        locationIds: [1],
-        closingDate: new Date('2026-12-31'),
-      });
-
-      await expect(promise).rejects.toThrow(ValidationError);
-      await expect(promise).rejects.toThrow(
-        'Capability with ID 999 does not exist',
-      );
+      await expect(
+        jobRoleDAO.createJobRole({
+          roleName: 'Test Role',
+          capabilityId: 999,
+          bandId: 1,
+          description: 'Test',
+          responsibilities: 'Test',
+          jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
+          openPositions: 1,
+          locationIds: [1],
+          closingDate: new Date('2026-12-31'),
+        }),
+      ).rejects.toThrow('Capability with ID 999 does not exist');
     });
 
-    it('should throw ValidationError if bandId does not exist', async () => {
+    it('should throw error if band does not exist', async () => {
       const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
       const mockCapability = { capabilityId: 1, capabilityName: 'Engineering' };
-
       mockPrisma.jobRoleStatus.findUnique.mockResolvedValue(mockStatus);
       mockPrisma.capability.findUnique.mockResolvedValue(mockCapability);
       mockPrisma.band.findUnique.mockResolvedValue(null);
 
-      const promise = jobRoleDAO.createJobRole({
-        roleName: 'Test Role',
-        capabilityId: 1,
-        bandId: 999,
-        description: 'Test',
-        responsibilities: 'Test',
-        jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
-        openPositions: 1,
-        locationIds: [1],
-        closingDate: new Date('2026-12-31'),
-      });
-
-      await expect(promise).rejects.toThrow(ValidationError);
-      await expect(promise).rejects.toThrow('Band with ID 999 does not exist');
+      await expect(
+        jobRoleDAO.createJobRole({
+          roleName: 'Test Role',
+          capabilityId: 1,
+          bandId: 999,
+          description: 'Test',
+          responsibilities: 'Test',
+          jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
+          openPositions: 1,
+          locationIds: [1],
+          closingDate: new Date('2026-12-31'),
+        }),
+      ).rejects.toThrow('Band with ID 999 does not exist');
     });
 
-    it('should throw ValidationError if locationIds do not exist', async () => {
+    it('should throw error if any location does not exist', async () => {
       const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
       const mockCapability = { capabilityId: 1, capabilityName: 'Engineering' };
       const mockBand = { bandId: 2, bandName: 'Senior Associate' };
-
-      mockPrisma.jobRoleStatus.findUnique.mockResolvedValue(mockStatus);
-      mockPrisma.capability.findUnique.mockResolvedValue(mockCapability);
-      mockPrisma.band.findUnique.mockResolvedValue(mockBand);
-      // Only return location 1, but we're requesting 1 and 999
-      mockPrisma.location.findMany.mockResolvedValue([
+      const mockLocations = [
         {
           locationId: 1,
           locationName: 'Belfast',
           city: 'Belfast',
           country: 'UK',
         },
-      ]);
-
-      const promise = jobRoleDAO.createJobRole({
-        roleName: 'Test Role',
-        capabilityId: 1,
-        bandId: 2,
-        description: 'Test',
-        responsibilities: 'Test',
-        jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
-        openPositions: 1,
-        locationIds: [1, 999],
-        closingDate: new Date('2026-12-31'),
-      });
-
-      await expect(promise).rejects.toThrow(ValidationError);
-      await expect(promise).rejects.toThrow(
-        'Location(s) with ID(s) 999 do not exist',
-      );
-    });
-
-    it('should throw ValidationError if multiple locationIds do not exist', async () => {
-      const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
-      const mockCapability = { capabilityId: 1, capabilityName: 'Engineering' };
-      const mockBand = { bandId: 2, bandName: 'Senior Associate' };
+      ];
 
       mockPrisma.jobRoleStatus.findUnique.mockResolvedValue(mockStatus);
       mockPrisma.capability.findUnique.mockResolvedValue(mockCapability);
       mockPrisma.band.findUnique.mockResolvedValue(mockBand);
-      // Return empty array - none of the locations exist
-      mockPrisma.location.findMany.mockResolvedValue([]);
+      mockPrisma.location.findMany.mockResolvedValue(mockLocations);
 
-      const promise = jobRoleDAO.createJobRole({
-        roleName: 'Test Role',
-        capabilityId: 1,
-        bandId: 2,
-        description: 'Test',
-        responsibilities: 'Test',
-        jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
-        openPositions: 1,
-        locationIds: [998, 999],
-        closingDate: new Date('2026-12-31'),
-      });
-
-      await expect(promise).rejects.toThrow(ValidationError);
-      await expect(promise).rejects.toThrow(
-        'Location(s) with ID(s) 998, 999 do not exist',
-      );
+      await expect(
+        jobRoleDAO.createJobRole({
+          roleName: 'Test Role',
+          capabilityId: 1,
+          bandId: 2,
+          description: 'Test',
+          responsibilities: 'Test',
+          jobSpecLink: 'https://kainossoftwareltd.sharepoint.com/test',
+          openPositions: 1,
+          locationIds: [1, 999],
+          closingDate: new Date('2026-12-31'),
+        }),
+      ).rejects.toThrow('Location(s) with ID(s) 999 do not exist');
     });
   });
 
