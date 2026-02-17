@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { type Request, type Response, Router } from 'express';
 import { ApplicationController } from '../controllers/ApplicationController';
 import { prisma } from '../db/prisma';
 import { uploadMiddleware } from '../handlers/cv.handler';
@@ -24,16 +24,22 @@ function getController(): ApplicationController {
  * POST /api/applications
  * Create a new job application with optional CV upload (requires authentication)
  */
-router.post('/', authMiddleware, uploadMiddleware, (req, res) =>
-  getController().createApplication(req, res),
+router.post(
+  '/',
+  authMiddleware,
+  uploadMiddleware,
+  (req: Request, res: Response) => getController().createApplication(req, res),
 );
 
 /**
  * GET /api/applications/status/:jobRoleId
  * Check if user has already applied for a specific job role (requires authentication)
  */
-router.get('/status/:jobRoleId', authMiddleware, (req, res) =>
-  getController().checkApplicationStatus(req, res),
+router.get(
+  '/status/:jobRoleId',
+  authMiddleware,
+  (req: Request, res: Response) =>
+    getController().checkApplicationStatus(req, res),
 );
 
 export default router;

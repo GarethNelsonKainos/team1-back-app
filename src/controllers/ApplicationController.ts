@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import type { ApplicationService } from '../services/application.service';
+import { UserRole } from '../types/auth.types';
 import { isJobApplicationsEnabled } from '../utils/FeatureFlags';
 
 export class ApplicationController {
@@ -32,7 +33,7 @@ export class ApplicationController {
         return;
       }
 
-      if (user.userTypeId !== 1) {
+      if (user.userRole !== UserRole.Applicant) {
         res.status(403).json({ error: 'Only applicants can apply for roles' });
         return;
       }
