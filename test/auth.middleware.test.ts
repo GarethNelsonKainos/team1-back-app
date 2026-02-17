@@ -1,8 +1,14 @@
 // test/auth.middleware.test.ts
 
-import { NextFunction, type Request, type Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { authMiddleware } from '../src/middleware/auth.middleware';
+import {
+  authMiddleware,
+  requireAdmin,
+  requireApplicantOrAdmin,
+  requireRole,
+} from '../src/middleware/auth.middleware';
+import { UserRole } from '../src/types/auth.types.js';
 import { generateToken } from '../src/utils/jwt.utils';
 
 describe('auth.middleware', () => {
@@ -16,7 +22,7 @@ describe('auth.middleware', () => {
     const token = generateToken({
       userId: 1,
       email: 'test@example.com',
-      userTypeId: 2,
+      userRole: 2,
       firstName: 'Test',
       lastName: 'User',
     });
@@ -28,7 +34,8 @@ describe('auth.middleware', () => {
     const res = {} as Response;
     const next = vi.fn();
 
-    authMiddleware(req, res, next);
+    const middleware = authMiddleware();
+    middleware(req, res, next);
 
     expect(next).toHaveBeenCalled();
     expect(req.user).toBeDefined();
@@ -48,7 +55,8 @@ describe('auth.middleware', () => {
 
     const next = vi.fn();
 
-    authMiddleware(req, res, next);
+    const middleware = authMiddleware();
+    middleware(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({ error: 'No token provided' });
@@ -67,7 +75,8 @@ describe('auth.middleware', () => {
 
     const next = vi.fn();
 
-    authMiddleware(req, res, next);
+    const middleware = authMiddleware();
+    middleware(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({ error: 'No token provided' });
@@ -86,7 +95,8 @@ describe('auth.middleware', () => {
 
     const next = vi.fn();
 
-    authMiddleware(req, res, next);
+    const middleware = authMiddleware();
+    middleware(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
@@ -102,7 +112,7 @@ describe('auth.middleware', () => {
     const token = generateToken({
       userId: 1,
       email: 'test@example.com',
-      userTypeId: 2,
+      userRole: 2,
       firstName: 'Test',
       lastName: 'User',
     });
@@ -120,7 +130,8 @@ describe('auth.middleware', () => {
 
     // Wait a moment for token to expire
     setTimeout(() => {
-      authMiddleware(req, res, next);
+      const middleware = authMiddleware();
+      middleware(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -128,5 +139,300 @@ describe('auth.middleware', () => {
       });
       expect(next).not.toHaveBeenCalled();
     }, 100);
+  });
+
+  describe('requireRole', () => {
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
+    let mockNext: ReturnType<typeof vi.fn>;
+    let statusMock: ReturnType<typeof vi.fn>;
+    let jsonMock: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      jsonMock = vi.fn().mockReturnValue({});
+      statusMock = vi.fn().mockReturnValue({ json: jsonMock });
+      mockNext = vi.fn();
+
+      mockReq = {
+        headers: {},
+        user: {
+          userId: 1,
+          email: 'test@example.com',
+          userRole: UserRole.Applicant,
+          firstName: 'Test',
+          lastName: 'User',
+        },
+      };
+
+      mockRes = {
+        status: statusMock,
+        json: jsonMock,
+      } as unknown as Response;
+    });
+
+    it('should return 401 if user not authenticated', () => {
+      mockReq.user = undefined;
+      mockReq.headers = {};
+
+      const middleware = requireRole([UserRole.Admin]);
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(401);
+      expect(jsonMock).toHaveBeenCalledWith({
+        error: 'No token provided',
+      });
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('should return 403 if user role not in allowed roles', () => {
+      const token = generateToken({
+        userId: 1,
+        email: 'test@example.com',
+        userRole: UserRole.Applicant,
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      const middleware = requireRole([UserRole.Admin]);
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(403);
+      expect(jsonMock).toHaveBeenCalledWith({
+        error: 'Insufficient permissions',
+      });
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('should call next() if user role is in allowed roles', () => {
+      const token = generateToken({
+        userId: 1,
+        email: 'test@example.com',
+        userRole: UserRole.Applicant,
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      const middleware = requireRole([UserRole.Applicant]);
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(mockNext).toHaveBeenCalled();
+      expect(statusMock).not.toHaveBeenCalled();
+    });
+
+    it('should call next() for admin when admin role allowed', () => {
+      const token = generateToken({
+        userId: 1,
+        email: 'test@example.com',
+        userRole: UserRole.Admin,
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      const middleware = requireRole([UserRole.Admin]);
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should allow multiple roles', () => {
+      const token = generateToken({
+        userId: 1,
+        email: 'test@example.com',
+        userRole: UserRole.Applicant,
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      const middleware = requireRole([UserRole.Admin, UserRole.Applicant]);
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+  });
+
+  describe('requireAdmin', () => {
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
+    let mockNext: ReturnType<typeof vi.fn>;
+    let statusMock: ReturnType<typeof vi.fn>;
+    let jsonMock: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      jsonMock = vi.fn().mockReturnValue({});
+      statusMock = vi.fn().mockReturnValue({ json: jsonMock });
+      mockNext = vi.fn();
+
+      mockReq = {
+        headers: {},
+        user: {
+          userId: 1,
+          email: 'test@example.com',
+          userRole: UserRole.Applicant,
+          firstName: 'Test',
+          lastName: 'User',
+        },
+      };
+
+      mockRes = {
+        status: statusMock,
+        json: jsonMock,
+      } as unknown as Response;
+    });
+
+    it('should return 403 if user is applicant', () => {
+      const token = generateToken({
+        userId: 1,
+        email: 'test@example.com',
+        userRole: UserRole.Applicant,
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      const middleware = requireAdmin();
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(403);
+      expect(jsonMock).toHaveBeenCalledWith({
+        error: 'Insufficient permissions',
+      });
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('should call next() if user is admin', () => {
+      const token = generateToken({
+        userId: 1,
+        email: 'test@example.com',
+        userRole: UserRole.Admin,
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      const middleware = requireAdmin();
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should return 401 if user not authenticated', () => {
+      mockReq.user = undefined;
+      mockReq.headers = {};
+      const middleware = requireAdmin();
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(401);
+    });
+  });
+
+  describe('requireApplicantOrAdmin', () => {
+    let mockReq: Partial<Request>;
+    let mockRes: Partial<Response>;
+    let mockNext: ReturnType<typeof vi.fn>;
+    let statusMock: ReturnType<typeof vi.fn>;
+    let jsonMock: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      jsonMock = vi.fn().mockReturnValue({});
+      statusMock = vi.fn().mockReturnValue({ json: jsonMock });
+      mockNext = vi.fn();
+
+      mockReq = {
+        headers: {},
+        user: {
+          userId: 1,
+          email: 'test@example.com',
+          userRole: UserRole.Applicant,
+          firstName: 'Test',
+          lastName: 'User',
+        },
+      };
+
+      mockRes = {
+        status: statusMock,
+        json: jsonMock,
+      } as unknown as Response;
+    });
+
+    it('should allow applicant', () => {
+      const token = generateToken({
+        userId: 1,
+        email: 'test@example.com',
+        userRole: UserRole.Applicant,
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      const middleware = requireApplicantOrAdmin();
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should allow admin', () => {
+      const token = generateToken({
+        userId: 1,
+        email: 'test@example.com',
+        userRole: UserRole.Admin,
+        firstName: 'Test',
+        lastName: 'User',
+      });
+      mockReq.headers = { authorization: `Bearer ${token}` };
+      const middleware = requireApplicantOrAdmin();
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should return 401 if user not authenticated', () => {
+      mockReq.user = undefined;
+      mockReq.headers = {};
+      const middleware = requireApplicantOrAdmin();
+      middleware(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext as NextFunction,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(401);
+    });
   });
 });

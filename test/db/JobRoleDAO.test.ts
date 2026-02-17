@@ -35,8 +35,22 @@ vi.mock('../../src/db/prisma.js', () => ({
 }));
 
 let app: Express;
+let token: string;
 
 beforeAll(async () => {
+  // Set up environment variables for JWT
+  process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key';
+  process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
+
+  // Generate a test token
+  token = generateToken({
+    userId: 1,
+    email: 'test@example.com',
+    userRole: 2,
+    firstName: 'Test',
+    lastName: 'User',
+  });
+
   // Import the app after the mock is set up
   const appModule = await import('../../src/index.js');
   app = appModule.default;
@@ -45,7 +59,9 @@ beforeAll(async () => {
 describe('Job Role Integration Tests', () => {
   describe('GET /api/job-roles', () => {
     it('should return a list of job roles', async () => {
-      const response = await request(app).get('/api/job-roles');
+      const response = await request(app)
+        .get('/api/job-roles')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -53,7 +69,9 @@ describe('Job Role Integration Tests', () => {
     });
 
     it('should return job roles with correct structure', async () => {
-      const response = await request(app).get('/api/job-roles');
+      const response = await request(app)
+        .get('/api/job-roles')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       if (response.body.length > 0) {
@@ -68,7 +86,9 @@ describe('Job Role Integration Tests', () => {
     });
 
     it('should return job roles in correct format', async () => {
-      const response = await request(app).get('/api/job-roles');
+      const response = await request(app)
+        .get('/api/job-roles')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       if (response.body.length > 0) {

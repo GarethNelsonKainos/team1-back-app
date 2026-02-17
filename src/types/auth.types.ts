@@ -1,16 +1,19 @@
 // This file defines what data looks like
 
+import type { UserRole } from './user-role.js';
+export { UserRole } from './user-role.js';
+
 export interface JWTPayload {
   userId: number;
   email: string;
-  userTypeId: number;
+  userRole: UserRole;
   firstName: string;
   lastName: string;
 }
 
 export interface LoginRequest {
-  email: string;
-  password: string;
+  email: string | undefined;
+  password: string | undefined;
 }
 
 export interface LoginResponse {

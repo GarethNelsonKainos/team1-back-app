@@ -1,8 +1,8 @@
 import type { PrismaClient } from '@prisma/client';
-import type { Band } from '../models/Band';
-import type { Capability } from '../models/Capability';
-import type { JobRoleStatus } from '../models/JobRoleStatus';
-import type { Location } from '../models/Location';
+import type { Band } from '../models/Band.js';
+import type { Capability } from '../models/Capability.js';
+import type { JobRoleStatus } from '../models/JobRoleStatus.js';
+import type { Location } from '../models/Location.js';
 
 interface RawJobRole {
   jobRoleId: number;

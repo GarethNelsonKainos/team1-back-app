@@ -1,8 +1,8 @@
-import type { Application } from './Application';
-import type { Band } from './Band';
-import type { Capability } from './Capability';
-import type { JobRoleLocation } from './JobRoleLocation';
-import type { JobRoleStatus } from './JobRoleStatus';
+import type { Application } from './Application.js';
+import type { Band } from './Band.js';
+import type { Capability } from './Capability.js';
+import type { JobRoleLocation } from './JobRoleLocation.js';
+import type { JobRoleStatus } from './JobRoleStatus.js';
 
 interface JobRole {
   jobRoleId: number;
