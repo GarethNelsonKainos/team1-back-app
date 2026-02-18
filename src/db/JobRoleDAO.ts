@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import ValidationError from '../errors/ValidationError.js';
 import type { Band } from '../models/Band.js';
 import type { Capability } from '../models/Capability.js';
 import type { JobRoleStatus } from '../models/JobRoleStatus.js';

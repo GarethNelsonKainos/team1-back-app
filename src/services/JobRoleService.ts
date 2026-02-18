@@ -2,6 +2,7 @@ import type { JobRoleDAO } from '../db/JobRoleDAO.js';
 import { JobRoleMapper } from '../mappers/JobRoleMapper.js';
 import type { JobRoleDetailedResponse } from '../models/JobRoleDetailedReponse.js';
 import type { JobRoleResponse } from '../models/JobRoleResponse.js';
+import type { CreateJobRoleRequest } from '../types/CreateJobRole.types.js';
 
 class JobRoleService {
   constructor(private jobRoleDAO: JobRoleDAO) {}

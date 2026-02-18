@@ -4,7 +4,6 @@ import express from 'express';
 import AuthController from './controllers/AuthController.js';
 import { prisma } from './db/prisma.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
-import authRoutes from './routes/authRouter.js';
 import authRouter from './routes/authRouter.js';
 import { AuthService } from './services/AuthService.js';
 
@@ -32,6 +31,16 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
 });
 
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Not Found',
+    message: 'The requested resource does not exist',
+    path: req.path,
+  });
+});
+
+// Start server
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
