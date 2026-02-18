@@ -24,28 +24,6 @@ const mockJobRoles = [
   },
 ];
 
-let mockPrisma: {
-  jobRole: {
-    create: ReturnType<typeof vi.fn>;
-    findMany: ReturnType<typeof vi.fn>;
-    findUnique: ReturnType<typeof vi.fn>;
-  };
-  jobRoleStatus: { findUnique: ReturnType<typeof vi.fn> };
-  jobRoleLocation: { createMany: ReturnType<typeof vi.fn> };
-  band: {
-    findMany: ReturnType<typeof vi.fn>;
-    findUnique: ReturnType<typeof vi.fn>;
-  };
-  capability: {
-    findMany: ReturnType<typeof vi.fn>;
-    findUnique: ReturnType<typeof vi.fn>;
-  };
-  location: { findMany: ReturnType<typeof vi.fn> };
-  application: { deleteMany: ReturnType<typeof vi.fn> };
-  $transaction: ReturnType<typeof vi.fn>;
-};
-let jobRoleDAO: JobRoleDAO;
-
 describe('JobRoleDAO - New Methods', () => {
   let jobRoleDAO: JobRoleDAO;
   let mockPrisma: {

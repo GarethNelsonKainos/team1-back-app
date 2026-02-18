@@ -65,12 +65,11 @@ class JobRoleDAO {
   async deleteJobRole(id: number): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       // Delete all applications for this job role
-      const deletedApps = await tx.application.deleteMany({
+      await tx.application.deleteMany({
         where: { jobRoleId: id },
       });
 
       await tx.jobRole.delete({ where: { jobRoleId: id } });
-      // Optionally: console.log(`Deleted jobRoleId ${id}`);
     });
   }
 

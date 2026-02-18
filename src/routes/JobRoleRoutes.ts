@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { JobRoleController } from '../controllers/JobRoleController.js';
 import { JobRoleDAO } from '../db/JobRoleDAO.js';
-// import { adminAuthMiddleware } from '../middleware/admin-authorization.middleware.js';
 import { prisma } from '../db/prisma.js';
 import { authMiddleware, requireAdmin } from '../middleware/auth.middleware.js';
 import { JobRoleService } from '../services/JobRoleService.js';
