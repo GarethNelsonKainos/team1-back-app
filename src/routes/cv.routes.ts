@@ -1,6 +1,6 @@
 import express from 'express';
-import { uploadCVHandler, uploadMiddleware } from '../handlers/cv.handler.js';
-import { authMiddleware } from '../middleware/auth.middleware.js';
+import { uploadCVHandler, uploadMiddleware } from '../handlers/cv.handler';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = express.Router();
 

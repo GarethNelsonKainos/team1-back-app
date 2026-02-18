@@ -2,12 +2,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import AuthController from './controllers/AuthController.js';
-import { prisma } from './db/prisma.js';
-import jobRoleRoutes from './routes/JobRoleRoutes.js';
-import applicationRoutes from './routes/application.routes.js';
-import authRouter from './routes/authRouter.js';
-import cvRoutes from './routes/cv.routes.js';
-import { AuthService } from './services/AuthService.js';
+import { prisma } from './db/prisma';
+import jobRoleRoutes from './routes/JobRoleRoutes';
+import applicationRoutes from './routes/application.routes';
+import authRouter from './routes/authRouter';
+import { AuthService } from './services/AuthService';
 
 dotenv.config();
 
@@ -32,19 +31,8 @@ app.use('/api/auth', authRouter(authController));
 
 app.use('/api', jobRoleRoutes);
 
-// Application routes
-app.use('/api/applications', applicationRoutes);
-
-// CV upload routes
-app.use('/api/cv', cvRoutes);
-
-// Routes
 app.use('/api/auth', authRouter(authController));
 app.use('/api', jobRoleRoutes);
-app.use('/api/applications', applicationRoutes);
-app.use('/api/cv', cvRoutes);
-
-// Application routes
 app.use('/api/applications', applicationRoutes);
 
 // Health check route
