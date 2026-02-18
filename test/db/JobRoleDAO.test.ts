@@ -311,52 +311,30 @@ describe('JobRoleDAO', () => {
   describe('deleteJobRole', () => {
     it('should delete a job role successfully', async () => {
       const mockPrisma = {
-        $transaction: vi.fn(async (callback) => {
-          return await callback({
-            application: {
-              deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            jobRoleLocation: {
-              deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            jobRole: {
-              delete: vi.fn().mockResolvedValue({ jobRoleId: 5 }),
-            },
-          });
-        }),
+        jobRole: {
+          delete: vi.fn().mockResolvedValue({ jobRoleId: 5 }),
+        },
       } as unknown as PrismaClient;
 
       const dao = new JobRoleDAO(mockPrisma);
       await dao.deleteJobRole(5);
 
-      expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(mockPrisma.jobRole.delete).toHaveBeenCalledWith({
+        where: { jobRoleId: 5 },
+      });
     });
 
-    it('should cascade delete applications before deleting job role', async () => {
-      const mockDeleteMany = vi.fn().mockResolvedValue({ count: 2 });
-      const mockDeleteJobRoleLocations = vi.fn().mockResolvedValue({ count: 1 });
-      const mockDelete = vi.fn().mockResolvedValue({ jobRoleId: 5 });
-
+    it('should delete job role and cascade delete dependent records via database constraints', async () => {
       const mockPrisma = {
-        $transaction: vi.fn(async (callback) => {
-          return await callback({
-            application: { deleteMany: mockDeleteMany },
-            jobRoleLocation: { deleteMany: mockDeleteJobRoleLocations },
-            jobRole: { delete: mockDelete },
-          });
-        }),
+        jobRole: {
+          delete: vi.fn().mockResolvedValue({ jobRoleId: 5 }),
+        },
       } as unknown as PrismaClient;
 
       const dao = new JobRoleDAO(mockPrisma);
       await dao.deleteJobRole(5);
 
-      expect(mockDeleteMany).toHaveBeenCalledWith({
-        where: { jobRoleId: 5 },
-      });
-      expect(mockDeleteJobRoleLocations).toHaveBeenCalledWith({
-        where: { jobRoleId: 5 },
-      });
-      expect(mockDelete).toHaveBeenCalledWith({
+      expect(mockPrisma.jobRole.delete).toHaveBeenCalledWith({
         where: { jobRoleId: 5 },
       });
     });
@@ -367,48 +345,14 @@ describe('JobRoleDAO', () => {
       });
 
       const mockPrisma = {
-        $transaction: vi.fn(async (callback) => {
-          return await callback({
-            application: {
-              deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            jobRoleLocation: {
-              deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-            },
-            jobRole: {
-              delete: vi.fn().mockRejectedValue(prismaError),
-            },
-          });
-        }),
+        jobRole: {
+          delete: vi.fn().mockRejectedValue(prismaError),
+        },
       } as unknown as PrismaClient;
 
       const dao = new JobRoleDAO(mockPrisma);
 
       await expect(dao.deleteJobRole(999999)).rejects.toThrow();
-    });
-
-    it('should rollback transaction if deletion fails', async () => {
-      const mockError = new Error('Database error');
-      const mockDeleteMany = vi.fn().mockResolvedValue({ count: 2 });
-      const mockDeleteJobRoleLocations = vi.fn().mockResolvedValue({ count: 1 });
-      const mockDelete = vi.fn().mockRejectedValue(mockError);
-
-      const mockPrisma = {
-        $transaction: vi.fn(async (callback) => {
-          return await callback({
-            application: { deleteMany: mockDeleteMany },
-            jobRoleLocation: { deleteMany: mockDeleteJobRoleLocations },
-            jobRole: { delete: mockDelete },
-          });
-        }),
-      } as unknown as PrismaClient;
-
-      const dao = new JobRoleDAO(mockPrisma);
-
-      await expect(dao.deleteJobRole(5)).rejects.toThrow('Database error');
-      expect(mockDeleteMany).toHaveBeenCalled();
-      expect(mockDeleteJobRoleLocations).toHaveBeenCalled();
-      expect(mockDelete).toHaveBeenCalled();
     });
   });
 });
