@@ -35,10 +35,12 @@ class JobRoleController {
    */
   async deleteJobRole(req: Request, res: Response): Promise<void> {
     const id = Number(req.params.id);
+    
     if (Number.isNaN(id)) {
       res.status(400).json({ error: 'Invalid job role ID' });
       return;
     }
+    
     try {
       await this.jobRoleService.deleteJobRole(id);
       res.status(204).send();

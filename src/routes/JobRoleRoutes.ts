@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { JobRoleController } from '../controllers/JobRoleController.js';
 import { JobRoleDAO } from '../db/JobRoleDAO.js';
@@ -25,7 +26,7 @@ router.delete(
   '/job-roles/:id',
   authMiddleware,
   adminAuthMiddleware,
-  (req, res) => jobRoleController.deleteJobRole(req, res),
+  (req: Request, res: Response) => jobRoleController.deleteJobRole(req, res),
 );
 
 export default router;
