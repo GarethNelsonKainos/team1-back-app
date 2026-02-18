@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import type { Express } from 'express';
 import request from 'supertest';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { JobRoleDAO } from '../../src/db/JobRoleDAO.js';
 import { generateToken } from '../../src/utils/jwt.utils.js';
 
@@ -26,61 +26,51 @@ const mockJobRoles = [
   },
 ];
 
-// Mock the Prisma client before importing the app
-vi.mock('../../src/db/prisma.js', () => ({
-  prisma: {
+let mockPrisma: {
+  jobRole: { create: ReturnType<typeof vi.fn>; findMany: ReturnType<typeof vi.fn>; findUnique: ReturnType<typeof vi.fn> };
+  jobRoleStatus: { findUnique: ReturnType<typeof vi.fn> };
+  jobRoleLocation: { createMany: ReturnType<typeof vi.fn> };
+  band: { findMany: ReturnType<typeof vi.fn>; findUnique: ReturnType<typeof vi.fn> };
+  capability: { findMany: ReturnType<typeof vi.fn>; findUnique: ReturnType<typeof vi.fn> };
+  location: { findMany: ReturnType<typeof vi.fn> };
+  application: { deleteMany: ReturnType<typeof vi.fn> };
+  $transaction: ReturnType<typeof vi.fn>;
+};
+let jobRoleDAO: JobRoleDAO;
+
+beforeEach(() => {
+  mockPrisma = {
     jobRole: {
-      create: ReturnType<typeof vi.fn>;
-      findMany: ReturnType<typeof vi.fn>;
-    };
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+    },
     jobRoleStatus: {
-      findUnique: ReturnType<typeof vi.fn>;
-    };
+      findUnique: vi.fn(),
+    },
     jobRoleLocation: {
-      createMany: ReturnType<typeof vi.fn>;
-    };
+      createMany: vi.fn(),
+    },
     band: {
-      findMany: ReturnType<typeof vi.fn>;
-      findUnique: ReturnType<typeof vi.fn>;
-    };
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+    },
     capability: {
-      findMany: ReturnType<typeof vi.fn>;
-      findUnique: ReturnType<typeof vi.fn>;
-    };
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+    },
     location: {
-      findMany: ReturnType<typeof vi.fn>;
-    };
-    $transaction: ReturnType<typeof vi.fn>;
+      findMany: vi.fn(),
+    },
+    application: {
+      deleteMany: vi.fn(),
+    },
+    $transaction: vi.fn((callback) => callback(mockPrisma)),
   };
+  jobRoleDAO = new JobRoleDAO(mockPrisma as unknown as PrismaClient);
+});
 
-  beforeEach(() => {
-    mockPrisma = {
-      jobRole: {
-        create: vi.fn(),
-        findMany: vi.fn(),
-      },
-      jobRoleStatus: {
-        findUnique: vi.fn(),
-      },
-      jobRoleLocation: {
-        createMany: vi.fn(),
-      },
-      band: {
-        findMany: vi.fn(),
-        findUnique: vi.fn(),
-      },
-      capability: {
-        findMany: vi.fn(),
-        findUnique: vi.fn(),
-      },
-      location: {
-        findMany: vi.fn(),
-      },
-      $transaction: vi.fn((callback) => callback(mockPrisma)),
-    };
-    jobRoleDAO = new JobRoleDAO(mockPrisma as unknown as PrismaClient);
-  });
-
+describe('JobRoleDAO - CreateJobRole and Lookup Methods', () => {
   describe('createJobRole', () => {
     it('should create a job role with locations', async () => {
       const mockStatus = { jobRoleStatusId: 1, statusName: 'Open' };
