@@ -22,7 +22,7 @@ router.get('/job-roles', authMiddleware(), (req, res) =>
 // Delete job role (admin only)
 router.delete(
   '/job-roles/:id',
-  authMiddleware,
+  requireAdmin(),
   // adminAuthMiddleware,
   (req: Request, res: Response) => jobRoleController.deleteJobRole(req, res),
 );
