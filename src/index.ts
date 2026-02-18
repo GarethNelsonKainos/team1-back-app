@@ -4,7 +4,9 @@ import express from 'express';
 import AuthController from './controllers/AuthController.js';
 import { prisma } from './db/prisma.js';
 import jobRoleRoutes from './routes/JobRoleRoutes.js';
+import applicationRoutes from './routes/application.routes.js';
 import authRouter from './routes/authRouter.js';
+import cvRoutes from './routes/cv.routes.js';
 import { AuthService } from './services/AuthService.js';
 
 dotenv.config();
@@ -20,13 +22,32 @@ app.use(
     credentials: true,
   }),
 );
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRouter(authController));
 
 app.use('/api', jobRoleRoutes);
 
+// Application routes
+app.use('/api/applications', applicationRoutes);
+
+// CV upload routes
+app.use('/api/cv', cvRoutes);
+
+// Routes
+app.use('/api/auth', authRouter(authController));
+app.use('/api', jobRoleRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/cv', cvRoutes);
+
+// Application routes
+app.use('/api/applications', applicationRoutes);
+
+// Health check route
 app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
 });
