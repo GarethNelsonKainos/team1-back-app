@@ -27,7 +27,7 @@ function getController(): ApplicationController {
  */
 router.post(
   '/',
-  authMiddleware,
+  authMiddleware(),
   uploadMiddleware,
   (req: Request, res: Response) => getController().createApplication(req, res),
 );
@@ -38,7 +38,7 @@ router.post(
  */
 router.get(
   '/status/:jobRoleId',
-  authMiddleware,
+  authMiddleware(),
   (req: Request, res: Response) =>
     getController().checkApplicationStatus(req, res),
 );

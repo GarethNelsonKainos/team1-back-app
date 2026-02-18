@@ -5,6 +5,6 @@ import { authMiddleware } from '../middleware/auth.middleware.js';
 const router = express.Router();
 
 // CV upload route - requires authentication
-router.post('/upload', authMiddleware, uploadMiddleware, uploadCVHandler);
+router.post('/upload', authMiddleware(), uploadMiddleware, uploadCVHandler);
 
 export default router;

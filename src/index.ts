@@ -38,7 +38,10 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/cv', cvRoutes);
 
 // Routes
+app.use('/api/auth', authRouter(authController));
 app.use('/api', jobRoleRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/cv', cvRoutes);
 
 // Application routes
 app.use('/api/applications', applicationRoutes);

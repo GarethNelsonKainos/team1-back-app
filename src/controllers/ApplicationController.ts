@@ -12,6 +12,8 @@ export class ApplicationController {
 
   async createApplication(req: Request, res: Response): Promise<void> {
     try {
+      console.log('Application creation endpoint hit by user:', req.user?.userId, 'for job role:', req.body.jobRoleId);
+      
       if (!isJobApplicationsEnabled()) {
         res
           .status(503)
@@ -44,6 +46,8 @@ export class ApplicationController {
         cvFile: req.file,
       });
 
+      console.log('Application creation result:', result ? `Application ID: ${result.applicationId}` : 'failed');
+
       if (!result) {
         res.status(400).json({
           error:
@@ -52,10 +56,23 @@ export class ApplicationController {
         return;
       }
 
-      res.status(201).json({
-        message: 'Application submitted successfully',
-        application: result,
-      });
+      // Check if this is a JavaScript/AJAX request vs traditional form submission
+      const isJavaScriptRequest = req.headers['authorization'] || 
+        req.headers['x-requested-with'] === 'XMLHttpRequest' || 
+        req.headers['accept']?.includes('application/json');
+
+      if (isJavaScriptRequest) {
+        // JavaScript/AJAX request - return JSON response
+        res.status(201).json({
+          message: 'Application submitted successfully',
+          application: result,
+        });
+      } else {
+        // Traditional form submission - redirect to success page
+        res.redirect(
+          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/application-success`,
+        );
+      }
     } catch (error) {
       console.error('Error creating application:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -67,6 +84,8 @@ export class ApplicationController {
       const { jobRoleId } = req.params;
       const user = req.user;
 
+      console.log('Checking application status for user:', user?.userId, 'jobRole:', jobRoleId);
+
       if (!user) {
         res.status(401).json({ error: 'Authentication required' });
         return;
@@ -77,6 +96,7 @@ export class ApplicationController {
         Number.parseInt(String(jobRoleId), 10),
       );
 
+      console.log('Application status result:', hasApplied);
       res.json({ hasApplied });
     } catch (error) {
       console.error('Error checking application status:', error);
