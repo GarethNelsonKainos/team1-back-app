@@ -73,7 +73,7 @@ class JobRoleDAO {
       // Optionally: console.log(`Deleted jobRoleId ${id}`);
     });
   }
-  
+
   async createJobRole(data: {
     roleName: string;
     capabilityId: number;
