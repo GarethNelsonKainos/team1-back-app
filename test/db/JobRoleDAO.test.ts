@@ -316,6 +316,9 @@ describe('JobRoleDAO', () => {
             application: {
               deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
             },
+            jobRoleLocation: {
+              deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+            },
             jobRole: {
               delete: vi.fn().mockResolvedValue({ jobRoleId: 5 }),
             },
@@ -331,12 +334,14 @@ describe('JobRoleDAO', () => {
 
     it('should cascade delete applications before deleting job role', async () => {
       const mockDeleteMany = vi.fn().mockResolvedValue({ count: 2 });
+      const mockDeleteJobRoleLocations = vi.fn().mockResolvedValue({ count: 1 });
       const mockDelete = vi.fn().mockResolvedValue({ jobRoleId: 5 });
 
       const mockPrisma = {
         $transaction: vi.fn(async (callback) => {
           return await callback({
             application: { deleteMany: mockDeleteMany },
+            jobRoleLocation: { deleteMany: mockDeleteJobRoleLocations },
             jobRole: { delete: mockDelete },
           });
         }),
@@ -346,6 +351,9 @@ describe('JobRoleDAO', () => {
       await dao.deleteJobRole(5);
 
       expect(mockDeleteMany).toHaveBeenCalledWith({
+        where: { jobRoleId: 5 },
+      });
+      expect(mockDeleteJobRoleLocations).toHaveBeenCalledWith({
         where: { jobRoleId: 5 },
       });
       expect(mockDelete).toHaveBeenCalledWith({
@@ -364,6 +372,9 @@ describe('JobRoleDAO', () => {
             application: {
               deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
             },
+            jobRoleLocation: {
+              deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+            },
             jobRole: {
               delete: vi.fn().mockRejectedValue(prismaError),
             },
@@ -379,12 +390,14 @@ describe('JobRoleDAO', () => {
     it('should rollback transaction if deletion fails', async () => {
       const mockError = new Error('Database error');
       const mockDeleteMany = vi.fn().mockResolvedValue({ count: 2 });
+      const mockDeleteJobRoleLocations = vi.fn().mockResolvedValue({ count: 1 });
       const mockDelete = vi.fn().mockRejectedValue(mockError);
 
       const mockPrisma = {
         $transaction: vi.fn(async (callback) => {
           return await callback({
             application: { deleteMany: mockDeleteMany },
+            jobRoleLocation: { deleteMany: mockDeleteJobRoleLocations },
             jobRole: { delete: mockDelete },
           });
         }),
@@ -394,6 +407,7 @@ describe('JobRoleDAO', () => {
 
       await expect(dao.deleteJobRole(5)).rejects.toThrow('Database error');
       expect(mockDeleteMany).toHaveBeenCalled();
+      expect(mockDeleteJobRoleLocations).toHaveBeenCalled();
       expect(mockDelete).toHaveBeenCalled();
     });
   });
