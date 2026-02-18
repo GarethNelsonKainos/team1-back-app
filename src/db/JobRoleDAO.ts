@@ -68,7 +68,9 @@ class JobRoleDAO {
       await tx.application.deleteMany({
         where: { jobRoleId: id },
       });
-
+      await tx.jobRoleLocation.deleteMany({
+        where: { jobRoleId: id },
+      });
       await tx.jobRole.delete({ where: { jobRoleId: id } });
     });
   }
