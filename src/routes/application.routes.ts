@@ -1,4 +1,5 @@
 import { type Request, type Response, Router } from 'express';
+import multer from 'multer';
 import { ApplicationController } from '../controllers/ApplicationController';
 import { prisma } from '../db/prisma';
 import { authMiddleware } from '../middleware/auth.middleware';
@@ -6,6 +7,21 @@ import { ApplicationService } from '../services/application.service';
 import { S3Service } from '../services/s3.service';
 
 const router = Router();
+
+// Configure multer for handling file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'));
+    }
+  },
+});
 
 // Lazy initialization to avoid creating S3Service during module load (requires env vars)
 let applicationController: ApplicationController;
@@ -23,8 +39,11 @@ function getController(): ApplicationController {
  * POST /api/applications
  * Create a new job application (requires authentication)
  */
-router.post('/', authMiddleware(), (req: Request, res: Response) =>
-  getController().createApplication(req, res),
+router.post(
+  '/',
+  authMiddleware(),
+  upload.single('cv'),
+  (req: Request, res: Response) => getController().createApplication(req, res),
 );
 
 /**

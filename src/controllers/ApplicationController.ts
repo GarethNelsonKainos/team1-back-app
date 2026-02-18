@@ -12,6 +12,13 @@ export class ApplicationController {
 
   async createApplication(req: Request, res: Response): Promise<void> {
     try {
+      console.log('=== Application creation debug ===');
+      console.log('req.body:', req.body);
+      console.log('req.file:', req.file);
+      console.log('req.files:', req.files);
+      console.log('Content-Type:', req.headers['content-type']);
+      console.log('User:', req.user?.userId);
+
       console.log(
         'Application creation endpoint hit by user:',
         req.user?.userId,
