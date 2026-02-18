@@ -11,7 +11,6 @@ import { AuthService } from './services/AuthService.js';
 
 dotenv.config();
 
-
 const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;
 

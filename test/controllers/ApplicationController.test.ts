@@ -13,6 +13,7 @@ describe('ApplicationController', () => {
   let mockRes: Partial<Response>;
   let statusMock: ReturnType<typeof vi.fn>;
   let jsonMock: ReturnType<typeof vi.fn>;
+  let redirectMock: ReturnType<typeof vi.fn>;
   let mockApplicationService: {
     createApplication: ReturnType<typeof vi.fn>;
     hasUserApplied: ReturnType<typeof vi.fn>;
@@ -21,16 +22,22 @@ describe('ApplicationController', () => {
   beforeEach(() => {
     statusMock = vi.fn().mockReturnThis();
     jsonMock = vi.fn();
+    redirectMock = vi.fn();
 
     mockRes = {
       status: statusMock,
       json: jsonMock,
+      redirect: redirectMock,
     };
 
     mockReq = {
       body: {},
       user: undefined,
-      headers: {},
+      headers: {
+        // Set headers to indicate this is a JavaScript request
+        authorization: 'Bearer token',
+        accept: 'application/json',
+      },
       params: {},
     };
 

@@ -67,15 +67,31 @@ export class ApplicationService {
         cvUrl: cvUrl,
       },
     });
-    console.log('Created application:', application.applicationId, 'for user', userId, 'job role', jobRoleId);    return application;
+    console.log(
+      'Created application:',
+      application.applicationId,
+      'for user',
+      userId,
+      'job role',
+      jobRoleId,
+    );
+    return application;
   }
 
   async hasUserApplied(userId: number, jobRoleId: number): Promise<boolean> {
-    console.log('Checking if user', userId, 'has applied for job role', jobRoleId);
+    console.log(
+      'Checking if user',
+      userId,
+      'has applied for job role',
+      jobRoleId,
+    );
     const application = await this.prisma.application.findFirst({
       where: { userId, jobRoleId },
     });
-    console.log('Found application:', application ? `ID: ${application.applicationId}` : 'none');
+    console.log(
+      'Found application:',
+      application ? `ID: ${application.applicationId}` : 'none',
+    );
     return !!application;
   }
 }

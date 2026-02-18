@@ -12,8 +12,13 @@ export class ApplicationController {
 
   async createApplication(req: Request, res: Response): Promise<void> {
     try {
-      console.log('Application creation endpoint hit by user:', req.user?.userId, 'for job role:', req.body.jobRoleId);
-      
+      console.log(
+        'Application creation endpoint hit by user:',
+        req.user?.userId,
+        'for job role:',
+        req.body.jobRoleId,
+      );
+
       if (!isJobApplicationsEnabled()) {
         res
           .status(503)
@@ -46,7 +51,10 @@ export class ApplicationController {
         cvFile: req.file,
       });
 
-      console.log('Application creation result:', result ? `Application ID: ${result.applicationId}` : 'failed');
+      console.log(
+        'Application creation result:',
+        result ? `Application ID: ${result.applicationId}` : 'failed',
+      );
 
       if (!result) {
         res.status(400).json({
@@ -57,10 +65,10 @@ export class ApplicationController {
       }
 
       // Check if this is a JavaScript/AJAX request vs traditional form submission
-      const isJavaScriptRequest = req.headers['authorization'] || 
-        req.headers['x-requested-with'] === 'XMLHttpRequest' || 
-        req.headers['accept']?.includes('application/json');
-
+      const isJavaScriptRequest =
+        req.headers.authorization ||
+        req.headers['x-requested-with'] === 'XMLHttpRequest' ||
+        req.headers.accept?.includes('application/json');
       if (isJavaScriptRequest) {
         // JavaScript/AJAX request - return JSON response
         res.status(201).json({
@@ -84,7 +92,12 @@ export class ApplicationController {
       const { jobRoleId } = req.params;
       const user = req.user;
 
-      console.log('Checking application status for user:', user?.userId, 'jobRole:', jobRoleId);
+      console.log(
+        'Checking application status for user:',
+        user?.userId,
+        'jobRole:',
+        jobRoleId,
+      );
 
       if (!user) {
         res.status(401).json({ error: 'Authentication required' });
