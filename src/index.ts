@@ -7,7 +7,7 @@ import jobRoleRoutes from './routes/JobRoleRoutes.js';
 import applicationRoutes from './routes/application.routes.js';
 import authRouter from './routes/authRouter.js';
 import cvRoutes from './routes/cv.routes.js';
-//import authRoutes from './routes/auth.routes.js';
+import { AuthService } from './services/AuthService.js';
 
 dotenv.config();
 
@@ -23,6 +23,8 @@ app.use(
     credentials: true,
   }),
 );
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
