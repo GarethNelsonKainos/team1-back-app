@@ -58,6 +58,22 @@ class JobRoleDAO {
     });
   }
 
+  /**
+   * Deletes a job role and all associated applications in a transaction (hard delete).
+   * Throws if the job role does not exist.
+   */
+  async deleteJobRole(id: number): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      // Delete all applications for this job role
+      const deletedApps = await tx.application.deleteMany({
+        where: { jobRoleId: id },
+      });
+
+      await tx.jobRole.delete({ where: { jobRoleId: id } });
+      // Optionally: console.log(`Deleted jobRoleId ${id}`);
+    });
+  }
+  
   async createJobRole(data: {
     roleName: string;
     capabilityId: number;

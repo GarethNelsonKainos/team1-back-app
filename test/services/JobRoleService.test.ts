@@ -151,4 +151,127 @@ describe('JobRoleService - New Methods', () => {
       expect(result).toEqual(mockLocations);
     });
   });
+
+  describe('deleteJobRole', () => {
+    it('should throw error for negative ID', async () => {
+      const mockDAO = {
+        deleteJobRole: vi.fn(),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.deleteJobRole(-1)).rejects.toThrow(
+        'Invalid job role ID',
+      );
+      expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
+    });
+    it('should throw error for zero ID', async () => {
+      const mockDAO = {
+        deleteJobRole: vi.fn(),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.deleteJobRole(0)).rejects.toThrow(
+        'Invalid job role ID',
+      );
+      expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
+    });
+    it('should throw error for decimal ID', async () => {
+      const mockDAO = {
+        deleteJobRole: vi.fn(),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.deleteJobRole(1.5)).rejects.toThrow(
+        'Invalid job role ID',
+      );
+      expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
+    });
+    it('should call DAO deleteJobRole with valid ID', async () => {
+      const mockDAO = {
+        deleteJobRole: vi.fn().mockResolvedValue(undefined),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+      await service.deleteJobRole(5);
+
+      expect(mockDAO.deleteJobRole).toHaveBeenCalledWith(5);
+    });
+    it('should propagate DAO errors', async () => {
+      const daoError = new Error('Database connection failed');
+      const mockDAO = {
+        deleteJobRole: vi.fn().mockRejectedValue(daoError),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.deleteJobRole(5)).rejects.toThrow(
+        'Database connection failed',
+      );
+    });
+    it('should throw error for negative ID', async () => {
+      const mockDAO = {
+        deleteJobRole: vi.fn(),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.deleteJobRole(-1)).rejects.toThrow(
+        'Invalid job role ID',
+      );
+      expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
+    });
+
+    it('should throw error for zero ID', async () => {
+      const mockDAO = {
+        deleteJobRole: vi.fn(),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.deleteJobRole(0)).rejects.toThrow(
+        'Invalid job role ID',
+      );
+      expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
+    });
+
+    it('should throw error for decimal ID', async () => {
+      const mockDAO = {
+        deleteJobRole: vi.fn(),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.deleteJobRole(1.5)).rejects.toThrow(
+        'Invalid job role ID',
+      );
+      expect(mockDAO.deleteJobRole).not.toHaveBeenCalled();
+    });
+
+    it('should call DAO deleteJobRole with valid ID', async () => {
+      const mockDAO = {
+        deleteJobRole: vi.fn().mockResolvedValue(undefined),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+      await service.deleteJobRole(5);
+
+      expect(mockDAO.deleteJobRole).toHaveBeenCalledWith(5);
+    });
+
+    it('should propagate DAO errors', async () => {
+      const daoError = new Error('Database connection failed');
+      const mockDAO = {
+        deleteJobRole: vi.fn().mockRejectedValue(daoError),
+      } as unknown as JobRoleDAO;
+
+      const service = new JobRoleService(mockDAO);
+
+      await expect(service.deleteJobRole(5)).rejects.toThrow(
+        'Database connection failed',
+      );
+    });
+  });
 });

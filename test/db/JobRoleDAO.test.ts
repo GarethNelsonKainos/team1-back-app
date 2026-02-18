@@ -3,6 +3,46 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { JobRoleDAO } from '../../src/db/JobRoleDAO';
 import ValidationError from '../../src/errors/ValidationError';
 
+
+
+
+const mockJobRoles = [
+  {
+    jobRoleId: 1,
+    roleName: 'Software Engineer',
+    locations: [{ location: { locationName: 'London' } }],
+    capability: { capabilityName: 'Engineering' },
+    band: { bandName: 'Mid' },
+    closingDate: new Date('2026-03-15'),
+    status: { statusName: 'Open' },
+  },
+  {
+    jobRoleId: 2,
+    roleName: 'Data Analyst',
+    locations: [{ location: { locationName: 'Manchester' } }],
+    capability: { capabilityName: 'Data' },
+    band: { bandName: 'Junior' },
+    closingDate: new Date('2026-04-01'),
+    status: { statusName: 'Open' },
+  },
+];
+
+let mockPrisma: {
+  jobRole: { create: ReturnType<typeof vi.fn>; findMany: ReturnType<typeof vi.fn>; findUnique: ReturnType<typeof vi.fn> };
+  jobRoleStatus: { findUnique: ReturnType<typeof vi.fn> };
+  jobRoleLocation: { createMany: ReturnType<typeof vi.fn> };
+  band: { findMany: ReturnType<typeof vi.fn>; findUnique: ReturnType<typeof vi.fn> };
+  capability: { findMany: ReturnType<typeof vi.fn>; findUnique: ReturnType<typeof vi.fn> };
+  location: { findMany: ReturnType<typeof vi.fn> };
+  application: { deleteMany: ReturnType<typeof vi.fn> };
+  $transaction: ReturnType<typeof vi.fn>;
+};
+let jobRoleDAO: JobRoleDAO;
+
+
+
+
+
 describe('JobRoleDAO - New Methods', () => {
   let jobRoleDAO: JobRoleDAO;
   let mockPrisma: {
@@ -283,6 +323,97 @@ describe('JobRoleDAO - New Methods', () => {
         orderBy: { locationName: 'asc' },
       });
       expect(result).toEqual(mockLocations);
+    });
+  });
+});
+describe('JobRoleDAO', () => {
+  describe('deleteJobRole', () => {
+    it('should delete a job role successfully', async () => {
+      const mockPrisma = {
+        $transaction: vi.fn(async (callback) => {
+          return await callback({
+            application: {
+              deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+            },
+            jobRole: {
+              delete: vi.fn().mockResolvedValue({ jobRoleId: 5 }),
+            },
+          });
+        }),
+      } as unknown as PrismaClient;
+
+      const dao = new JobRoleDAO(mockPrisma);
+      await dao.deleteJobRole(5);
+
+      expect(mockPrisma.$transaction).toHaveBeenCalled();
+    });
+
+    it('should cascade delete applications before deleting job role', async () => {
+      const mockDeleteMany = vi.fn().mockResolvedValue({ count: 2 });
+      const mockDelete = vi.fn().mockResolvedValue({ jobRoleId: 5 });
+
+      const mockPrisma = {
+        $transaction: vi.fn(async (callback) => {
+          return await callback({
+            application: { deleteMany: mockDeleteMany },
+            jobRole: { delete: mockDelete },
+          });
+        }),
+      } as unknown as PrismaClient;
+
+      const dao = new JobRoleDAO(mockPrisma);
+      await dao.deleteJobRole(5);
+
+      expect(mockDeleteMany).toHaveBeenCalledWith({
+        where: { jobRoleId: 5 },
+      });
+      expect(mockDelete).toHaveBeenCalledWith({
+        where: { jobRoleId: 5 },
+      });
+    });
+
+    it('should throw error when job role does not exist', async () => {
+      const prismaError = Object.assign(new Error('Record not found'), {
+        code: 'P2025',
+      });
+
+      const mockPrisma = {
+        $transaction: vi.fn(async (callback) => {
+          return await callback({
+            application: {
+              deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+            },
+            jobRole: {
+              delete: vi.fn().mockRejectedValue(prismaError),
+            },
+          });
+        }),
+      } as unknown as PrismaClient;
+
+      const dao = new JobRoleDAO(mockPrisma);
+
+      await expect(dao.deleteJobRole(999999)).rejects.toThrow();
+    });
+
+    it('should rollback transaction if deletion fails', async () => {
+      const mockError = new Error('Database error');
+      const mockDeleteMany = vi.fn().mockResolvedValue({ count: 2 });
+      const mockDelete = vi.fn().mockRejectedValue(mockError);
+
+      const mockPrisma = {
+        $transaction: vi.fn(async (callback) => {
+          return await callback({
+            application: { deleteMany: mockDeleteMany },
+            jobRole: { delete: mockDelete },
+          });
+        }),
+      } as unknown as PrismaClient;
+
+      const dao = new JobRoleDAO(mockPrisma);
+
+      await expect(dao.deleteJobRole(5)).rejects.toThrow('Database error');
+      expect(mockDeleteMany).toHaveBeenCalled();
+      expect(mockDelete).toHaveBeenCalled();
     });
   });
 });
