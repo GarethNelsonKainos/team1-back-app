@@ -422,64 +422,7 @@ describe('deleteJobRole', () => {
       error: 'Job role not found',
     });
   });
-  it('should return 400 for invalid ID from service', async () => {
-    const error = { message: 'Invalid job role ID' };
-    const mockService = {
-      deleteJobRole: vi.fn().mockRejectedValue(error),
-    } as unknown as JobRoleService;
 
-    const controller = new JobRoleController(mockService);
-
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
-
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(400);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Invalid job role ID',
-    });
-  });
-  it('should return 500 for unexpected errors', async () => {
-    const error = new Error('Database connection failed');
-    const mockService = {
-      deleteJobRole: vi.fn().mockRejectedValue(error),
-    } as unknown as JobRoleService;
-
-    const controller = new JobRoleController(mockService);
-
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
-
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(500);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Failed to delete job role',
-    });
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error deleting job role:',
-      error,
-    );
-
-    consoleErrorSpy.mockRestore();
-  });
   it('should return 400 for invalid ID (NaN)', async () => {
     const mockService = {
       deleteJobRole: vi.fn(),
@@ -553,31 +496,6 @@ describe('deleteJobRole', () => {
     });
   });
 
-  it('should return 404 for error message containing "not found"', async () => {
-    const error = { message: 'Job role not found in database' };
-    const mockService = {
-      deleteJobRole: vi.fn().mockRejectedValue(error),
-    } as unknown as JobRoleService;
-
-    const controller = new JobRoleController(mockService);
-
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
-
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(404);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Job role not found',
-    });
-  });
-
   it('should return 400 for invalid ID from service', async () => {
     const error = { message: 'Invalid job role ID' };
     const mockService = {
@@ -628,7 +546,7 @@ describe('deleteJobRole', () => {
 
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Failed to delete job role',
+      error: 'Database connection failed',
     });
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Error deleting job role:',

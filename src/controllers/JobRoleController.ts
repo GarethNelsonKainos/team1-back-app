@@ -2,8 +2,8 @@ import type { Request, Response } from 'express';
 import ValidationError from '../errors/ValidationError.js';
 import type { JobRoleService } from '../services/JobRoleService.js';
 import { FEATURE_FLAGS } from '../utils/FeatureFlags.js';
-import { validateCreateJobRole } from '../utils/validation.utils.js';
 import { parseError } from '../utils/error.utils.js';
+import { validateCreateJobRole } from '../utils/validation.utils.js';
 
 class JobRoleController {
   private jobRoleService: JobRoleService;
