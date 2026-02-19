@@ -1,7 +1,7 @@
 import { type Request, type Response, Router } from 'express';
 import multer from 'multer';
 import type { ApplicationController } from '../controllers/ApplicationController';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { authMiddleware } from '../middleware/auth.middleware.js';
 
 const FIVE_MEGAYTES = 5 * 1024 * 1024;
 

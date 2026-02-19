@@ -253,6 +253,7 @@ if (alice && jobRoleSoftwareEngineer && applicationStatuses['Submitted']) {
       userId: alice.userId,
       jobRoleId: jobRoleSoftwareEngineer.jobRoleId,
       applicationStatusId: applicationStatuses['Submitted'].applicationStatusId,
+      cvUrl: 'https://example.com/cv/alice-cv.pdf',
     },
   });
 }
@@ -262,7 +263,7 @@ if (alice && jobRoleTestEngineer && applicationStatuses['In Review']) {
       userId: alice.userId,
       jobRoleId: jobRoleTestEngineer.jobRoleId,
       applicationStatusId: applicationStatuses['In Review'].applicationStatusId,
-    },
+      cvUrl: 'https://example.com/cv/alice-cv.pdf',},
   });
 }
 if (bob && jobRoleTechnicalArchitect && applicationStatuses['Offered Interview']) {
@@ -271,6 +272,7 @@ if (bob && jobRoleTechnicalArchitect && applicationStatuses['Offered Interview']
       userId: bob.userId,
       jobRoleId: jobRoleTechnicalArchitect.jobRoleId,
       applicationStatusId: applicationStatuses['Offered Interview'].applicationStatusId,
+      cvUrl: 'https://example.com/cv/bob-cv.pdf',
     },
   });
 }
@@ -280,6 +282,7 @@ if (bob && jobRoleSoftwareEngineer && applicationStatuses['Rejected']) {
       userId: bob.userId,
       jobRoleId: jobRoleSoftwareEngineer.jobRoleId,
       applicationStatusId: applicationStatuses['Rejected'].applicationStatusId,
+      cvUrl: 'https://example.com/cv/bob-cv.pdf',
     },
   });
 }

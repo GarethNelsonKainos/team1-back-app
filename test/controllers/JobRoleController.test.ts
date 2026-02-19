@@ -1,21 +1,15 @@
 import type { Request, Response } from 'express';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { JobRoleController } from '../../src/controllers/JobRoleController';
 import type { JobRoleService } from '../../src/services/JobRoleService';
-
-// Mock feature flags
-vi.mock('../../src/utils/FeatureFlags', () => ({
-  FEATURE_FLAGS: {
-    ADMIN_CREATE_JOB_ROLE: true,
-  },
-}));
+import * as FeatureFlags from '../../src/utils/FeatureFlags';
 
 // Mock validation
 vi.mock('../../src/utils/validation.utils', () => ({
   validateCreateJobRole: vi.fn((data) => data),
 }));
 
-describe('JobRoleController - New Methods', () => {
+describe('JobRoleController', () => {
   let jobRoleController: JobRoleController;
   let mockJobRoleService: {
     getJobRoles: ReturnType<typeof vi.fn>;
@@ -25,11 +19,17 @@ describe('JobRoleController - New Methods', () => {
     getCapabilities: ReturnType<typeof vi.fn>;
     getLocations: ReturnType<typeof vi.fn>;
     getJobRoleById: ReturnType<typeof vi.fn>;
+    deleteJobRole: ReturnType<typeof vi.fn>;
   };
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
 
   beforeEach(() => {
+    // Mock FEATURE_FLAGS as enabled by default
+    vi.spyOn(FeatureFlags, 'FEATURE_FLAGS', 'get').mockReturnValue({
+      ADMIN_CREATE_JOB_ROLE: true,
+    });
+
     mockJobRoleService = {
       getJobRoles: vi.fn(),
       getJobRoleDetailed: vi.fn(),
@@ -38,6 +38,7 @@ describe('JobRoleController - New Methods', () => {
       getCapabilities: vi.fn(),
       getLocations: vi.fn(),
       getJobRoleById: vi.fn(),
+      deleteJobRole: vi.fn(),
     };
 
     mockRequest = {
@@ -48,11 +49,17 @@ describe('JobRoleController - New Methods', () => {
     mockResponse = {
       json: vi.fn().mockReturnThis(),
       status: vi.fn().mockReturnThis(),
+      send: vi.fn().mockReturnThis(),
     };
 
     jobRoleController = new JobRoleController(
       mockJobRoleService as unknown as JobRoleService,
     );
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('createJobRole', () => {
@@ -120,8 +127,28 @@ describe('JobRoleController - New Methods', () => {
         error: 'Failed to create job role',
       });
     });
-  });
 
+    it('should return 404 when feature flag is disabled', async () => {
+      // Override the spy for this specific test
+      vi.spyOn(FeatureFlags, 'FEATURE_FLAGS', 'get').mockReturnValue({
+        ADMIN_CREATE_JOB_ROLE: false,
+      });
+
+      mockRequest.body = {
+        roleName: 'Test Role',
+      };
+
+      await jobRoleController.createJobRole(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Feature not available',
+      });
+    });
+  });
   describe('getBands', () => {
     it('should return all bands', async () => {
       const mockBands = [
@@ -282,7 +309,6 @@ describe('JobRoleController - New Methods', () => {
       } as Request;
 
       await jobRoleController.getJobRoleById(request, mockResponse as Response);
-      await jobRoleController.getJobRoleById(request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -297,7 +323,6 @@ describe('JobRoleController - New Methods', () => {
       } as Request;
 
       await jobRoleController.getJobRoleById(request, mockResponse as Response);
-      await jobRoleController.getJobRoleById(request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -307,9 +332,6 @@ describe('JobRoleController - New Methods', () => {
 
     it('should return 500 when the service throws an error', async () => {
       mockJobRoleService.getJobRoleDetailed.mockRejectedValue(
-        new Error('DB error'),
-      );
-      mockJobRoleService.getJobRoleById.mockRejectedValue(
         new Error('DB error'),
       );
 
@@ -326,233 +348,114 @@ describe('JobRoleController - New Methods', () => {
       });
     });
   });
-});
-describe('deleteJobRole', () => {
-  it('should return 400 for invalid ID (NaN)', async () => {
-    const mockService = {
-      deleteJobRole: vi.fn(),
-    } as unknown as JobRoleService;
 
-    const controller = new JobRoleController(mockService);
+  describe('deleteJobRole', () => {
+    it('should return 400 for invalid ID (NaN)', async () => {
+      const request = {
+        ...mockRequest,
+        params: { id: 'abc' },
+      } as Request;
 
-    const mockReq: Partial<Request> = {
-      params: { id: 'abc' },
-    };
+      await jobRoleController.deleteJobRole(request, mockResponse as Response);
 
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(400);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Invalid job role ID',
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Invalid job role ID',
+      });
+      expect(mockJobRoleService.deleteJobRole).not.toHaveBeenCalled();
     });
-    expect(mockService.deleteJobRole).not.toHaveBeenCalled();
-  });
-  it('should return 204 on successful deletion', async () => {
-    const mockService = {
-      deleteJobRole: vi.fn().mockResolvedValue(undefined),
-    } as unknown as JobRoleService;
 
-    const controller = new JobRoleController(mockService);
+    it('should return 204 on successful deletion', async () => {
+      mockJobRoleService.deleteJobRole.mockResolvedValue(undefined);
 
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
+      const request = {
+        ...mockRequest,
+        params: { id: '5' },
+      } as Request;
 
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      send: vi.fn(),
-    };
+      await jobRoleController.deleteJobRole(request, mockResponse as Response);
 
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockService.deleteJobRole).toHaveBeenCalledWith(5);
-    expect(mockRes.status).toHaveBeenCalledWith(204);
-    expect(mockRes.send).toHaveBeenCalled();
-  });
-  it('should return 404 when job role not found (Prisma P2025)', async () => {
-    const prismaError = { code: 'P2025', message: 'Record not found' };
-    const mockService = {
-      deleteJobRole: vi.fn().mockRejectedValue(prismaError),
-    } as unknown as JobRoleService;
-
-    const controller = new JobRoleController(mockService);
-
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
-
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(404);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Job role not found',
+      expect(mockJobRoleService.deleteJobRole).toHaveBeenCalledWith(5);
+      expect(mockResponse.status).toHaveBeenCalledWith(204);
+      expect(mockResponse.send).toHaveBeenCalled();
     });
-  });
-  it('should return 404 for error message containing "not found"', async () => {
-    const error = { message: 'Job role not found in database' };
-    const mockService = {
-      deleteJobRole: vi.fn().mockRejectedValue(error),
-    } as unknown as JobRoleService;
 
-    const controller = new JobRoleController(mockService);
+    it('should return 404 when job role not found (Prisma P2025)', async () => {
+      const prismaError = { code: 'P2025', message: 'Record not found' };
+      mockJobRoleService.deleteJobRole.mockRejectedValue(prismaError);
 
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
+      const request = {
+        ...mockRequest,
+        params: { id: '5' },
+      } as Request;
 
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+      await jobRoleController.deleteJobRole(request, mockResponse as Response);
 
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(404);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Job role not found',
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Job role not found',
+      });
     });
-  });
 
-  it('should return 400 for invalid ID (NaN)', async () => {
-    const mockService = {
-      deleteJobRole: vi.fn(),
-    } as unknown as JobRoleService;
+    it('should return 404 for error message containing "not found"', async () => {
+      const error = { message: 'Job role not found in database' };
+      mockJobRoleService.deleteJobRole.mockRejectedValue(error);
 
-    const controller = new JobRoleController(mockService);
+      const request = {
+        ...mockRequest,
+        params: { id: '5' },
+      } as Request;
 
-    const mockReq: Partial<Request> = {
-      params: { id: 'abc' },
-    };
+      await jobRoleController.deleteJobRole(request, mockResponse as Response);
 
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(400);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Invalid job role ID',
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Job role not found',
+      });
     });
-    expect(mockService.deleteJobRole).not.toHaveBeenCalled();
-  });
 
-  it('should return 204 on successful deletion', async () => {
-    const mockService = {
-      deleteJobRole: vi.fn().mockResolvedValue(undefined),
-    } as unknown as JobRoleService;
+    it('should return 400 for invalid ID from service', async () => {
+      const error = { message: 'Invalid job role ID' };
+      mockJobRoleService.deleteJobRole.mockRejectedValue(error);
 
-    const controller = new JobRoleController(mockService);
+      const request = {
+        ...mockRequest,
+        params: { id: '5' },
+      } as Request;
 
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
+      await jobRoleController.deleteJobRole(request, mockResponse as Response);
 
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      send: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockService.deleteJobRole).toHaveBeenCalledWith(5);
-    expect(mockRes.status).toHaveBeenCalledWith(204);
-    expect(mockRes.send).toHaveBeenCalled();
-  });
-
-  it('should return 404 when job role not found (Prisma P2025)', async () => {
-    const prismaError = { code: 'P2025', message: 'Record not found' };
-    const mockService = {
-      deleteJobRole: vi.fn().mockRejectedValue(prismaError),
-    } as unknown as JobRoleService;
-
-    const controller = new JobRoleController(mockService);
-
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
-
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(404);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Job role not found',
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Invalid job role ID',
+      });
     });
-  });
 
-  it('should return 400 for invalid ID from service', async () => {
-    const error = { message: 'Invalid job role ID' };
-    const mockService = {
-      deleteJobRole: vi.fn().mockRejectedValue(error),
-    } as unknown as JobRoleService;
+    it('should return 500 for unexpected errors', async () => {
+      const error = new Error('Database connection failed');
+      mockJobRoleService.deleteJobRole.mockRejectedValue(error);
 
-    const controller = new JobRoleController(mockService);
+      const consoleErrorSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
+      const request = {
+        ...mockRequest,
+        params: { id: '5' },
+      } as Request;
 
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+      await jobRoleController.deleteJobRole(request, mockResponse as Response);
 
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Database connection failed',
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error deleting job role:',
+        error,
+      );
 
-    expect(mockRes.status).toHaveBeenCalledWith(400);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Invalid job role ID',
+      consoleErrorSpy.mockRestore();
     });
-  });
-
-  it('should return 500 for unexpected errors', async () => {
-    const error = new Error('Database connection failed');
-    const mockService = {
-      deleteJobRole: vi.fn().mockRejectedValue(error),
-    } as unknown as JobRoleService;
-
-    const controller = new JobRoleController(mockService);
-
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-
-    const mockReq: Partial<Request> = {
-      params: { id: '5' },
-    };
-
-    const mockRes: Partial<Response> = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
-
-    await controller.deleteJobRole(mockReq as Request, mockRes as Response);
-
-    expect(mockRes.status).toHaveBeenCalledWith(500);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Database connection failed',
-    });
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error deleting job role:',
-      error,
-    );
-
-    consoleErrorSpy.mockRestore();
   });
 });

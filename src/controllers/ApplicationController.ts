@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import type { ApplicationService } from '../services/application.service';
 import { UserRole } from '../types/auth.types';
-import { isJobApplicationsEnabled } from '../utils/FeatureFlags';
+import { isJobApplicationsEnabled } from '../utils/FeatureFlags.js';
 
 export class ApplicationController {
   private applicationService: ApplicationService;

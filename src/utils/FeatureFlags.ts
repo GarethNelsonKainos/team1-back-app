@@ -5,7 +5,7 @@
 
 export const FEATURE_FLAGS = {
   ADMIN_CREATE_JOB_ROLE: process.env.FEATURE_ADMIN_CREATE_JOB_ROLE === 'true',
-} as const;
+};
 
 /**
  * Check if job applications are enabled
@@ -21,6 +21,10 @@ export function isJobApplicationsEnabled(): boolean {
   return flag.toLowerCase() === 'true' || flag === '1';
 }
 
+export function isAdminCreateJobRoleEnabled(): boolean {
+  return FEATURE_FLAGS.ADMIN_CREATE_JOB_ROLE;
+}
+
 /**
  * Get all feature flags for debugging/admin purposes
  * @returns object with all current feature flag states
@@ -28,5 +32,6 @@ export function isJobApplicationsEnabled(): boolean {
 export function getAllFlags(): Record<string, boolean> {
   return {
     jobApplications: isJobApplicationsEnabled(),
+    adminCreateJobRole: FEATURE_FLAGS.ADMIN_CREATE_JOB_ROLE,
   };
 }

@@ -2,8 +2,8 @@ import type { PrismaClient } from '@prisma/client';
 import type {
   Application,
   CreateApplicationRequest,
-} from '../types/application.types';
-import { JobRoleStatus } from '../types/application.types';
+} from '../types/application.types.js';
+import { JobRoleStatus } from '../types/application.types.js';
 import type { S3Service } from './s3.service';
 
 export class ApplicationService {

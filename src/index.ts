@@ -3,11 +3,11 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { ApplicationController } from './controllers/ApplicationController.js';
 import AuthController from './controllers/AuthController.js';
-import { prisma } from './db/prisma';
-import jobRoleRoutes from './routes/JobRoleRoutes';
-import applicationRoutes from './routes/application.routes';
-import authRouter from './routes/authRouter';
-import { AuthService } from './services/AuthService';
+import { prisma } from './db/prisma.js';
+import jobRoleRoutes from './routes/JobRoleRoutes.js';
+import applicationRoutes from './routes/application.routes.js';
+import authRouter from './routes/authRouter.js';
+import { AuthService } from './services/AuthService.js';
 import { ApplicationService } from './services/application.service.js';
 import { S3Service } from './services/s3.service.js';
 
