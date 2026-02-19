@@ -28,6 +28,14 @@ describe('ApplicationController', () => {
     mockReq = {
       body: {},
       file: undefined,
+      user: {
+        userId: 1,
+        email: 'test@test.com',
+        userRole: 1,
+        firstName: 'Test',
+        lastName: 'User',
+      },
+      headers: { authorization: 'Bearer test-token' },
     };
 
     mockApplicationService = {
@@ -44,7 +52,10 @@ describe('ApplicationController', () => {
   describe('createApplication', () => {
     it('should create application successfully with valid data', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
+      mockReq.file = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      } as Express.Multer.File;
 
       mockApplicationService.createApplication.mockResolvedValue(true);
 
@@ -62,7 +73,10 @@ describe('ApplicationController', () => {
 
     it('should return 400 when service returns false', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
+      mockReq.file = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      } as Express.Multer.File;
 
       mockApplicationService.createApplication.mockResolvedValue(false);
 
@@ -80,7 +94,10 @@ describe('ApplicationController', () => {
 
     it('should return 400 when job role ID is invalid', async () => {
       mockReq.body = { jobRoleId: 'invalid' };
-      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
+      mockReq.file = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      } as Express.Multer.File;
 
       await controller.createApplication(
         mockReq as Request,
@@ -112,7 +129,10 @@ describe('ApplicationController', () => {
       vi.mocked(FeatureFlags.isJobApplicationsEnabled).mockReturnValue(false);
 
       mockReq.body = { jobRoleId: 1 };
-      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
+      mockReq.file = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      } as Express.Multer.File;
 
       await controller.createApplication(
         mockReq as Request,
@@ -127,7 +147,10 @@ describe('ApplicationController', () => {
 
     it('should return 500 when service throws error', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
+      mockReq.file = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      } as Express.Multer.File;
 
       mockApplicationService.createApplication.mockRejectedValue(
         new Error('Database error'),

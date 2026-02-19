@@ -6,10 +6,6 @@ import type {
 import { JobRoleStatus } from '../types/application.types';
 import type { S3Service } from './s3.service';
 
-enum ApplicationStatus {
-  InProgress = 1,
-}
-
 export class ApplicationService {
   private prisma: PrismaClient;
   private s3Service: S3Service;
@@ -19,22 +15,22 @@ export class ApplicationService {
     this.s3Service = s3Service;
   }
 
-  async createApplication(request: CreateApplicationRequest): Promise<boolean> {
+  async createApplication(
+    request: CreateApplicationRequest,
+  ): Promise<Application | null> {
     const { jobRoleId, userId, cvFile } = request;
 
+    // Check if job role exists and is open
     const jobRole = await this.prisma.jobRole.findUnique({
       where: { jobRoleId },
       include: { status: true },
     });
 
     if (!jobRole || jobRole.status.statusName !== JobRoleStatus.Open) {
-      console.log(
-        'Job role is not open for applications. Job role ID:',
-        jobRoleId,
-      );
-      return false;
+      return null;
     }
 
+    // Check if user already applied for this role
     const existingApplication = await this.prisma.application.findFirst({
       where: {
         userId,
@@ -43,26 +39,49 @@ export class ApplicationService {
     });
 
     if (existingApplication) {
-      console.log(
-        'User has already applied for this job role. User ID:',
-        userId,
-        'Job role ID:',
-        jobRoleId,
-      );
-      return false;
+      return null;
     }
 
-    const cvUrl = await this.s3Service.uploadFile(cvFile, userId);
+    // Upload to S3 if file is present
+    let cvUrl: string | undefined;
+    if (cvFile) {
+      cvUrl = await this.s3Service.uploadFile(cvFile, userId);
+    }
 
-    await this.prisma.application.create({
+    // Create application with "Submitted" status (ID: 1 from seed data)
+    const application = await this.prisma.application.create({
       data: {
         userId,
         jobRoleId,
-        applicationStatusId: ApplicationStatus.InProgress,
+        applicationStatusId: 1, // "Submitted" status from seed data
         cvUrl: cvUrl,
       },
     });
+    console.log(
+      'Created application:',
+      application.applicationId,
+      'for user',
+      userId,
+      'job role',
+      jobRoleId,
+    );
+    return application;
+  }
 
-    return true;
+  async hasUserApplied(userId: number, jobRoleId: number): Promise<boolean> {
+    console.log(
+      'Checking if user',
+      userId,
+      'has applied for job role',
+      jobRoleId,
+    );
+    const application = await this.prisma.application.findFirst({
+      where: { userId, jobRoleId },
+    });
+    console.log(
+      'Found application:',
+      application ? `ID: ${application.applicationId}` : 'none',
+    );
+    return !!application;
   }
 }

@@ -24,8 +24,12 @@ export default function applicationRoutes(
 ) {
   const router = Router();
 
-  router.post('/', upload.single('cv'), (req: Request, res: Response) =>
-    applicationController.createApplication(req, res),
+  router.post(
+    '/',
+    authMiddleware(),
+    upload.single('cv'),
+    (req: Request, res: Response) =>
+      applicationController.createApplication(req, res),
   );
 
   return router;

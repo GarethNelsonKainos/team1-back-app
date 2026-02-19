@@ -65,10 +65,16 @@ describe('ApplicationService', () => {
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toBe(true);
+      expect(result).toEqual({
+        applicationId: 1,
+        jobRoleId: 1,
+        userId: 1,
+        applicationStatusId: 1,
+        createdAt: expect.any(Date),
+      });
     });
 
-    it('should return false when job role does not exist', async () => {
+    it('should return null when job role does not exist', async () => {
       const mockFile = {
         buffer: Buffer.from('test'),
         originalname: 'test.pdf',
@@ -78,10 +84,10 @@ describe('ApplicationService', () => {
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toBe(false);
+      expect(result).toBeNull();
     });
 
-    it('should return false when job role is closed', async () => {
+    it('should return null when job role is closed', async () => {
       const mockFile = {
         buffer: Buffer.from('test'),
         originalname: 'test.pdf',
@@ -95,33 +101,10 @@ describe('ApplicationService', () => {
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toBe(false);
+      expect(result).toBeNull();
     });
 
-    it('should return false when user has already applied', async () => {
-      const mockFile = {
-        buffer: Buffer.from('test'),
-        originalname: 'test.pdf',
-      };
-      const request = { jobRoleId: 1, userId: 1, cvFile: mockFile };
-      mockPrisma.jobRole.findUnique.mockResolvedValue({
-        jobRoleId: 1,
-        roleName: 'Software Engineer',
-        status: { statusName: 'Open' },
-      });
-
-      mockPrisma.application.findFirst.mockResolvedValue({
-        applicationId: 1,
-        jobRoleId: 1,
-        userId: 1,
-      });
-
-      const result = await applicationService.createApplication(request);
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false when user has already applied', async () => {
+    it('should return null when user has already applied', async () => {
       const mockFile = {
         buffer: Buffer.from('test'),
         originalname: 'test.pdf',
@@ -145,7 +128,7 @@ describe('ApplicationService', () => {
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toBe(false);
+      expect(result).toBeNull();
       expect(mockPrisma.application.create).not.toHaveBeenCalled();
     });
   });
