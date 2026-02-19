@@ -48,7 +48,7 @@ model Location {
 model JobRoleLocation {
   jobRoleId  Int
   locationId Int
-  jobRole    JobRole  @relation(fields: [jobRoleId], references: [jobRoleId])
+  jobRole    JobRole  @relation(fields: [jobRoleId], references: [jobRoleId], onDelete: Cascade)
   location   Location @relation(fields: [locationId], references: [locationId])
 
   @@id([jobRoleId, locationId])
@@ -90,6 +90,6 @@ model Application {
   applicationStatusId Int
   createdAt           DateTime          @default(now())
   user                User              @relation(fields: [userId], references: [userId])
-  jobRole             JobRole           @relation(fields: [jobRoleId], references: [jobRoleId])
+  jobRole             JobRole           @relation(fields: [jobRoleId], references: [jobRoleId], onDelete: Cascade)
   status              ApplicationStatus @relation(fields: [applicationStatusId], references: [applicationStatusId])
 }

@@ -22,6 +22,17 @@ class JobRoleService {
     return JobRoleMapper.mapToJobRoleDetailedResponse(jobRole);
   }
 
+  /**
+   * Deletes a job role and all associated applications (hard delete).
+   * Throws if the job role does not exist or id is invalid.
+   */
+  async deleteJobRole(id: number): Promise<void> {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('Invalid job role ID');
+    }
+    await this.jobRoleDAO.deleteJobRole(id);
+  }
+
   async createJobRole(data: CreateJobRoleRequest) {
     const closingDate = new Date(data.closingDate);
 

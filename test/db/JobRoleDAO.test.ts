@@ -3,6 +3,27 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { JobRoleDAO } from '../../src/db/JobRoleDAO';
 import ValidationError from '../../src/errors/ValidationError';
 
+const mockJobRoles = [
+  {
+    jobRoleId: 1,
+    roleName: 'Software Engineer',
+    locations: [{ location: { locationName: 'London' } }],
+    capability: { capabilityName: 'Engineering' },
+    band: { bandName: 'Mid' },
+    closingDate: new Date('2026-03-15'),
+    status: { statusName: 'Open' },
+  },
+  {
+    jobRoleId: 2,
+    roleName: 'Data Analyst',
+    locations: [{ location: { locationName: 'Manchester' } }],
+    capability: { capabilityName: 'Data' },
+    band: { bandName: 'Junior' },
+    closingDate: new Date('2026-04-01'),
+    status: { statusName: 'Open' },
+  },
+];
+
 describe('JobRoleDAO - New Methods', () => {
   let jobRoleDAO: JobRoleDAO;
   let mockPrisma: {
@@ -283,6 +304,55 @@ describe('JobRoleDAO - New Methods', () => {
         orderBy: { locationName: 'asc' },
       });
       expect(result).toEqual(mockLocations);
+    });
+  });
+});
+describe('JobRoleDAO', () => {
+  describe('deleteJobRole', () => {
+    it('should delete a job role successfully', async () => {
+      const mockPrisma = {
+        jobRole: {
+          delete: vi.fn().mockResolvedValue({ jobRoleId: 5 }),
+        },
+      } as unknown as PrismaClient;
+
+      const dao = new JobRoleDAO(mockPrisma);
+      await dao.deleteJobRole(5);
+
+      expect(mockPrisma.jobRole.delete).toHaveBeenCalledWith({
+        where: { jobRoleId: 5 },
+      });
+    });
+
+    it('should delete job role and cascade delete dependent records via database constraints', async () => {
+      const mockPrisma = {
+        jobRole: {
+          delete: vi.fn().mockResolvedValue({ jobRoleId: 5 }),
+        },
+      } as unknown as PrismaClient;
+
+      const dao = new JobRoleDAO(mockPrisma);
+      await dao.deleteJobRole(5);
+
+      expect(mockPrisma.jobRole.delete).toHaveBeenCalledWith({
+        where: { jobRoleId: 5 },
+      });
+    });
+
+    it('should throw error when job role does not exist', async () => {
+      const prismaError = Object.assign(new Error('Record not found'), {
+        code: 'P2025',
+      });
+
+      const mockPrisma = {
+        jobRole: {
+          delete: vi.fn().mockRejectedValue(prismaError),
+        },
+      } as unknown as PrismaClient;
+
+      const dao = new JobRoleDAO(mockPrisma);
+
+      await expect(dao.deleteJobRole(999999)).rejects.toThrow();
     });
   });
 });
