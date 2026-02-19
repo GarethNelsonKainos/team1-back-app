@@ -49,23 +49,10 @@ export class ApplicationController {
         return;
       }
 
-      // Check if this is a JavaScript/AJAX request vs traditional form submission
-      const isJavaScriptRequest =
-        req.headers.authorization ||
-        req.headers['x-requested-with'] === 'XMLHttpRequest' ||
-        req.headers.accept?.includes('application/json');
-      if (isJavaScriptRequest) {
-        // JavaScript/AJAX request - return JSON response
-        res.status(201).json({
-          message: 'Application submitted successfully',
-          application: result,
-        });
-      } else {
-        // Traditional form submission - redirect to success page
-        res.redirect(
-          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/application-success`,
-        );
-      }
+      res.status(201).json({
+        message: 'Application submitted successfully',
+        application: result,
+      });
     } catch (error) {
       console.error('Error creating application:', error);
       res.status(500).json({ error: 'Internal server error' });
