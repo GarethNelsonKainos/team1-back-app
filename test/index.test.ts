@@ -1,5 +1,10 @@
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('../src/services/s3.service.js', () => ({
+  S3Service: vi.fn().mockImplementation(() => ({ uploadFile: vi.fn() })),
+}));
+
 import app from '../src/index';
 
 describe('Backend API', () => {

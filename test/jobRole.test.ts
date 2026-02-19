@@ -25,6 +25,11 @@ const mockJobRoles = [
   },
 ];
 
+// Mock S3Service to avoid AWS env var requirement
+vi.mock('../src/services/s3.service.js', () => ({
+  S3Service: vi.fn().mockImplementation(() => ({ uploadFile: vi.fn() })),
+}));
+
 // Mock the Prisma client before importing the app
 vi.mock('../src/db/prisma.js', () => ({
   prisma: {

@@ -3,6 +3,10 @@ import type { Express } from 'express';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('../src/services/s3.service.js', () => ({
+  S3Service: vi.fn().mockImplementation(() => ({ uploadFile: vi.fn() })),
+}));
+
 describe('Application Environment Configuration', () => {
   let app: Express;
 
