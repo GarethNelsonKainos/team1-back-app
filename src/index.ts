@@ -7,6 +7,9 @@ import jobRoleRoutes from './routes/JobRoleRoutes';
 import applicationRoutes from './routes/application.routes';
 import authRouter from './routes/authRouter';
 import { AuthService } from './services/AuthService';
+import { ApplicationController } from './controllers/ApplicationController.js';
+import { ApplicationService } from './services/application.service.js';
+import { S3Service } from './services/s3.service.js';
 
 dotenv.config();
 
@@ -14,6 +17,7 @@ const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;
 
 const authController = new AuthController(new AuthService(prisma));
+const applicationController = new ApplicationController(new ApplicationService(prisma, new S3Service()));
 
 app.use(
   cors({
@@ -31,9 +35,7 @@ app.use('/api/auth', authRouter(authController));
 
 app.use('/api', jobRoleRoutes);
 
-app.use('/api/auth', authRouter(authController));
-app.use('/api', jobRoleRoutes);
-app.use('/api/applications', applicationRoutes);
+app.use('/api/applications', applicationRoutes(applicationController));
 
 // Health check route
 app.get('/health', (req, res) => {

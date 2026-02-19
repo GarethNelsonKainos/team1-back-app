@@ -48,8 +48,6 @@ export class S3Service {
 
     await this.s3Client.send(command);
 
-    // Return S3 URL
-    //TODO check this works
     return `https://${this.bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
   }
 }
