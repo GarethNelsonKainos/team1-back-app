@@ -24,7 +24,7 @@ export interface LoginResponse {
 declare global {
   namespace Express {
     interface Request {
-      user?: JWTPayload;
+      user: JWTPayload;
     }
   }
 }

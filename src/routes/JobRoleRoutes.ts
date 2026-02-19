@@ -14,9 +14,7 @@ const jobRoleService = new JobRoleService(jobRoleDAO);
 const jobRoleController = new JobRoleController(jobRoleService);
 
 // Job Roles API routes
-router.get('/job-roles', authMiddleware(), (req, res) =>
-  jobRoleController.getJobRoles(req, res),
-);
+router.get('/job-roles', (req, res) => jobRoleController.getJobRoles(req, res));
 
 // Delete job role (admin only)
 router.delete(
