@@ -1,15 +1,14 @@
 import { type Request, type Response, Router } from 'express';
 import multer from 'multer';
-import { ApplicationController } from '../controllers/ApplicationController';
+import type { ApplicationController } from '../controllers/ApplicationController';
 import { authMiddleware } from '../middleware/auth.middleware';
-
 
 const FIVE_MEGAYTES = 5 * 1024 * 1024;
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: FIVE_MEGAYTES
+    fileSize: FIVE_MEGAYTES,
   },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
@@ -20,14 +19,14 @@ const upload = multer({
   },
 });
 
-export default function applicationRoutes(applicationController: ApplicationController) {
+export default function applicationRoutes(
+  applicationController: ApplicationController,
+) {
   const router = Router();
 
-  router.post(
-    '/',
-    upload.single('cv'),
-    (req: Request, res: Response) => applicationController.createApplication(req, res),
+  router.post('/', upload.single('cv'), (req: Request, res: Response) =>
+    applicationController.createApplication(req, res),
   );
 
   return router;
-};
+}

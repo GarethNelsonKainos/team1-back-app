@@ -19,9 +19,7 @@ export class ApplicationService {
     this.s3Service = s3Service;
   }
 
-  async createApplication(
-    request: CreateApplicationRequest,
-  ): Promise<boolean> {
+  async createApplication(request: CreateApplicationRequest): Promise<boolean> {
     const { jobRoleId, userId, cvFile } = request;
 
     const jobRole = await this.prisma.jobRole.findUnique({
@@ -30,7 +28,10 @@ export class ApplicationService {
     });
 
     if (!jobRole || jobRole.status.statusName !== JobRoleStatus.Open) {
-      console.log('Job role is not open for applications. Job role ID:', jobRoleId);
+      console.log(
+        'Job role is not open for applications. Job role ID:',
+        jobRoleId,
+      );
       return false;
     }
 
@@ -42,7 +43,12 @@ export class ApplicationService {
     });
 
     if (existingApplication) {
-      console.log('User has already applied for this job role. User ID:', userId, 'Job role ID:', jobRoleId);
+      console.log(
+        'User has already applied for this job role. User ID:',
+        userId,
+        'Job role ID:',
+        jobRoleId,
+      );
       return false;
     }
 

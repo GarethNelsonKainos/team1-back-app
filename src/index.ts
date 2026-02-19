@@ -1,13 +1,13 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import { ApplicationController } from './controllers/ApplicationController.js';
 import AuthController from './controllers/AuthController.js';
 import { prisma } from './db/prisma';
 import jobRoleRoutes from './routes/JobRoleRoutes';
 import applicationRoutes from './routes/application.routes';
 import authRouter from './routes/authRouter';
 import { AuthService } from './services/AuthService';
-import { ApplicationController } from './controllers/ApplicationController.js';
 import { ApplicationService } from './services/application.service.js';
 import { S3Service } from './services/s3.service.js';
 
@@ -17,7 +17,9 @@ const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;
 
 const authController = new AuthController(new AuthService(prisma));
-const applicationController = new ApplicationController(new ApplicationService(prisma, new S3Service()));
+const applicationController = new ApplicationController(
+  new ApplicationService(prisma, new S3Service()),
+);
 
 app.use(
   cors({

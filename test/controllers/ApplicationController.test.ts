@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApplicationController } from '../../src/controllers/ApplicationController';
 import type { ApplicationService } from '../../src/services/application.service';
-import { UserRole } from '../../src/types/auth.types';
 import * as FeatureFlags from '../../src/utils/FeatureFlags';
 
 vi.mock('../../src/utils/FeatureFlags');
@@ -13,37 +12,26 @@ describe('ApplicationController', () => {
   let mockRes: Partial<Response>;
   let statusMock: ReturnType<typeof vi.fn>;
   let jsonMock: ReturnType<typeof vi.fn>;
-  let redirectMock: ReturnType<typeof vi.fn>;
   let mockApplicationService: {
     createApplication: ReturnType<typeof vi.fn>;
-    hasUserApplied: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     statusMock = vi.fn().mockReturnThis();
     jsonMock = vi.fn();
-    redirectMock = vi.fn();
 
     mockRes = {
       status: statusMock,
       json: jsonMock,
-      redirect: redirectMock,
     };
 
     mockReq = {
       body: {},
-      user: undefined,
-      headers: {
-        // Set headers to indicate this is a JavaScript request
-        authorization: 'Bearer token',
-        accept: 'application/json',
-      },
-      params: {},
+      file: undefined,
     };
 
     mockApplicationService = {
       createApplication: vi.fn(),
-      hasUserApplied: vi.fn(),
     };
 
     controller = new ApplicationController(
@@ -54,27 +42,11 @@ describe('ApplicationController', () => {
   });
 
   describe('createApplication', () => {
-    it('should create application successfully for valid applicant', async () => {
+    it('should create application successfully with valid data', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.user = {
-        userId: 1,
-        email: 'test@example.com',
-        userRole: UserRole.Applicant,
-        firstName: 'Test',
-        lastName: 'User',
-      };
+      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
 
-      const expectedApplication = {
-        applicationId: 1,
-        jobRoleId: 1,
-        userId: 1,
-        applicationStatusId: 1,
-        createdAt: new Date(),
-      };
-
-      mockApplicationService.createApplication.mockResolvedValue(
-        expectedApplication,
-      );
+      mockApplicationService.createApplication.mockResolvedValue(true);
 
       await controller.createApplication(
         mockReq as Request,
@@ -84,43 +56,55 @@ describe('ApplicationController', () => {
       expect(statusMock).toHaveBeenCalledWith(201);
       expect(jsonMock).toHaveBeenCalledWith({
         message: 'Application submitted successfully',
-        application: expectedApplication,
+        application: true,
       });
     });
 
-    it('should return 401 when user not authenticated', async () => {
+    it('should return 400 when service returns false', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.user = undefined;
+      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
+
+      mockApplicationService.createApplication.mockResolvedValue(false);
 
       await controller.createApplication(
         mockReq as Request,
         mockRes as Response,
       );
 
-      expect(statusMock).toHaveBeenCalledWith(401);
+      expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Authentication required',
+        error:
+          'Unable to apply. Role may not be open or you may have already applied.',
       });
     });
 
-    it('should return 403 when user is not an applicant', async () => {
-      mockReq.body = { jobRoleId: 1 };
-      mockReq.user = {
-        userId: 1,
-        email: 'admin@example.com',
-        userRole: UserRole.Admin,
-        firstName: 'Admin',
-        lastName: 'User',
-      };
+    it('should return 400 when job role ID is invalid', async () => {
+      mockReq.body = { jobRoleId: 'invalid' };
+      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
 
       await controller.createApplication(
         mockReq as Request,
         mockRes as Response,
       );
 
-      expect(statusMock).toHaveBeenCalledWith(403);
+      expect(statusMock).toHaveBeenCalledWith(400);
       expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Only applicants can apply for roles',
+        error: 'Invalid job role ID',
+      });
+    });
+
+    it('should return 400 when CV file is missing', async () => {
+      mockReq.body = { jobRoleId: 1 };
+      mockReq.file = undefined;
+
+      await controller.createApplication(
+        mockReq as Request,
+        mockRes as Response,
+      );
+
+      expect(statusMock).toHaveBeenCalledWith(400);
+      expect(jsonMock).toHaveBeenCalledWith({
+        error: 'CV file is required',
       });
     });
 
@@ -128,13 +112,7 @@ describe('ApplicationController', () => {
       vi.mocked(FeatureFlags.isJobApplicationsEnabled).mockReturnValue(false);
 
       mockReq.body = { jobRoleId: 1 };
-      mockReq.user = {
-        userId: 1,
-        email: 'test@example.com',
-        userRole: UserRole.Applicant,
-        firstName: 'Test',
-        lastName: 'User',
-      };
+      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
 
       await controller.createApplication(
         mockReq as Request,
@@ -149,13 +127,7 @@ describe('ApplicationController', () => {
 
     it('should return 500 when service throws error', async () => {
       mockReq.body = { jobRoleId: 1 };
-      mockReq.user = {
-        userId: 1,
-        email: 'test@example.com',
-        userRole: UserRole.Applicant,
-        firstName: 'Test',
-        lastName: 'User',
-      };
+      mockReq.file = { buffer: Buffer.from('test'), originalname: 'test.pdf' };
 
       mockApplicationService.createApplication.mockRejectedValue(
         new Error('Database error'),
@@ -169,51 +141,6 @@ describe('ApplicationController', () => {
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith({
         error: 'Internal server error',
-      });
-    });
-  });
-
-  describe('checkApplicationStatus', () => {
-    it('should return true when user has applied', async () => {
-      mockReq.params = { jobRoleId: '1' };
-      mockReq.user = { userId: 1, userRole: UserRole.Applicant };
-
-      mockApplicationService.hasUserApplied.mockResolvedValue(true);
-
-      await controller.checkApplicationStatus(
-        mockReq as Request,
-        mockRes as Response,
-      );
-
-      expect(jsonMock).toHaveBeenCalledWith({ hasApplied: true });
-    });
-
-    it('should return false when user has not applied', async () => {
-      mockReq.params = { jobRoleId: '1' };
-      mockReq.user = { userId: 1, userRole: UserRole.Applicant };
-
-      mockApplicationService.hasUserApplied.mockResolvedValue(false);
-
-      await controller.checkApplicationStatus(
-        mockReq as Request,
-        mockRes as Response,
-      );
-
-      expect(jsonMock).toHaveBeenCalledWith({ hasApplied: false });
-    });
-
-    it('should return 401 when user not authenticated', async () => {
-      mockReq.params = { jobRoleId: '1' };
-      mockReq.user = undefined;
-
-      await controller.checkApplicationStatus(
-        mockReq as Request,
-        mockRes as Response,
-      );
-
-      expect(statusMock).toHaveBeenCalledWith(401);
-      expect(jsonMock).toHaveBeenCalledWith({
-        error: 'Authentication required',
       });
     });
   });

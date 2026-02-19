@@ -27,7 +27,7 @@ export class ApplicationController {
         return;
       }
 
-      if(!req.file) {
+      if (!req.file) {
         res.status(400).json({ error: 'CV file is required' });
         return;
       }
@@ -39,7 +39,12 @@ export class ApplicationController {
       });
 
       if (!result) {
-        console.error('Failed to create application for user:', userId, 'job role:', roleId);
+        console.error(
+          'Failed to create application for user:',
+          userId,
+          'job role:',
+          roleId,
+        );
 
         res.status(400).json({
           error:
@@ -48,13 +53,17 @@ export class ApplicationController {
         return;
       }
 
-      console.log('Application created successfully for user:', userId, 'job role:', roleId);
+      console.log(
+        'Application created successfully for user:',
+        userId,
+        'job role:',
+        roleId,
+      );
 
       res.status(201).json({
         message: 'Application submitted successfully',
         application: result,
       });
-
     } catch (error) {
       console.error('Error creating application:', error);
       res.status(500).json({ error: 'Internal server error' });

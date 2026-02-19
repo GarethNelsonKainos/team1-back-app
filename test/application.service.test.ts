@@ -40,8 +40,13 @@ describe('ApplicationService', () => {
   });
 
   describe('createApplication', () => {
-    it('should create application successfully when job is open and user hasnt applied', async () => {
-      const request = { jobRoleId: 1, userId: 1 };
+    it('should return true when job is open and user hasnt applied', async () => {
+      const mockFile = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      };
+      const request = { jobRoleId: 1, userId: 1, cvFile: mockFile };
+
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
@@ -49,32 +54,39 @@ describe('ApplicationService', () => {
       });
 
       mockPrisma.application.findFirst.mockResolvedValue(null);
-
-      const expectedApplication = {
+      mockS3Service.uploadFile.mockResolvedValue('s3://bucket/cv.pdf');
+      mockPrisma.application.create.mockResolvedValue({
         applicationId: 1,
         jobRoleId: 1,
         userId: 1,
         applicationStatusId: 1,
         createdAt: new Date(),
-      };
-      mockPrisma.application.create.mockResolvedValue(expectedApplication);
+      });
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toEqual(expectedApplication);
+      expect(result).toBe(true);
     });
 
-    it('should return null when job role does not exist', async () => {
-      const request = { jobRoleId: 999, userId: 1 };
+    it('should return false when job role does not exist', async () => {
+      const mockFile = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      };
+      const request = { jobRoleId: 999, userId: 1, cvFile: mockFile };
       mockPrisma.jobRole.findUnique.mockResolvedValue(null);
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toBeNull();
+      expect(result).toBe(false);
     });
 
-    it('should return null when job role is closed', async () => {
-      const request = { jobRoleId: 1, userId: 1 };
+    it('should return false when job role is closed', async () => {
+      const mockFile = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      };
+      const request = { jobRoleId: 1, userId: 1, cvFile: mockFile };
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
@@ -83,11 +95,15 @@ describe('ApplicationService', () => {
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toBeNull();
+      expect(result).toBe(false);
     });
 
-    it('should return null when user has already applied', async () => {
-      const request = { jobRoleId: 1, userId: 1 };
+    it('should return false when user has already applied', async () => {
+      const mockFile = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      };
+      const request = { jobRoleId: 1, userId: 1, cvFile: mockFile };
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
         roleName: 'Software Engineer',
@@ -102,11 +118,15 @@ describe('ApplicationService', () => {
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toBeNull();
+      expect(result).toBe(false);
     });
 
-    it('should prevent duplicate applications for same user and job role', async () => {
-      const request = { jobRoleId: 1, userId: 1 };
+    it('should return false when user has already applied', async () => {
+      const mockFile = {
+        buffer: Buffer.from('test'),
+        originalname: 'test.pdf',
+      };
+      const request = { jobRoleId: 1, userId: 1, cvFile: mockFile };
 
       mockPrisma.jobRole.findUnique.mockResolvedValue({
         jobRoleId: 1,
@@ -125,7 +145,7 @@ describe('ApplicationService', () => {
 
       const result = await applicationService.createApplication(request);
 
-      expect(result).toBeNull();
+      expect(result).toBe(false);
       expect(mockPrisma.application.create).not.toHaveBeenCalled();
     });
   });
