@@ -14,9 +14,16 @@ export function parseError(error: unknown): {
   }
 
   // Handle custom errors with specific messages
-  if (error instanceof Error || (typeof error === 'object' && error !== null && 'message' in error)) {
-    const errorMessage = (error instanceof Error ? error.message : (error as { message: unknown }).message) as string;
-    
+  if (
+    error instanceof Error ||
+    (typeof error === 'object' && error !== null && 'message' in error)
+  ) {
+    const errorMessage = (
+      error instanceof Error
+        ? error.message
+        : (error as { message: unknown }).message
+    ) as string;
+
     if (errorMessage === 'Invalid job role ID') {
       console.log('Validation error:', errorMessage);
       return { message: 'Invalid job role ID', statusCode: 400 };
