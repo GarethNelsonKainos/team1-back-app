@@ -4,7 +4,7 @@
  */
 
 export const FEATURE_FLAGS = {
-  ADMIN_CREATE_JOB_ROLE: process.env.FEATURE_ADMIN_CREATE_JOB_ROLE === 'true',
+  ADMIN_CREATE_JOB_ROLE: process.env.ENABLE_ADD_JOB_ROLE === 'true',
 };
 
 /**
@@ -32,6 +32,6 @@ export function isAdminCreateJobRoleEnabled(): boolean {
 export function getAllFlags(): Record<string, boolean> {
   return {
     jobApplications: isJobApplicationsEnabled(),
-    adminCreateJobRole: FEATURE_FLAGS.ADMIN_CREATE_JOB_ROLE,
+    adminCreateJobRole: isAdminCreateJobRoleEnabled(),
   };
 }
