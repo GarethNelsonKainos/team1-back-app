@@ -3,6 +3,7 @@ import ValidationError from '../errors/ValidationError.js';
 import type { JobRoleService } from '../services/JobRoleService.js';
 import { FEATURE_FLAGS } from '../utils/FeatureFlags.js';
 import { validateCreateJobRole } from '../utils/validation.utils.js';
+import { parseError } from '../utils/error.utils.js';
 
 class JobRoleController {
   private jobRoleService: JobRoleService;
@@ -111,25 +112,9 @@ class JobRoleController {
       await this.jobRoleService.deleteJobRole(id);
       res.status(204).send();
     } catch (error: unknown) {
-      // Narrow error type for safe property access
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        ('code' in error || 'message' in error)
-      ) {
-        const errObj = error as { code?: string; message?: string };
-        if (errObj.code === 'P2025' || errObj.message?.includes('not found')) {
-          res.status(404).json({ error: 'Job role not found' });
-          return;
-        }
-
-        if (errObj.message === 'Invalid job role ID') {
-          res.status(400).json({ error: 'Invalid job role ID' });
-          return;
-        }
-      }
+      const { message, statusCode } = parseError(error);
       console.error('Error deleting job role:', error);
-      res.status(500).json({ error: 'Failed to delete job role' });
+      res.status(statusCode).json({ error: message });
     }
   }
 }
