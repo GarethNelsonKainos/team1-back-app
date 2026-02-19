@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { JobRoleController } from '../controllers/JobRoleController.js';
 import { JobRoleDAO } from '../db/JobRoleDAO.js';
@@ -15,6 +16,14 @@ const jobRoleController = new JobRoleController(jobRoleService);
 // Job Roles API routes
 router.get('/job-roles', authMiddleware(), (req, res) =>
   jobRoleController.getJobRoles(req, res),
+);
+
+// Delete job role (admin only)
+router.delete(
+  '/job-roles/:id',
+  requireAdmin(),
+  // adminAuthMiddleware,
+  (req: Request, res: Response) => jobRoleController.deleteJobRole(req, res),
 );
 
 router.get('/job-roles/:id', authMiddleware(), (req, res) =>

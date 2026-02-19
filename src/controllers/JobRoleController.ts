@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import ValidationError from '../errors/ValidationError.js';
 import type { JobRoleService } from '../services/JobRoleService.js';
 import { FEATURE_FLAGS } from '../utils/FeatureFlags.js';
+import { parseError } from '../utils/error.utils.js';
 import { validateCreateJobRole } from '../utils/validation.utils.js';
 
 class JobRoleController {
@@ -95,6 +96,26 @@ class JobRoleController {
       res.status(500).json({ error: 'Failed to fetch locations' });
     }
   }
-}
 
+  /**
+   * Handles DELETE /job-roles/:id
+   */
+  async deleteJobRole(req: Request, res: Response): Promise<void> {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'Invalid job role ID' });
+      return;
+    }
+
+    try {
+      await this.jobRoleService.deleteJobRole(id);
+      res.status(204).send();
+    } catch (error: unknown) {
+      const { message, statusCode } = parseError(error);
+      console.error('Error deleting job role:', error);
+      res.status(statusCode).json({ error: message });
+    }
+  }
+}
 export { JobRoleController };

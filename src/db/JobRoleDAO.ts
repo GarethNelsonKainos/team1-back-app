@@ -58,6 +58,14 @@ class JobRoleDAO {
     });
   }
 
+  /**
+   * Deletes a job role (hard delete). Database cascades handle deletion of related JobRoleLocation and Application records.
+   * Throws if the job role does not exist.
+   */
+  async deleteJobRole(id: number): Promise<void> {
+    await this.prisma.jobRole.delete({ where: { jobRoleId: id } });
+  }
+
   async createJobRole(data: {
     roleName: string;
     capabilityId: number;
