@@ -30,7 +30,7 @@ async function main() {
       firstName: 'Alice',
       lastName: 'Applicant',
       userEmail: 'alice@example.com',
-      userPassword: '$2a$10$ZdkGAv1fjdii7NS.hBwEYupvx.mCZqkc5diHa7Y7rxOWh9VbPhEPC',
+      userPassword: '$2a$12$eYBOWX9Dy9Kz4tHKifurDuv9l25aaiblH8AKFWimKLk/txJhDNtMy',
       userTypeId: applicantType.userTypeId,
     },
   });
@@ -41,7 +41,7 @@ async function main() {
       firstName: 'Bob',
       lastName: 'Applicant',
       userEmail: 'bob@example.com',
-      userPassword: '$2a$10$vc2l9xB84.0Q0e8mahHhkuX8SI.t.oOlu0L7KYVPNH.tStxUxpzaS',
+      userPassword: '$2a$12$hw7jW1u2dTrQTFXGqaVIeuVbZl8IIf0NIZx8E5W8VoFdHQK7pzJ7y',
       userTypeId: applicantType.userTypeId,
     },
   });
@@ -52,7 +52,7 @@ async function main() {
       firstName: 'Charlie',
       lastName: 'Admin',
       userEmail: 'charlie@example.com',
-      userPassword: '$2a$10$OlqL.GWlsAZaFMJjhugj1um2gVcrpK7a03pcTLlF9iaqMDrcIXpZe',
+      userPassword: '$2a$12$GoHDUNga9WtNagltqn83T.6UKZ/E4d7P64S2saW0Xzd2adzSbbUDa',
       userTypeId: adminType.userTypeId,
     },
   });
