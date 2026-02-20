@@ -1,17 +1,16 @@
+import 'dotenv/config'; // This MUST be first - it's a side-effect import that runs immediately
+
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express from 'express';
 import { ApplicationController } from './controllers/ApplicationController.js';
 import AuthController from './controllers/AuthController.js';
-import { prisma } from './db/prisma';
-import jobRoleRoutes from './routes/JobRoleRoutes';
-import applicationRoutes from './routes/application.routes';
-import authRouter from './routes/authRouter';
-import { AuthService } from './services/AuthService';
+import { prisma } from './db/prisma.js';
+import jobRoleRoutes from './routes/JobRoleRoutes.js';
+import applicationRoutes from './routes/application.routes.js';
+import authRouter from './routes/authRouter.js';
+import { AuthService } from './services/AuthService.js';
 import { ApplicationService } from './services/application.service.js';
 import { S3Service } from './services/s3.service.js';
-
-dotenv.config();
 
 const app = express();
 const PORT: number = Number(process.env.PORT) || 3001;
@@ -27,9 +26,6 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true }));
-
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
 

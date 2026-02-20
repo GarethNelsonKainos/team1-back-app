@@ -30,7 +30,7 @@ async function main() {
       firstName: 'Alice',
       lastName: 'Applicant',
       userEmail: 'alice@example.com',
-      userPassword: '$2a$10$//C/Scp1xYSPqtc0k4SREO1h0/vvYLzST7kmjOvdXwx5SdaaUUmw.',
+      userPassword: '$2a$12$eYBOWX9Dy9Kz4tHKifurDuv9l25aaiblH8AKFWimKLk/txJhDNtMy',
       userTypeId: applicantType.userTypeId,
     },
   });
@@ -41,7 +41,7 @@ async function main() {
       firstName: 'Bob',
       lastName: 'Applicant',
       userEmail: 'bob@example.com',
-      userPassword: '$2a$10$49rho05q509rL7UDu.Yh.uaeAqrS0xm7O.tqNQ1PDkLzVHk5uFCW2',
+      userPassword: '$2a$12$hw7jW1u2dTrQTFXGqaVIeuVbZl8IIf0NIZx8E5W8VoFdHQK7pzJ7y',
       userTypeId: applicantType.userTypeId,
     },
   });
@@ -52,7 +52,7 @@ async function main() {
       firstName: 'Charlie',
       lastName: 'Admin',
       userEmail: 'charlie@example.com',
-      userPassword: '$2a$10$.KBn3imkUThU4MmK/OimH.OnsE0W2hrmXL6LcCNrolveluOWYQ3su',
+      userPassword: '$2a$12$GoHDUNga9WtNagltqn83T.6UKZ/E4d7P64S2saW0Xzd2adzSbbUDa',
       userTypeId: adminType.userTypeId,
     },
   });
@@ -253,6 +253,7 @@ if (alice && jobRoleSoftwareEngineer && applicationStatuses['Submitted']) {
       userId: alice.userId,
       jobRoleId: jobRoleSoftwareEngineer.jobRoleId,
       applicationStatusId: applicationStatuses['Submitted'].applicationStatusId,
+      cvUrl: 'https://example.com/cv/alice-cv.pdf',
     },
   });
 }
@@ -262,7 +263,7 @@ if (alice && jobRoleTestEngineer && applicationStatuses['In Review']) {
       userId: alice.userId,
       jobRoleId: jobRoleTestEngineer.jobRoleId,
       applicationStatusId: applicationStatuses['In Review'].applicationStatusId,
-    },
+      cvUrl: 'https://example.com/cv/alice-cv.pdf',},
   });
 }
 if (bob && jobRoleTechnicalArchitect && applicationStatuses['Offered Interview']) {
@@ -271,6 +272,7 @@ if (bob && jobRoleTechnicalArchitect && applicationStatuses['Offered Interview']
       userId: bob.userId,
       jobRoleId: jobRoleTechnicalArchitect.jobRoleId,
       applicationStatusId: applicationStatuses['Offered Interview'].applicationStatusId,
+      cvUrl: 'https://example.com/cv/bob-cv.pdf',
     },
   });
 }
@@ -280,6 +282,7 @@ if (bob && jobRoleSoftwareEngineer && applicationStatuses['Rejected']) {
       userId: bob.userId,
       jobRoleId: jobRoleSoftwareEngineer.jobRoleId,
       applicationStatusId: applicationStatuses['Rejected'].applicationStatusId,
+      cvUrl: 'https://example.com/cv/bob-cv.pdf',
     },
   });
 }
