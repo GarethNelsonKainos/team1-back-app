@@ -16,6 +16,7 @@ export function authMiddleware(
     const token = extractTokenFromHeader(authHeader);
 
     if (!token) {
+      console.error('No token provided');
       res.status(401).json({ error: 'No token provided' });
       return;
     }
