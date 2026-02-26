@@ -92,7 +92,7 @@ describe('POST /api/applications', () => {
   it('should return 400 when no CV file is provided', async () => {
     const response = await request(app)
       .post('/api/applications')
-      .send({ jobRoleId: 1 });
+      .send({ jobRoleId: VALID_JOB_ROLE_ID });
 
     expect(response.status).toBe(400);
     expect(response.body.error).toBe('CV file is required');
