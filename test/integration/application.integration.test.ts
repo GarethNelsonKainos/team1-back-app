@@ -1,21 +1,19 @@
 import express from 'express';
 import request from 'supertest';
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { ApplicationController } from '../../src/controllers/ApplicationController.js';
 import { prisma } from '../../src/db/prisma.js';
 import applicationRoutes from '../../src/routes/application.routes.js';
 import { ApplicationService } from '../../src/services/application.service.js';
 import { S3Service } from '../../src/services/s3.service.js';
 import { UserRole } from '../../src/types/auth.types.js';
+
+vi.mock('../../src/db/prisma.js', () => ({
+  prisma: {
+    jobRole: { findUnique: vi.fn() },
+    application: { findFirst: vi.fn(), create: vi.fn() },
+  },
+}));
 
 // Bypass JWT verification — auth middleware is tested separately
 vi.mock('../../src/middleware/auth.middleware.js', () => ({
@@ -48,6 +46,20 @@ const TEST_USER_ID = 1;
 const VALID_JOB_ROLE_ID = 1;
 const NONEXISTENT_JOB_ROLE_ID = 99999;
 
+const MOCK_OPEN_JOB_ROLE = {
+  jobRoleId: VALID_JOB_ROLE_ID,
+  status: { statusName: 'Open' },
+};
+
+const MOCK_APPLICATION = {
+  applicationId: 1,
+  userId: TEST_USER_ID,
+  jobRoleId: VALID_JOB_ROLE_ID,
+  applicationStatusId: 1,
+  cvUrl: 'https://s3.example.com/test-cv.pdf',
+  createdAt: new Date(),
+};
+
 const app = express();
 app.use(express.json());
 app.use(
@@ -64,19 +76,15 @@ describe('POST /api/applications', () => {
     process.env.ENABLE_JOB_APPLICATIONS = 'true';
   });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
-  beforeEach(async () => {
-    await prisma.application.deleteMany({ where: { userId: TEST_USER_ID } });
-  });
-
-  afterEach(async () => {
-    await prisma.application.deleteMany({ where: { userId: TEST_USER_ID } });
-  });
-
   it('should return 201 when a valid application is submitted', async () => {
+    vi.mocked(prisma.jobRole.findUnique).mockResolvedValue(
+      MOCK_OPEN_JOB_ROLE as never,
+    );
+    vi.mocked(prisma.application.findFirst).mockResolvedValue(null);
+    vi.mocked(prisma.application.create).mockResolvedValue(
+      MOCK_APPLICATION as never,
+    );
+
     const response = await request(app)
       .post('/api/applications')
       .attach('cv', MOCK_PDF, {
@@ -112,6 +120,8 @@ describe('POST /api/applications', () => {
   });
 
   it('should return 400 when applying for a non-existent job role', async () => {
+    vi.mocked(prisma.jobRole.findUnique).mockResolvedValue(null);
+
     const response = await request(app)
       .post('/api/applications')
       .attach('cv', MOCK_PDF, {
