@@ -1,6 +1,6 @@
-import request from 'supertest';
 import type { PrismaClient } from '@prisma/client';
 import type { Express } from 'express';
+import request from 'supertest';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { comparePasswordMock, findUniqueMock } = vi.hoisted(() => ({
