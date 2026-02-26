@@ -32,7 +32,7 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });
 
 describe('POST /api/auth/login (integration)', () => {
