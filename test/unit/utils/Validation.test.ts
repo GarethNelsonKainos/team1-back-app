@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
   createJobRoleSchema,
   validateCreateJobRole,
-} from '../../src/utils/validation.utils';
+} from '../../../src/utils/validation.utils';
 
 describe('validation.utils', () => {
   describe('validateCreateJobRole', () => {

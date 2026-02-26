@@ -29,7 +29,7 @@ describe('Application Environment Configuration', () => {
       process.env.PORT = undefined;
 
       // Import the app after clearing the environment variable
-      const { default: appModule } = await import('../src/index');
+      const { default: appModule } = await import('../../src/index');
       app = appModule;
 
       const response = await request(app).get('/health');
@@ -41,7 +41,7 @@ describe('Application Environment Configuration', () => {
       process.env.PORT = '';
 
       // Import the app after setting empty PORT
-      const { default: appModule } = await import('../src/index');
+      const { default: appModule } = await import('../../src/index');
       app = appModule;
 
       const response = await request(app).get('/health');
@@ -53,7 +53,7 @@ describe('Application Environment Configuration', () => {
       process.env.PORT = 'invalid';
 
       // Import the app after setting invalid PORT
-      const { default: appModule } = await import('../src/index');
+      const { default: appModule } = await import('../../src/index');
       app = appModule;
 
       const response = await request(app).get('/health');
@@ -65,7 +65,7 @@ describe('Application Environment Configuration', () => {
       process.env.PORT = '4000';
 
       // Import the app after setting valid PORT
-      const { default: appModule } = await import('../src/index');
+      const { default: appModule } = await import('../../src/index');
       app = appModule;
 
       const response = await request(app).get('/health');

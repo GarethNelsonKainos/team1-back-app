@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { S3Service } from '../src/services/s3.service.js';
+import { S3Service } from '../../src/services/s3.service.js';
 
 // Basic S3 service test for MVP - just verify it can be instantiated
 describe('S3Service', () => {

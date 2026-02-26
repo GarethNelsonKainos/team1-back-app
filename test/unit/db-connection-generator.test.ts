@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { buildConnectionStringFromEnv } from '../src/utils/db-connection-generator';
+import { buildConnectionStringFromEnv } from '../../src/utils/db-connection-generator';
 
 describe('buildConnectionStringFromEnv', () => {
   const OLD_ENV = { ...process.env };

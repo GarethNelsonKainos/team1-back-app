@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthService } from '../src/services/AuthService.js';
-import * as jwtUtils from '../src/utils/jwt.utils';
-import * as passwordUtils from '../src/utils/password.utils';
+import { AuthService } from '../../src/services/AuthService.js';
+import * as jwtUtils from '../../src/utils/jwt.utils';
+import * as passwordUtils from '../../src/utils/password.utils';
 
 // Mock the utilities
-vi.mock('../src/utils/jwt.utils');
-vi.mock('../src/utils/password.utils');
+vi.mock('../../src/utils/password.utils');
+vi.mock('../../src/utils/jwt.utils');
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -17,6 +17,8 @@ describe('AuthService', () => {
   };
 
   beforeEach(() => {
+    vi.mocked(passwordUtils.comparePassword).mockResolvedValue(true);
+    vi.mocked(jwtUtils.generateToken).mockReturnValue('mock.token');
     mockPrisma = {
       user: {
         findUnique: vi.fn(),

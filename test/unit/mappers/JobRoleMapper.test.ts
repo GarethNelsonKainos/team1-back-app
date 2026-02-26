@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { RawJobRole } from '../../src/db/JobRoleDAO.js';
-import { JobRoleMapper } from '../../src/mappers/JobRoleMapper.js';
+import type { RawJobRole } from '../../../src/db/JobRoleDAO.js';
+import { JobRoleMapper } from '../../../src/mappers/JobRoleMapper.js';
 
 describe('JobRoleMapper', () => {
   describe('mapToJobRoleResponse', () => {

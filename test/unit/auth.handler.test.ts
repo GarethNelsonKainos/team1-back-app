@@ -2,8 +2,8 @@
 
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import AuthController from '../src/controllers/AuthController.js';
-import type { AuthService } from '../src/services/AuthService.js';
+import AuthController from '../../src/controllers/AuthController.js';
+import type { AuthService } from '../../src/services/AuthService.js';
 
 describe('AuthController', () => {
   let mockReq: Partial<Request>;

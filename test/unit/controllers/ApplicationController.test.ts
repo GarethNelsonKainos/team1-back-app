@@ -1,10 +1,10 @@
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApplicationController } from '../../src/controllers/ApplicationController';
-import type { ApplicationService } from '../../src/services/application.service';
-import * as FeatureFlags from '../../src/utils/FeatureFlags';
+import { ApplicationController } from '../../../src/controllers/ApplicationController';
+import type { ApplicationService } from '../../../src/services/application.service';
+import * as FeatureFlags from '../../../src/utils/FeatureFlags';
 
-vi.mock('../../src/utils/FeatureFlags');
+vi.mock('../../../src/utils/FeatureFlags');
 
 describe('ApplicationController', () => {
   let controller: ApplicationController;
@@ -17,13 +17,13 @@ describe('ApplicationController', () => {
   };
 
   beforeEach(() => {
-    statusMock = vi.fn().mockReturnThis();
     jsonMock = vi.fn();
+    statusMock = vi.fn().mockReturnValue({ json: jsonMock });
 
     mockRes = {
       status: statusMock,
       json: jsonMock,
-    };
+    } as Partial<Response>;
 
     mockReq = {
       body: {},

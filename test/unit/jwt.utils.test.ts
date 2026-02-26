@@ -5,7 +5,7 @@ import {
   extractTokenFromHeader,
   generateToken,
   verifyToken,
-} from '../src/utils/jwt.utils';
+} from '../../src/utils/jwt.utils';
 
 describe('jwt.utils', () => {
   beforeEach(() => {

@@ -2,7 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { Express } from 'express';
 import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { generateToken } from '../src/utils/jwt.utils';
+import { generateToken } from '../../src/utils/jwt.utils.js';
 
 const mockJobRoles = [
   {
@@ -26,12 +26,12 @@ const mockJobRoles = [
 ];
 
 // Mock S3Service to avoid AWS env var requirement
-vi.mock('../src/services/s3.service.js', () => ({
+vi.mock('../../src/services/s3.service.js', () => ({
   S3Service: vi.fn().mockImplementation(() => ({ uploadFile: vi.fn() })),
 }));
 
 // Mock the Prisma client before importing the app
-vi.mock('../src/db/prisma.js', () => ({
+vi.mock('../../src/db/prisma.js', () => ({
   prisma: {
     jobRole: {
       findMany: vi.fn().mockResolvedValue(mockJobRoles),
@@ -44,7 +44,7 @@ let app: Express;
 
 beforeAll(async () => {
   // Import the app after the mock is set up
-  const appModule = await import('../src/index.js');
+  const appModule = await import('../../src/index.js');
   app = appModule.default;
 });
 

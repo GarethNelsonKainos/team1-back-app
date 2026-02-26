@@ -22,5 +22,10 @@ export default defineConfig({
         statements: 80,
       },
     },
+    include: [
+      'test/unit/**/*.test.ts',
+      'test/api/**/*.api.test.ts',
+      'test/integration/**/*.integration.test.ts',
+    ],
   },
 });

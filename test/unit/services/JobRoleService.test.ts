@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { JobRoleDAO } from '../../src/db/JobRoleDAO';
-import { JobRoleService } from '../../src/services/JobRoleService';
+import type { JobRoleDAO } from '../../../src/db/JobRoleDAO';
+import { JobRoleService } from '../../../src/services/JobRoleService';
 
 describe('JobRoleService - New Methods', () => {
   let jobRoleService: JobRoleService;

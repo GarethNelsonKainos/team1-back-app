@@ -1,7 +1,7 @@
 // test/password.utils.test.ts (hypothetical example)
 
 import { describe, expect, it } from 'vitest';
-import { comparePassword, hashPassword } from '../src/utils/password.utils';
+import { comparePassword, hashPassword } from '../../src/utils/password.utils';
 
 describe('password.utils', () => {
   it('hashPassword returns a hash that is not the plain text', async () => {

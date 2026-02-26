@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { LoginRequest } from '../../src/types/auth.types';
-import { validateLoginRequest } from '../../src/validator/LoginValidator';
+import type { LoginRequest } from '../../../src/types/auth.types';
+import { validateLoginRequest } from '../../../src/validator/LoginValidator';
 
 describe('validateLoginRequest', () => {
   it('returns true for valid login request', () => {

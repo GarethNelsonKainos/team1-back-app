@@ -5,7 +5,7 @@ vi.mock('../src/services/s3.service.js', () => ({
   S3Service: vi.fn().mockImplementation(() => ({ uploadFile: vi.fn() })),
 }));
 
-import app from '../src/index';
+import app from '../../src/index';
 
 describe('Backend API', () => {
   describe('GET /health', () => {

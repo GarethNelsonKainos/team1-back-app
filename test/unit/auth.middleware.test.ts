@@ -7,9 +7,9 @@ import {
   requireAdmin,
   requireApplicantOrAdmin,
   requireRole,
-} from '../src/middleware/auth.middleware';
-import { UserRole } from '../src/types/auth.types.js';
-import { generateToken } from '../src/utils/jwt.utils';
+} from '../../src/middleware/auth.middleware.js';
+import { UserRole } from '../../src/types/auth.types.js';
+import { generateToken } from '../../src/utils/jwt.utils.js';
 
 describe('auth.middleware', () => {
   beforeEach(() => {

@@ -1,11 +1,11 @@
 import type { Request, Response } from 'express';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { JobRoleController } from '../../src/controllers/JobRoleController';
-import type { JobRoleService } from '../../src/services/JobRoleService';
-import * as FeatureFlags from '../../src/utils/FeatureFlags';
+import { JobRoleController } from '../../../src/controllers/JobRoleController';
+import type { JobRoleService } from '../../../src/services/JobRoleService';
+import * as FeatureFlags from '../../../src/utils/FeatureFlags';
 
 // Mock validation
-vi.mock('../../src/utils/validation.utils', () => ({
+vi.mock('../../../src/utils/validation.utils', () => ({
   validateCreateJobRole: vi.fn((data) => data),
 }));
 
@@ -23,6 +23,9 @@ describe('JobRoleController', () => {
   };
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
+  let jsonSpy: ReturnType<typeof vi.fn>;
+  let statusSpy: ReturnType<typeof vi.fn>;
+  let sendSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     // Mock FEATURE_FLAGS as enabled by default
@@ -46,10 +49,21 @@ describe('JobRoleController', () => {
       params: {},
     };
 
+    jsonSpy = vi.fn();
+    sendSpy = vi.fn();
+    statusSpy = vi.fn();
+
     mockResponse = {
-      json: vi.fn().mockReturnThis(),
-      status: vi.fn().mockReturnThis(),
-      send: vi.fn().mockReturnThis(),
+      status: statusSpy,
+      json: jsonSpy,
+      send: sendSpy,
+    } as unknown as Response;
+
+    statusSpy.mockReturnValue(mockResponse);
+
+    mockRequest = {
+      body: {},
+      params: {},
     };
 
     jobRoleController = new JobRoleController(
@@ -87,8 +101,8 @@ describe('JobRoleController', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(201);
-      expect(mockResponse.json).toHaveBeenCalledWith(mockResult);
+      expect(statusSpy).toHaveBeenCalledWith(201);
+      expect(jsonSpy).toHaveBeenCalledWith(mockResult);
     });
 
     it('should return 400 on validation error', async () => {
@@ -104,8 +118,8 @@ describe('JobRoleController', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
+      expect(statusSpy).toHaveBeenCalledWith(400);
+      expect(jsonSpy).toHaveBeenCalledWith({
         error: 'Validation failed',
       });
     });
@@ -122,8 +136,8 @@ describe('JobRoleController', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({
+      expect(statusSpy).toHaveBeenCalledWith(500);
+      expect(jsonSpy).toHaveBeenCalledWith({
         error: 'Failed to create job role',
       });
     });
@@ -143,12 +157,13 @@ describe('JobRoleController', () => {
         mockResponse as Response,
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({
+      expect(statusSpy).toHaveBeenCalledWith(404);
+      expect(jsonSpy).toHaveBeenCalledWith({
         error: 'Feature not available',
       });
     });
   });
+
   describe('getBands', () => {
     it('should return all bands', async () => {
       const mockBands = [
