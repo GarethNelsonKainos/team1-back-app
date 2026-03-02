@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY prisma/ ./prisma/
-RUN npm ci && npx prisma generate
+RUN npm ci && npx prisma generate --no-engine
 
 COPY tsconfig.json ./
 COPY src/ ./src/
@@ -18,10 +18,14 @@ FROM node:22-alpine AS production
 WORKDIR /app
 
 COPY package*.json ./
-COPY prisma/ ./prisma/
-# dotenv is in devDependencies but used in production code, so keep all deps.
-RUN npm ci && npx prisma generate
+# dotenv is now in dependencies so we can safely omit devDeps.
+# prisma CLI (devDep) is not needed here — we copy the pre-generated
+# client from the builder stage instead of re-running prisma generate.
+RUN npm ci --omit=dev && npm cache clean --force
 
+# Copy the Prisma-generated query engine from the builder — this is what
+# @prisma/client uses at runtime to talk to the database.
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 3001
