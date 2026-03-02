@@ -1,6 +1,7 @@
 services:
   backend:
     build: .
+    image: academyacrj3r5dv.azurecr.io/ethan-campbell/team1-back-app:latest
     ports:
       - "3001:3001"
     env_file:
