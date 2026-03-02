@@ -25,8 +25,10 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 # Copy the Prisma-generated query engine from the builder — this is what
 # @prisma/client uses at runtime to talk to the database.
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/dist ./dist
+COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=node:node /app/dist ./dist
+
+USER node
 
 EXPOSE 3001
 
