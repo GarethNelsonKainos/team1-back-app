@@ -127,6 +127,30 @@ $$;
 
 
 
+## Running with Docker
+
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) to be installed and running.
+
+Also requires your local PostgreSQL to be running, as the container connects to it via `host.docker.internal`.
+
+```bash
+DB_USER=<your-pg-username> docker compose up -d   # Build image and start container
+docker compose logs -f                             # Follow logs
+docker compose down                                # Stop and remove container
+```
+ 
+Alternatively, add `DB_USER=<your-pg-username>` to your `.env` file and then it's just:
+
+```bash
+docker compose up -d
+```
+
+API will be available at http://localhost:3001. Health check: http://localhost:3001/health.
+
+> **Note:** Make sure you have run the database migrations and seed before starting — Docker connects to the same local database as the non-containerised setup.
+
+---
+
 ## Linting
 
 This project uses **Biome** for fast, comprehensive code linting and formatting.
