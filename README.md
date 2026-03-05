@@ -138,7 +138,7 @@ DB_USER=<your-pg-username> docker compose up -d   # Build image and start contai
 docker compose logs -f                             # Follow logs
 docker compose down                                # Stop and remove container
 ```
-
+ 
 Alternatively, add `DB_USER=<your-pg-username>` to your `.env` file and then it's just:
 
 ```bash
